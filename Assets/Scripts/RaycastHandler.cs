@@ -7,10 +7,19 @@ using UnityEngine.EventSystems;
 
 public class RaycastHandler : MonoBehaviour
 {
+    public struct MouseHit{
+        public string ID;
+        public Transform transform;
+        public Vector3 point;
+    }
     [SerializeField]  GraphicRaycaster m_Raycaster;
     PointerEventData m_PointerEventData;
     [SerializeField] EventSystem m_EventSystem;
     [SerializeField] RectTransform canvasRect;
+    Draw draw;
+    void Start(){
+        draw = FindObjectOfType<Draw>();
+    }
     public Transform GetUI()
     {
         m_PointerEventData = new PointerEventData(m_EventSystem);
@@ -19,6 +28,23 @@ public class RaycastHandler : MonoBehaviour
         m_Raycaster.Raycast(m_PointerEventData, results);
         return (results.Count==0 ? null : results[0].gameObject.transform);
     }
-
-    
+    public bool isMouseOverUI(){
+        return EventSystem.current.IsPointerOverGameObject();
+    }
+    public KeyValuePair<Vector3, Vector3> MouseToRay(){
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        return new KeyValuePair<Vector3, Vector3>(draw.calc.swapYZ(ray.origin), draw.calc.swapYZ(ray.GetPoint(1)));
+    }
+    public MouseHit Hit(){
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        var result = new MouseHit();
+        if (Physics.Raycast(ray, out hit)){
+            result.ID = hit.collider.name;
+            result.transform = hit.collider.transform;
+            result.point = hit.point;
+        }
+        if (result.ID == null) result.ID = "Background";
+        return result;
+    }
 }

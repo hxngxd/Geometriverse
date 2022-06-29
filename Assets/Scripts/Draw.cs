@@ -1,18 +1,41 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
+using TMPro;
 public class Draw : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+    public IDHandler idhandler;
+    public Transform hierContent;
+    public Hierarchy hier;
+    public Create3DObjects obj;
+    public CreateUIObjects uiobj;
+    public RaycastHandler raycast;
+    public MouseHandler mouse;
+    public Calculate calc;
+    public drawPoint point;
+    public drawLine line;
+    public bool drawing = false;
+    public Coroutine current = null;
+    public void Point(){
+        Refresh();
+        current = StartCoroutine(point.Okay());
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+    public void Line(){
+        Refresh();
+        current = StartCoroutine(line.Okay());
+    }
+    public void Refresh(){
+        drawing = false;
+        Cancel();
+        current = null;
+    }
+    public void Cancel(){
+        if (current != null){
+            StopCoroutine(current);
+            hier.RemoveCurrentObjects();
+        }
+        drawing = false;
     }
 }

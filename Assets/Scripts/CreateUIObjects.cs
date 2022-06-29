@@ -23,7 +23,7 @@ public class CreateUIObjects : MonoBehaviour
         button.localScale = Vector3.one;
         SetText(button.Find("TextBG/Text"), name);
         button.name = name;
-        listener.Add_Button(button.GetComponent<Button>(), onClick);
+        button.GetComponent<Button>().onClick.AddListener(delegate {onClick();});
         button.GetComponent<Image>().sprite = icon;
     }
     public void DockDivider(Transform parent){

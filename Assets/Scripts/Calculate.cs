@@ -1,12 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
 public class Calculate : MonoBehaviour
 {
     void Start()
     {
         
+    }
+    public KeyValuePair<Vector3, Vector3> Duong_vuong_goc_chung(KeyValuePair<Vector3, Vector3> firstLine, KeyValuePair<Vector3, Vector3> secondLine){
+        var u1 = firstLine.Value - firstLine.Key;
+        var u2 = secondLine.Value - secondLine.Key;
+        var A = DenseMatrix.OfArray(new double[,]{
+            {-sqr(Vector3.Distance(Vector3.zero, u1)), Vector3.Dot(u1, u2)},
+            {-Vector3.Dot(u1,u2), sqr(Vector3.Distance(Vector3.zero, u2))},
+        });
+        var B = DenseMatrix.OfArray(new double[,]{
+            {- u1.x*(secondLine.Key.x - firstLine.Key.x) - u1.y*(secondLine.Key.y - firstLine.Key.y) - u1.z*(secondLine.Key.z - firstLine.Key.z)},
+            {- u2.x*(secondLine.Key.x - firstLine.Key.x) - u2.y*(secondLine.Key.y - firstLine.Key.y) - u2.z*(secondLine.Key.z - firstLine.Key.z)},
+        });
+        var res = A.Inverse().Multiply(B);
+        var t1 = (float)res.Row(0)[0];
+        var t2 = (float)res.Row(1)[0];
+        return new KeyValuePair<Vector3, Vector3>(new Vector3(firstLine.Key.x+u1.x*t1, firstLine.Key.y+u1.y*t1, firstLine.Key.z+u1.z*t1), new Vector3(secondLine.Key.x+u2.x*t2, secondLine.Key.y+u2.y*t2, secondLine.Key.z+u2.z*t2));
     }
     //Hinh chieu
     public Vector3 HC_diem_len_duong_thang(Vector3 A, KeyValuePair<Vector3, Vector3> Line){
@@ -19,6 +36,27 @@ public class Calculate : MonoBehaviour
     //Khoang cach
     public float KC_diem_duong_thang(Vector3 A, KeyValuePair<Vector3, Vector3> Line){
         return Vector3.Distance(A, HC_diem_len_duong_thang(A, Line));
+    }
+    public Vector3 KC_sang_toa_do(Vector3 center, Vector3 originPos, float dist){
+        if (dist==0f) return originPos;
+        if (Vector3.Distance(originPos, center)==0){
+            originPos.x += 1;
+            return KC_sang_toa_do(center, originPos, dist);
+        }
+        float k = dist/Vector3.Distance(originPos, center);
+        return Dilation(center, originPos, k);
+    }
+    public Vector3 Translate(Vector3 center, Vector3 originPos){
+        return originPos+center;
+    }
+    public Vector3 I_Translate(Vector3 center, Vector3 originPos){
+        return originPos-center;
+    }
+    public Vector3 Dilation(Vector3 center, Vector3 originPos, float k){
+        return new Vector3(k*(originPos.x-center.x) + center.x, k*(originPos.y-center.y) + center.y, k*(originPos.z-center.z) + center.z);
+    }
+    public  Vector3 I_Dilation(Vector3 center, Vector3 originPos, float k){
+        return new Vector3((1f/k)*(originPos.x-center.x) + center.x, (1f/k)*(originPos.y-center.y) + center.y, (1f/k)*(originPos.z-center.z) + center.z);
     }
     public float sin(float rad){
         return Mathf.Sin(rad);

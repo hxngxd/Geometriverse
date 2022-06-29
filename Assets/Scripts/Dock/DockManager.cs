@@ -15,10 +15,11 @@ public class DockManager : MonoBehaviour
         draw = FindObjectOfType<Draw>();
         uiobj = FindObjectOfType<CreateUIObjects>();
         Functions = new List<ListPair>(){
-            new ListPair("Điểm", new Pair(() => {}, Load(""))),
-            new ListPair("Đường thẳng", new Pair(() => {}, Load(""))),
+            new ListPair("Chuột", new Pair(() => {draw.Refresh();}, Load(""))),
+            new ListPair("Điểm", new Pair(() => {draw.Point();}, Load(""))),
+            new ListPair("Đường thẳng", new Pair(() => {draw.Line();}, Load(""))),
             new ListPair("/", new Pair(() => {}, Load(""))),
-            new ListPair("Mặt phẳng", new Pair(() => {}, Load(""))),
+            new ListPair("Camera", new Pair(() => {}, Load(""))),
         };
         Create();
     }
