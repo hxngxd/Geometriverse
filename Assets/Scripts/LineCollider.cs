@@ -12,8 +12,8 @@ public class LineCollider : MonoBehaviour
         line.GetComponent<MeshCollider>().sharedMesh = mesh;
     }
     public void RebuildCollider(LineRenderer line){
-        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(1)) previousMousePos = Input.mousePosition;
-        if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1) || Input.GetMouseButtonDown(2)){
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2)) previousMousePos = Input.mousePosition;
+        if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1) || Input.GetMouseButtonUp(2)){
             if (previousMousePos != Input.mousePosition){
                 AddCollider(line);
             }
