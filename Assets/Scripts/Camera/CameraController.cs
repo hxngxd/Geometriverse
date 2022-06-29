@@ -69,7 +69,7 @@ public class CameraController : MonoBehaviour
     void Drag(){
         if (Input.GetMouseButton(2))
         {
-            this.transform.parent.transform.Translate(-Input.GetAxisRaw("Mouse X") * Time.deltaTime * DragSpeed * 0.05f, -Input.GetAxisRaw("Mouse Y") * Time.deltaTime * DragSpeed * 0.05f, 0);
+            this.transform.Translate(-Input.GetAxisRaw("Mouse X") * Time.deltaTime * DragSpeed, -Input.GetAxisRaw("Mouse Y") * Time.deltaTime * DragSpeed, 0);
         }
     }
 }
