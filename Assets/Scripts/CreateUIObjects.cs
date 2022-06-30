@@ -92,47 +92,42 @@ public class CreateUIObjects : MonoBehaviour
     }
     public Button MenuCommand(string label, Action onClick, Transform parent){
         var ui = Instantiate(MenuCommandPref, pos0, rot0, parent).GetComponent<Button>();
-        var last = label[label.Length-1];
-        if (last == '0' || last == '1'){
-            if (label.Contains("/")){
-                var tick = ui.transform.Find("Tick").gameObject;
-                tick.SetActive(last == '1');
-                SetText(ui.transform.Find("Text"), label.Substring(0, label.Length - 2));
-                ui.onClick.AddListener(delegate {
-                    onClick();
-                    tick.SetActive(!tick.activeSelf);
-                    draw.menu.HideAll();
-                });
-                MenuManager.Transforms.Add(label.Substring(0, label.Length - 2), ui.transform);
-                ui.name = label.Substring(0, label.Length - 2);
-            }
-            else{
-                SetText(ui.transform.Find("Text"), label.Substring(0, label.Length - 1));
-                ui.onClick.AddListener(delegate {
-                    onClick();
-                    draw.menu.HideAll();
-                });
-                MenuManager.Transforms.Add(label.Substring(0, label.Length - 1), ui.transform);
-                draw.menu.Buttoggle(label.Substring(0, label.Length - 1), (last == '1'));
-                ui.name = label.Substring(0, label.Length - 1);
-            }
+        var toggle = label[label.Length-2] == '1';
+        if (label.Contains("/")){
+            string name = label.Substring(0, label.Length - 4);
+            var tick = ui.transform.Find("Tick").gameObject;
+            tick.SetActive(toggle);
+            SetText(ui.transform.Find("Text"), name);
+            ui.onClick.AddListener(delegate {
+                onClick();
+                tick.SetActive(!tick.activeSelf);
+                draw.menu.HideAll();
+            });
+            MenuManager.Transforms.Add(name, ui.transform);
+            ui.name = name;
+            MenuManager.MenuObjects.Add(name, new Dictionary<string, Action>());
         }
-        else if (last == '>'){
+        else if (label.Contains(">")){
+            string name = label.Substring(0, label.Length - 3);
             ui.transform.Find("Expand").gameObject.SetActive(true);
-            SetText(ui.transform.Find("Text"), label.Substring(0, label.Length - 1));
-            MenuManager.Transforms.Add(label.Substring(0, label.Length - 1), ui.transform);
-                ui.name = label.Substring(0, label.Length - 1);
+            SetText(ui.transform.Find("Text"), name);
+            MenuManager.Transforms.Add(name, ui.transform);
+            ui.name = name;
+            MenuManager.MenuObjects.Add(name, new Dictionary<string, Action>());
+            onClick();
         }
         else{
-            SetText(ui.transform.Find("Text"), label);
+            string name = label.Substring(0, label.Length - 3);
+            SetText(ui.transform.Find("Text"), name);
             ui.onClick.AddListener(delegate {
                 onClick();
                 draw.menu.HideAll();
             });
-                ui.name = label;
-
+            MenuManager.Transforms.Add(name, ui.transform);
+            draw.menu.Buttoggle(name, toggle);
+            ui.name = name;
+            MenuManager.MenuObjects.Add(name, new Dictionary<string, Action>());
         }
-        MenuManager.MenuObjects.Add(label, new List<string>());
         return ui;
     }
     public RectTransform CommandContainer(string label, Transform parent){

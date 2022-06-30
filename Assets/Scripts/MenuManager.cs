@@ -6,12 +6,14 @@ using UnityEngine.UI;
 using TMPro;
 public class MenuManager : MonoBehaviour
 {
-    public static Dictionary<string, List<string>> MenuObjects = new Dictionary<string, List<string>>();
+    public static Dictionary<string, Dictionary<string, Action>> MenuObjects = new Dictionary<string, Dictionary<string, Action>>();
     public static Dictionary<string, Transform> Transforms = new Dictionary<string, Transform>();
     public Transform itemsContainer, Containers;
     public RectTransform MenuCanvas;
     Draw draw; DockAutoHide dockAH;
     bool someoneIsNotHidden;
+    Transform previousHit;
+    Transform currentSubContainer;
     void Start()
     {
         dockAH = FindObjectOfType<DockAutoHide>();
@@ -27,58 +29,65 @@ public class MenuManager : MonoBehaviour
         var container = draw.uiobj.CommandContainer("Tập tin", Containers);
         var item = draw.uiobj.MenuItem("Tập tin", () => ToggleContainer(container), itemsContainer);
         var cmd = new Dictionary<string, Action>(){
-            {"Làm mới", () => {
+            {"Làm mới(1)", () => {
                 draw.hier.ResetAll();
             }},
-            {"Thoát", () => {
+            {"Thoát(1)", () => {
                 Application.Quit();
             }},
         };
-        CreateCommands(cmd, container);
+        CreateCommands(cmd, container, false);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
     public void Edit(){
         var container = draw.uiobj.CommandContainer("Chỉnh sửa", Containers);
         var item = draw.uiobj.MenuItem("Chỉnh sửa", () => ToggleContainer(container), itemsContainer);
         var cmd = new Dictionary<string, Action>(){
-            {"edit1", () => {
+            {"edit1(1)", () => {
                 
             }},
-            {"Xoá", () => {
+            {"Xoá(1)", () => {
                 
             }},
         };
-        CreateCommands(cmd, container);
+        CreateCommands(cmd, container, false);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
     public void Tool(){
         var container = draw.uiobj.CommandContainer("Công cụ", Containers);
         var item = draw.uiobj.MenuItem("Công cụ", () => ToggleContainer(container), itemsContainer);
         var cmd = new Dictionary<string, Action>(){
-            {"tool1", () => {
+            {"tool1(1)", () => {
                 
             }},
-            {"tool2", () => {
+            {"tool2(1)", () => {
                 
             }},
         };
-        CreateCommands(cmd, container);
+        CreateCommands(cmd, container, false);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
     public void Window(){
         var container = draw.uiobj.CommandContainer("Cửa sổ", Containers);
         var item = draw.uiobj.MenuItem("Cửa sổ", () => ToggleContainer(container), itemsContainer);
         var cmd = new Dictionary<string, Action>(){
-            {"Toàn màn hình/"+b2i(Screen.fullScreen), () => {
+            {$"Toàn màn hình(/{b2i(Screen.fullScreen)})", () => {
                 Screen.fullScreen = !Screen.fullScreen;
             }},
-            {$"Độ phân giải ({Screen.currentResolution})", () => {
-                ////
+            {$"Độ phân giải(>)", () => {
+                Resolution[] resolutions = Screen.resolutions;
+                var cmd = new Dictionary<string, Action>();
+                foreach (var res in resolutions){
+                    cmd.Add($"{res.width}x{res.height}(1)", () => {
+                        Screen.SetResolution(res.width, res.height, Screen.fullScreen);
+                    });
+                }
+                MenuObjects["Độ phân giải"] = cmd;
             }},
-            {"Tự động ẩn thanh công cụ/"+b2i(dockAH.autohide), () => {
+            {$"Tự động ẩn thanh công cụ(/{b2i(dockAH.autohide)})", () => {
                 dockAH.autohide = !dockAH.autohide;
             }},
-            {"Hierarchy/"+b2i(draw.panel.Hierarchy.gameObject.activeSelf), () => {
+            {$"Hierarchy(/{b2i(draw.panel.Hierarchy.gameObject.activeSelf)})", () => {
                 if (draw.panel.Hierarchy.gameObject.activeSelf){
                     draw.panel.CloseTab("Hierarchy");
                 }
@@ -86,7 +95,7 @@ public class MenuManager : MonoBehaviour
                     draw.panel.CreateTab("Hierarchy", draw.panel.Hierarchy);
                 }
             }},
-            {"Inspector/"+b2i(draw.panel.Inspector.gameObject.activeSelf), () => {
+            {$"Inspector(/{b2i(draw.panel.Inspector.gameObject.activeSelf)})", () => {
                 if (draw.panel.Inspector.gameObject.activeSelf){
                     draw.panel.CloseTab("Inspector");
                 }
@@ -94,7 +103,7 @@ public class MenuManager : MonoBehaviour
                     draw.panel.CreateTab("Inspector", draw.panel.Inspector);
                 }
             }},
-            {"Cài đặt/"+b2i(draw.panel.Settings.gameObject.activeSelf), () => {
+            {$"Cài đặt(/{b2i(draw.panel.Settings.gameObject.activeSelf)})", () => {
                 if (draw.panel.Settings.gameObject.activeSelf){
                     draw.panel.CloseTab("Cài đặt");
                 }
@@ -103,14 +112,14 @@ public class MenuManager : MonoBehaviour
                 }
             }}
         };
-        CreateCommands(cmd, container);
+        CreateCommands(cmd, container, false);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
     public void Help(){
         var container = draw.uiobj.CommandContainer("Trợ giúp", Containers);
         var item = draw.uiobj.MenuItem("Trợ giúp", () => ToggleContainer(container), itemsContainer);
         var cmd = new Dictionary<string, Action>(){
-            {"Về Geometriverse/"+b2i(draw.panel.About.gameObject.activeSelf), () => {
+            {$"Về Geometriverse(/{b2i(draw.panel.About.gameObject.activeSelf)})", () => {
                 if (draw.panel.About.gameObject.activeSelf){
                     draw.panel.CloseTab("Về Geometriverse");
                 }
@@ -118,7 +127,7 @@ public class MenuManager : MonoBehaviour
                     draw.panel.CreateTab("Về Geometriverse", draw.panel.About);
                 }
             }},
-            {"Hướng dẫn/"+b2i(draw.panel.Manual.gameObject.activeSelf), () => {
+            {$"Hướng dẫn(/{b2i(draw.panel.Manual.gameObject.activeSelf)})", () => {
                 if (draw.panel.Manual.gameObject.activeSelf){
                     draw.panel.CloseTab("Hướng dẫn");
                 }
@@ -127,20 +136,20 @@ public class MenuManager : MonoBehaviour
                 }
             }},
         };
-        CreateCommands(cmd, container);
+        CreateCommands(cmd, container, false);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
     public void Network(){
         var container = draw.uiobj.CommandContainer("Mạng", Containers);
         var item = draw.uiobj.MenuItem("Mạng", () => ToggleContainer(container), itemsContainer);
         var cmd = new Dictionary<string, Action>(){
-            {"Kết nối đến Server", () => {}},
-            {"Thoát khỏi Server0", () => {}},
-            {"Tạo phòng0", () => {}},
-            {"Tham gia phòng0", () => {}},
-            {"Thoát phòng0", () => {}},
+            {"Kết nối đến Server(1)", () => {}},
+            {"Thoát khỏi Server(0)", () => {}},
+            {"Tạo phòng(0)", () => {}},
+            {"Tham gia phòng(0)", () => {}},
+            {"Thoát phòng(0)", () => {}},
         };
-        CreateCommands(cmd, container);
+        CreateCommands(cmd, container, false);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
     public void ToggleContainer(RectTransform container){
@@ -167,13 +176,23 @@ public class MenuManager : MonoBehaviour
         }
         someoneIsNotHidden = false;
     }
-    public void CreateCommands(Dictionary<string, Action> cmds, RectTransform container){
+    public void CreateCommands(Dictionary<string, Action> cmds, RectTransform container, bool isAdded){
         List<string> cmd = new List<string>();
         foreach (var child in cmds){
             draw.uiobj.MenuCommand(child.Key, child.Value, container);
             cmd.Add(child.Key);
         }
-        MenuObjects.Add(container.name, cmd);
+        if (!isAdded) MenuObjects.Add(container.name, cmds);
+    }
+    public void DestroySubContainer(){
+        if (currentSubContainer != null){
+            foreach (Transform child in currentSubContainer){
+                MenuObjects.Remove(child.name);
+                Transforms.Remove(child.name);
+                Destroy(child.gameObject);
+            }
+            Destroy(currentSubContainer.gameObject);
+        }
     }
     void Update()
     {
@@ -185,6 +204,24 @@ public class MenuManager : MonoBehaviour
             else{
                 if (hit.IsChildOf(itemsContainer)){
                     ToggleContainer(Containers.Find(hit.name).GetComponent<RectTransform>());
+                    DestroySubContainer();
+                }
+                else if (hit.parent.IsChildOf(Containers) && Transforms.ContainsValue(hit)){
+                    if (previousHit != hit){
+                        previousHit = hit;
+                        if (hit.Find("Expand").gameObject.activeSelf && (currentSubContainer == null || (currentSubContainer != null && currentSubContainer.name != $"{hit.name}_subContainer"))){
+                            var container = draw.uiobj.CommandContainer($"{hit.name}_subContainer", hit.parent);
+                            container.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
+                            container.anchoredPosition = new Vector3(507f, hit.GetComponent<RectTransform>().anchoredPosition.y + 7, 0);
+                            CreateCommands(MenuObjects[hit.name], container, true);
+                            container.gameObject.SetActive(true);
+                            draw.uiobj.RebuildLayout(MenuCanvas);
+                            currentSubContainer = container;
+                        }
+                        else{
+                            if (currentSubContainer != null && !hit.IsChildOf(currentSubContainer) && !currentSubContainer.name.Contains(hit.name)) DestroySubContainer();
+                        }
+                    }
                 }
             }
         }
