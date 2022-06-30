@@ -1,0 +1,138 @@
+using System.Collections;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MenuManager : MonoBehaviour
+{
+    public static Dictionary<string, List<string>> MenuObjects = new Dictionary<string, List<string>>();
+    public static Dictionary<string, Transform> Transforms = new Dictionary<string, Transform>();
+    public Transform itemsContainer, Containers;
+    public RectTransform MenuCanvas;
+    Draw draw; DockAutoHide dockAH;
+    void Start()
+    {
+        dockAH = FindObjectOfType<DockAutoHide>();
+        draw = FindObjectOfType<Draw>();
+        File();
+        Edit();
+        Tool();
+        Window();
+        Help();
+        Network();
+    }
+    public void File(){
+        var container = draw.uiobj.CommandContainer("Tập tin", Containers);
+        var item = draw.uiobj.MenuItem("Tập tin", () => ToggleContainer(container), itemsContainer);
+        var cmd = new Dictionary<string, Action>(){
+            {"Làm mới", () => {}},
+            {"Thoát", () => {
+                Application.Quit();
+            }},
+        };
+        CreateCommands(cmd, container);
+        draw.uiobj.RebuildLayout(MenuCanvas);
+    }
+    public void Edit(){
+        var container = draw.uiobj.CommandContainer("Chỉnh sửa", Containers);
+        var item = draw.uiobj.MenuItem("Chỉnh sửa", () => ToggleContainer(container), itemsContainer);
+        draw.uiobj.RebuildLayout(MenuCanvas);
+    }
+    public void Tool(){
+        var container = draw.uiobj.CommandContainer("Công cụ", Containers);
+        var item = draw.uiobj.MenuItem("Công cụ", () => ToggleContainer(container), itemsContainer);
+        draw.uiobj.RebuildLayout(MenuCanvas);
+    }
+    public void Window(){
+        var container = draw.uiobj.CommandContainer("Cửa sổ", Containers);
+        var item = draw.uiobj.MenuItem("Cửa sổ", () => ToggleContainer(container), itemsContainer);
+        var cmd = new Dictionary<string, Action>(){
+            {"Toàn màn hình"+b2i(Screen.fullScreen), () => {
+                Screen.fullScreen = !Screen.fullScreen;
+            }},
+            {$"Độ phân giải ({Screen.currentResolution})", () => {
+                ////
+            }},
+            {"Tự động ẩn thanh công cụ"+b2i(dockAH.autohide), () => {
+                dockAH.autohide = !dockAH.autohide;
+            }},
+            {"Hierarchy"+b2i(draw.panel.Hierarchy.gameObject.activeSelf), () => {
+                if (draw.panel.Hierarchy.gameObject.activeSelf){
+                    draw.panel.CloseTab("Hierarchy");
+                }
+                else{
+                    draw.panel.CreateTab("Hierarchy", draw.panel.Hierarchy);
+                }
+            }},
+            {"Inspector"+b2i(draw.panel.Inspector.gameObject.activeSelf), () => {
+                if (draw.panel.Inspector.gameObject.activeSelf){
+                    draw.panel.CloseTab("Inspector");
+                }
+                else{
+                    draw.panel.CreateTab("Inspector", draw.panel.Inspector);
+                }
+            }}
+        };
+        CreateCommands(cmd, container);
+        draw.uiobj.RebuildLayout(MenuCanvas);
+    }
+    public void Help(){
+        var container = draw.uiobj.CommandContainer("Trợ giúp", Containers);
+        var item = draw.uiobj.MenuItem("Trợ giúp", () => ToggleContainer(container), itemsContainer);
+        var cmd = new Dictionary<string, Action>(){
+            {"Về Geometriverse"+b2i(draw.panel.About.gameObject.activeSelf), () => {
+                if (draw.panel.About.gameObject.activeSelf){
+                    draw.panel.CloseTab("Về Geometriverse");
+                }
+                else{
+                    draw.panel.CreateTab("Về Geometriverse", draw.panel.About);
+                }
+            }},
+            {"Hướng dẫn"+b2i(draw.panel.Manual.gameObject.activeSelf), () => {
+                if (draw.panel.Manual.gameObject.activeSelf){
+                    draw.panel.CloseTab("Hướng dẫn");
+                }
+                else{
+                    draw.panel.CreateTab("Hướng dẫn", draw.panel.Manual);
+                }
+            }},
+        };
+        CreateCommands(cmd, container);
+        draw.uiobj.RebuildLayout(MenuCanvas);
+    }
+    public void Network(){
+        var container = draw.uiobj.CommandContainer("Mạng", Containers);
+        var item = draw.uiobj.MenuItem("Mạng", () => ToggleContainer(container), itemsContainer);
+        draw.uiobj.RebuildLayout(MenuCanvas);
+    }
+    public void ToggleContainer(RectTransform container){
+        HideAll();
+        container.gameObject.SetActive(true);
+        container.anchoredPosition = new Vector3(itemsContainer.Find(container.name).GetComponent<RectTransform>().anchoredPosition.x, -40f, 0);
+        draw.uiobj.RebuildLayout(MenuCanvas);
+    }
+    public string b2i(bool b){
+        return (b ? "1" : "0");
+    }
+    public void Tickle(string name, bool toggle){
+        var tick = Transforms[name].Find("Tick").gameObject;
+        tick.gameObject.SetActive(toggle);
+    }
+    public void HideAll(){
+        foreach (Transform child in Containers){
+            child.gameObject.SetActive(false);
+        }
+    }
+    public void CreateCommands(Dictionary<string, Action> cmds, RectTransform container){
+        List<string> cmd = new List<string>();
+        foreach (var child in cmds){
+            draw.uiobj.MenuCommand(child.Key, child.Value, container);
+            cmd.Add(child.Key);
+        }
+        MenuObjects.Add(container.name, cmd);
+    }
+    void Update()
+    {
+        
+    }
+}

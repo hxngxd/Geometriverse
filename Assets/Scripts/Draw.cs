@@ -14,6 +14,8 @@ public class Draw : MonoBehaviour
     public RaycastHandler raycast;
     public MouseHandler mouse;
     public InputFieldHandler inputhandler;
+    public MenuManager menu;
+    public PanelManager panel;
     public Listener listener;
     public Calculate calc;
     public drawPoint point;
@@ -21,17 +23,24 @@ public class Draw : MonoBehaviour
     public CameraController cam;
     public bool drawing = false;
     public Coroutine current = null;
+    public ScrollRect InspectorSR;
     public void Point(){
         Refresh();
+        SetScrollContent(point.content);
         current = StartCoroutine(point.Okay());
     }
     public void Line(){
         Refresh();
+        SetScrollContent(line.content);
         current = StartCoroutine(line.Okay());
     }
     public void CameraControl(){
         Refresh();
+        SetScrollContent(cam.content);
         current = StartCoroutine(cam.Okay());
+    }
+    public void SetScrollContent(Transform content){
+        InspectorSR.content = content.GetComponent<RectTransform>();
     }
     public void Refresh(){
         drawing = false;

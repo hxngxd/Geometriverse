@@ -7,16 +7,16 @@ using TMPro;
 using INPUT=TMPro.TMP_InputField;
 public class CreateUIObjects : MonoBehaviour
 {
-    Listener listener;
+    Draw draw;
     Quaternion rot0 = Quaternion.identity;
     Vector3 pos0 = Vector3.zero;
-    public GameObject DockButtonPref, DividerPref, Vector3Pref, ValuePref, SliderPref, TogglePref, ToggelValuePref;
+    public GameObject DockButtonPref, DividerPref, Vector3Pref, ValuePref, SliderPref, TogglePref, MenuItemPref, MenuCommandPref, CommandContainerPref;
     List<string> Vec3Path = new List<string>(){
         "Input_X", "Input_Y", "Input_Z"
     };
     void Start()
     {
-        listener = FindObjectOfType<Listener>();
+        draw = FindObjectOfType<Draw>();
     }
     public void SetText(Transform text, string content){
         text.GetComponent<TextMeshProUGUI>().text = content;
@@ -81,5 +81,52 @@ public class CreateUIObjects : MonoBehaviour
         var toggle = ui.Find("Components/Toggle").GetComponent<Toggle>();
         toggle.isOn = isOn;
         return toggle;
+    }
+    public RectTransform MenuItem(string label, Action onClick, Transform parent){
+        var ui = Instantiate(MenuItemPref, pos0, rot0, parent).GetComponent<Button>();
+        ui.onClick.AddListener(delegate {onClick();});
+        SetText(ui.transform.Find("Text"), label);
+        ui.name = label;
+        MenuManager.Transforms.Add(label, ui.transform);
+        return ui.GetComponent<RectTransform>();
+    }
+    public Button MenuCommand(string label, Action onClick, Transform parent){
+        var ui = Instantiate(MenuCommandPref, pos0, rot0, parent).GetComponent<Button>();
+        var last = label[label.Length-1];
+        if (last == '0' || last == '1'){
+            var tick = ui.transform.Find("Tick").gameObject;
+            tick.SetActive(last == '1');
+            SetText(ui.transform.Find("Text"), label.Substring(0, label.Length - 1));
+            ui.onClick.AddListener(delegate {
+                onClick();
+                tick.SetActive(!tick.activeSelf);
+                draw.menu.HideAll();
+            });
+            MenuManager.Transforms.Add(label.Substring(0, label.Length - 1), ui.transform);
+        }
+        else if (last == '>'){
+            ui.transform.Find("Expand").gameObject.SetActive(true);
+            SetText(ui.transform.Find("Text"), label.Substring(0, label.Length - 1));
+            MenuManager.Transforms.Add(label.Substring(0, label.Length - 1), ui.transform);
+        }
+        else{
+            SetText(ui.transform.Find("Text"), label);
+            ui.onClick.AddListener(delegate {
+                onClick();
+                draw.menu.HideAll();
+            });
+        }
+        MenuManager.MenuObjects.Add(label, new List<string>());
+        return ui;
+    }
+    public RectTransform CommandContainer(string label, Transform parent){
+        var ui = Instantiate(CommandContainerPref, pos0, rot0, parent).GetComponent<RectTransform>();
+        ui.gameObject.SetActive(false);
+        ui.name = label;
+        return ui;
+    }
+    public void RebuildLayout(RectTransform layout){
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(layout);
     }
 }
