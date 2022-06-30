@@ -84,7 +84,7 @@ public class CameraController : MonoBehaviour
     }
 
     void Move(){
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(1) && !draw.raycast.isMouseOverUI())
         {
             float speed = MoveSpeed/200f;
             Vector3 move = Vector3.zero;
@@ -107,7 +107,7 @@ public class CameraController : MonoBehaviour
                 cam.transform.localPosition = Camera.main.transform.localPosition;
             }
         }
-        if (Input.GetAxis("Mouse ScrollWheel") != 0f)
+        if (Input.GetAxis("Mouse ScrollWheel") != 0f && !draw.raycast.isMouseOverUI())
         {
             float ScrollAmount = Input.GetAxis("Mouse ScrollWheel") * ZoomDampening;
             ScrollAmount *= (Cam_Distance * 0.3f);
@@ -116,7 +116,7 @@ public class CameraController : MonoBehaviour
         }
     }
     void Drag(){
-        if (Input.GetMouseButton(2))
+        if (Input.GetMouseButton(2) && !draw.raycast.isMouseOverUI())
         {
             this.transform.Translate(-Input.GetAxisRaw("Mouse X") * Time.deltaTime * DragSpeed, -Input.GetAxisRaw("Mouse Y") * Time.deltaTime * DragSpeed, 0);
         }

@@ -104,6 +104,7 @@ public class CreateUIObjects : MonoBehaviour
                     draw.menu.HideAll();
                 });
                 MenuManager.Transforms.Add(label.Substring(0, label.Length - 2), ui.transform);
+                ui.name = label.Substring(0, label.Length - 2);
             }
             else{
                 SetText(ui.transform.Find("Text"), label.Substring(0, label.Length - 1));
@@ -113,12 +114,14 @@ public class CreateUIObjects : MonoBehaviour
                 });
                 MenuManager.Transforms.Add(label.Substring(0, label.Length - 1), ui.transform);
                 draw.menu.Buttoggle(label.Substring(0, label.Length - 1), (last == '1'));
+                ui.name = label.Substring(0, label.Length - 1);
             }
         }
         else if (last == '>'){
             ui.transform.Find("Expand").gameObject.SetActive(true);
             SetText(ui.transform.Find("Text"), label.Substring(0, label.Length - 1));
             MenuManager.Transforms.Add(label.Substring(0, label.Length - 1), ui.transform);
+                ui.name = label.Substring(0, label.Length - 1);
         }
         else{
             SetText(ui.transform.Find("Text"), label);
@@ -126,6 +129,8 @@ public class CreateUIObjects : MonoBehaviour
                 onClick();
                 draw.menu.HideAll();
             });
+                ui.name = label;
+
         }
         MenuManager.MenuObjects.Add(label, new List<string>());
         return ui;

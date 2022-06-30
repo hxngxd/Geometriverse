@@ -11,6 +11,7 @@ public class MenuManager : MonoBehaviour
     public Transform itemsContainer, Containers;
     public RectTransform MenuCanvas;
     Draw draw; DockAutoHide dockAH;
+    bool someoneIsNotHidden;
     void Start()
     {
         dockAH = FindObjectOfType<DockAutoHide>();
@@ -71,7 +72,7 @@ public class MenuManager : MonoBehaviour
             {"Toàn màn hình/"+b2i(Screen.fullScreen), () => {
                 Screen.fullScreen = !Screen.fullScreen;
             }},
-            {$"Độ phân giải ({Screen.currentResolution})/", () => {
+            {$"Độ phân giải ({Screen.currentResolution})", () => {
                 ////
             }},
             {"Tự động ẩn thanh công cụ/"+b2i(dockAH.autohide), () => {
@@ -145,6 +146,7 @@ public class MenuManager : MonoBehaviour
     public void ToggleContainer(RectTransform container){
         HideAll();
         container.gameObject.SetActive(true);
+        someoneIsNotHidden = true;
         container.anchoredPosition = new Vector3(itemsContainer.Find(container.name).GetComponent<RectTransform>().anchoredPosition.x, -40f, 0);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
@@ -163,6 +165,7 @@ public class MenuManager : MonoBehaviour
         foreach (Transform child in Containers){
             child.gameObject.SetActive(false);
         }
+        someoneIsNotHidden = false;
     }
     public void CreateCommands(Dictionary<string, Action> cmds, RectTransform container){
         List<string> cmd = new List<string>();
@@ -174,6 +177,16 @@ public class MenuManager : MonoBehaviour
     }
     void Update()
     {
-        
+        var hit = draw.raycast.GetUI(GameObject.Find("MenuCanvas").GetComponent<RectTransform>());
+        if (someoneIsNotHidden){
+            if (hit == null || hit.name == "Items Container"){
+                if (Input.GetMouseButtonDown(0)) HideAll();
+            }
+            else{
+                if (hit.IsChildOf(itemsContainer)){
+                    ToggleContainer(Containers.Find(hit.name).GetComponent<RectTransform>());
+                }
+            }
+        }
     }
 }

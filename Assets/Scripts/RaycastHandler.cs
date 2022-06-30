@@ -12,16 +12,15 @@ public class RaycastHandler : MonoBehaviour
         public Transform transform;
         public Vector3 point;
     }
-    [SerializeField]  GraphicRaycaster m_Raycaster;
-    PointerEventData m_PointerEventData;
     [SerializeField] EventSystem m_EventSystem;
-    [SerializeField] RectTransform canvasRect;
     Draw draw;
     void Start(){
         draw = FindObjectOfType<Draw>();
     }
-    public Transform GetUI()
+    public Transform GetUI(RectTransform canvasRect)
     {
+        var m_Raycaster = canvasRect.GetComponent<GraphicRaycaster>();
+        PointerEventData m_PointerEventData;
         m_PointerEventData = new PointerEventData(m_EventSystem);
         m_PointerEventData.position = Input.mousePosition;
         List<RaycastResult> results = new List<RaycastResult>();

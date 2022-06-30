@@ -21,7 +21,7 @@ public class DockAutoHide : MonoBehaviour
         }
     }
     public void AutoHide(){
-        var hit = raycast.GetUI();
+        var hit = raycast.GetUI(GameObject.Find("WindowsCanvas").GetComponent<RectTransform>());
         if (hit!=null && hit.IsChildOf(this.transform) && !notHiden) ToggleDock(true);
         else if (notHiden){
             if (hit==null || !hit.IsChildOf(this.transform)) ToggleDock(false);
