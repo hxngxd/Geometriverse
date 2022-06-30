@@ -121,4 +121,9 @@ public class CameraController : MonoBehaviour
             this.transform.Translate(-Input.GetAxisRaw("Mouse X") * Time.deltaTime * DragSpeed, -Input.GetAxisRaw("Mouse Y") * Time.deltaTime * DragSpeed, 0);
         }
     }
+    public void ResetCamera(){
+        Cam_Rotation = new Vector3(-45,30,0);
+        this.transform.position = Vector3.zero;
+        Cam_Distance = 10f;
+    }
 }

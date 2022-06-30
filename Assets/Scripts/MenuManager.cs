@@ -2,7 +2,8 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
+using TMPro;
 public class MenuManager : MonoBehaviour
 {
     public static Dictionary<string, List<string>> MenuObjects = new Dictionary<string, List<string>>();
@@ -25,7 +26,9 @@ public class MenuManager : MonoBehaviour
         var container = draw.uiobj.CommandContainer("Tập tin", Containers);
         var item = draw.uiobj.MenuItem("Tập tin", () => ToggleContainer(container), itemsContainer);
         var cmd = new Dictionary<string, Action>(){
-            {"Làm mới", () => {}},
+            {"Làm mới", () => {
+                draw.hier.ResetAll();
+            }},
             {"Thoát", () => {
                 Application.Quit();
             }},
@@ -36,27 +39,45 @@ public class MenuManager : MonoBehaviour
     public void Edit(){
         var container = draw.uiobj.CommandContainer("Chỉnh sửa", Containers);
         var item = draw.uiobj.MenuItem("Chỉnh sửa", () => ToggleContainer(container), itemsContainer);
+        var cmd = new Dictionary<string, Action>(){
+            {"edit1", () => {
+                
+            }},
+            {"Xoá", () => {
+                
+            }},
+        };
+        CreateCommands(cmd, container);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
     public void Tool(){
         var container = draw.uiobj.CommandContainer("Công cụ", Containers);
         var item = draw.uiobj.MenuItem("Công cụ", () => ToggleContainer(container), itemsContainer);
+        var cmd = new Dictionary<string, Action>(){
+            {"tool1", () => {
+                
+            }},
+            {"tool2", () => {
+                
+            }},
+        };
+        CreateCommands(cmd, container);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
     public void Window(){
         var container = draw.uiobj.CommandContainer("Cửa sổ", Containers);
         var item = draw.uiobj.MenuItem("Cửa sổ", () => ToggleContainer(container), itemsContainer);
         var cmd = new Dictionary<string, Action>(){
-            {"Toàn màn hình"+b2i(Screen.fullScreen), () => {
+            {"Toàn màn hình/"+b2i(Screen.fullScreen), () => {
                 Screen.fullScreen = !Screen.fullScreen;
             }},
-            {$"Độ phân giải ({Screen.currentResolution})", () => {
+            {$"Độ phân giải ({Screen.currentResolution})/", () => {
                 ////
             }},
-            {"Tự động ẩn thanh công cụ"+b2i(dockAH.autohide), () => {
+            {"Tự động ẩn thanh công cụ/"+b2i(dockAH.autohide), () => {
                 dockAH.autohide = !dockAH.autohide;
             }},
-            {"Hierarchy"+b2i(draw.panel.Hierarchy.gameObject.activeSelf), () => {
+            {"Hierarchy/"+b2i(draw.panel.Hierarchy.gameObject.activeSelf), () => {
                 if (draw.panel.Hierarchy.gameObject.activeSelf){
                     draw.panel.CloseTab("Hierarchy");
                 }
@@ -64,12 +85,20 @@ public class MenuManager : MonoBehaviour
                     draw.panel.CreateTab("Hierarchy", draw.panel.Hierarchy);
                 }
             }},
-            {"Inspector"+b2i(draw.panel.Inspector.gameObject.activeSelf), () => {
+            {"Inspector/"+b2i(draw.panel.Inspector.gameObject.activeSelf), () => {
                 if (draw.panel.Inspector.gameObject.activeSelf){
                     draw.panel.CloseTab("Inspector");
                 }
                 else{
                     draw.panel.CreateTab("Inspector", draw.panel.Inspector);
+                }
+            }},
+            {"Cài đặt/"+b2i(draw.panel.Settings.gameObject.activeSelf), () => {
+                if (draw.panel.Settings.gameObject.activeSelf){
+                    draw.panel.CloseTab("Cài đặt");
+                }
+                else{
+                    draw.panel.CreateTab("Cài đặt", draw.panel.Settings);
                 }
             }}
         };
@@ -80,7 +109,7 @@ public class MenuManager : MonoBehaviour
         var container = draw.uiobj.CommandContainer("Trợ giúp", Containers);
         var item = draw.uiobj.MenuItem("Trợ giúp", () => ToggleContainer(container), itemsContainer);
         var cmd = new Dictionary<string, Action>(){
-            {"Về Geometriverse"+b2i(draw.panel.About.gameObject.activeSelf), () => {
+            {"Về Geometriverse/"+b2i(draw.panel.About.gameObject.activeSelf), () => {
                 if (draw.panel.About.gameObject.activeSelf){
                     draw.panel.CloseTab("Về Geometriverse");
                 }
@@ -88,7 +117,7 @@ public class MenuManager : MonoBehaviour
                     draw.panel.CreateTab("Về Geometriverse", draw.panel.About);
                 }
             }},
-            {"Hướng dẫn"+b2i(draw.panel.Manual.gameObject.activeSelf), () => {
+            {"Hướng dẫn/"+b2i(draw.panel.Manual.gameObject.activeSelf), () => {
                 if (draw.panel.Manual.gameObject.activeSelf){
                     draw.panel.CloseTab("Hướng dẫn");
                 }
@@ -103,6 +132,14 @@ public class MenuManager : MonoBehaviour
     public void Network(){
         var container = draw.uiobj.CommandContainer("Mạng", Containers);
         var item = draw.uiobj.MenuItem("Mạng", () => ToggleContainer(container), itemsContainer);
+        var cmd = new Dictionary<string, Action>(){
+            {"Kết nối đến Server", () => {}},
+            {"Thoát khỏi Server0", () => {}},
+            {"Tạo phòng0", () => {}},
+            {"Tham gia phòng0", () => {}},
+            {"Thoát phòng0", () => {}},
+        };
+        CreateCommands(cmd, container);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
     public void ToggleContainer(RectTransform container){
@@ -117,6 +154,10 @@ public class MenuManager : MonoBehaviour
     public void Tickle(string name, bool toggle){
         var tick = Transforms[name].Find("Tick").gameObject;
         tick.gameObject.SetActive(toggle);
+    }
+    public void Buttoggle(string name, bool toggle){
+        Transforms[name].GetComponent<Button>().interactable = toggle;
+        Transforms[name].Find("Text").GetComponent<TextMeshProUGUI>().color = (toggle ? Color.white : Color.gray);
     }
     public void HideAll(){
         foreach (Transform child in Containers){

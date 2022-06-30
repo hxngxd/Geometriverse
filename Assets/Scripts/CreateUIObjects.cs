@@ -94,15 +94,26 @@ public class CreateUIObjects : MonoBehaviour
         var ui = Instantiate(MenuCommandPref, pos0, rot0, parent).GetComponent<Button>();
         var last = label[label.Length-1];
         if (last == '0' || last == '1'){
-            var tick = ui.transform.Find("Tick").gameObject;
-            tick.SetActive(last == '1');
-            SetText(ui.transform.Find("Text"), label.Substring(0, label.Length - 1));
-            ui.onClick.AddListener(delegate {
-                onClick();
-                tick.SetActive(!tick.activeSelf);
-                draw.menu.HideAll();
-            });
-            MenuManager.Transforms.Add(label.Substring(0, label.Length - 1), ui.transform);
+            if (label.Contains("/")){
+                var tick = ui.transform.Find("Tick").gameObject;
+                tick.SetActive(last == '1');
+                SetText(ui.transform.Find("Text"), label.Substring(0, label.Length - 2));
+                ui.onClick.AddListener(delegate {
+                    onClick();
+                    tick.SetActive(!tick.activeSelf);
+                    draw.menu.HideAll();
+                });
+                MenuManager.Transforms.Add(label.Substring(0, label.Length - 2), ui.transform);
+            }
+            else{
+                SetText(ui.transform.Find("Text"), label.Substring(0, label.Length - 1));
+                ui.onClick.AddListener(delegate {
+                    onClick();
+                    draw.menu.HideAll();
+                });
+                MenuManager.Transforms.Add(label.Substring(0, label.Length - 1), ui.transform);
+                draw.menu.Buttoggle(label.Substring(0, label.Length - 1), (last == '1'));
+            }
         }
         else if (last == '>'){
             ui.transform.Find("Expand").gameObject.SetActive(true);

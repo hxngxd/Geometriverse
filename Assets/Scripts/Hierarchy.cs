@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Hierarchy : MonoBehaviour
 {
+    Draw draw;
     public struct Point{
         public string name, parent;
         public GameObject go;
@@ -20,7 +21,8 @@ public class Hierarchy : MonoBehaviour
     public static Dictionary<string, string> Types = new Dictionary<string, string>(); 
     public static Dictionary<string, Point> Points = new Dictionary<string, Point>();
     public static Dictionary<string, Line> Lines = new Dictionary<string, Line>();
-    void Update(){
+    void Start(){
+        draw = FindObjectOfType<Draw>();
     }
     public void AddPoint(string name, string parent, GameObject go){
         var obj = new Point();
@@ -76,6 +78,30 @@ public class Hierarchy : MonoBehaviour
         foreach (var obj in currentObjects){
             obj.Value.Clear();
         }
+    }
+    public void ResetAll(){
+        RemoveCurrentObjects();
+        List<string> IDs = new List<string>();
+        foreach (var obj in Hierarchy.Types) IDs.Add(obj.Key);
+        foreach (string ID in IDs){
+            switch (Hierarchy.Types[ID]){
+                case "point":
+                    RemovePoint(ID);
+                    break;
+                case "line":
+                    RemoveLine(ID);
+                    break;
+            }
+        }
+        Types.Clear();
+        Points.Clear();
+        Lines.Clear();
+        draw.cam.ResetCamera();
+        draw.Refresh();
+        draw.mouse.Selected.Clear();
+        draw.mouse.SelectionCount.Clear();
+        foreach (string type in draw.mouse.Types) draw.mouse.SelectionCount.Add(type, 0);
+        draw.mouse.OnSelectionsChange();
     }
     
 }
