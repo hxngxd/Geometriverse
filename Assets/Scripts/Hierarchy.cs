@@ -21,11 +21,6 @@ public class Hierarchy : MonoBehaviour
     public static Dictionary<string, Point> Points = new Dictionary<string, Point>();
     public static Dictionary<string, Line> Lines = new Dictionary<string, Line>();
     void Update(){
-        // string a = "";
-        // foreach (var go in currentObjects["point"]){
-        //     a += go.name + " ";
-        // }
-        // print(a);
     }
     public void AddPoint(string name, string parent, GameObject go){
         var obj = new Point();
@@ -34,6 +29,16 @@ public class Hierarchy : MonoBehaviour
         obj.go = go;
         Points.Add(go.name, obj);
         Types.Add(go.name, "point");
+    }
+    public void RemovePoint(string ID){
+        Destroy(Points[ID].go);
+        Points.Remove(ID);
+        Types.Remove(ID);
+    }
+    public void RemoveLine(string ID){
+        Destroy(Lines[ID].go.gameObject);
+        Lines.Remove(ID);
+        Types.Remove(ID);
     }
     public void AddLine(string name, string start, string end, string plane, LineRenderer go, List<string> Children){
         var obj = new Line();
@@ -48,8 +53,21 @@ public class Hierarchy : MonoBehaviour
     }
     public void RemoveCurrentObjects(){
         foreach (var obj in currentObjects){
-            foreach (var gameObject in obj.Value){
-                Destroy(gameObject);
+            foreach (var go in obj.Value){
+                try{
+                    string ID = go.name;
+                    switch (obj.Key){
+                        case "point":
+                            RemovePoint(ID);
+                            break;
+                        case "line":
+                            RemoveLine(ID);
+                            break;
+                    }
+                }
+                catch{
+                    Destroy(go);
+                }
             }
             obj.Value.Clear();
         }
@@ -59,4 +77,5 @@ public class Hierarchy : MonoBehaviour
             obj.Value.Clear();
         }
     }
+    
 }

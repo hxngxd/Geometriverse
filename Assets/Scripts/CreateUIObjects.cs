@@ -10,13 +10,25 @@ public class CreateUIObjects : MonoBehaviour
     Listener listener;
     Quaternion rot0 = Quaternion.identity;
     Vector3 pos0 = Vector3.zero;
-    public GameObject DockButtonPref, DividerPref;
+    public GameObject DockButtonPref, DividerPref, Vector3Pref, ValuePref, SliderPref, TogglePref, ToggelValuePref;
+    List<string> Vec3Path = new List<string>(){
+        "Input_X", "Input_Y", "Input_Z"
+    };
     void Start()
     {
         listener = FindObjectOfType<Listener>();
     }
     public void SetText(Transform text, string content){
         text.GetComponent<TextMeshProUGUI>().text = content;
+    }
+    public void SetPlaceHolder(Transform text, string content){
+        text.Find("Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = content;
+    }
+    public void SetInputText(Transform input, string content){
+        input.GetComponent<INPUT>().text = content;
+    }
+    public void SetInputType(Transform input, INPUT.ContentType type){
+        input.GetComponent<INPUT>().contentType = type;
     }
     public void DockButton(string name, Action onClick, Sprite icon, Transform parent){
         var button = Instantiate(DockButtonPref, pos0, rot0, parent).transform;
@@ -29,5 +41,45 @@ public class CreateUIObjects : MonoBehaviour
     public void DockDivider(Transform parent){
         var divider = Instantiate(DividerPref, pos0, rot0, parent).transform;
         divider.localScale = Vector3.one;
+    }
+    public List<INPUT> Vec3(string label, Transform parent){
+        var ui = Instantiate(Vector3Pref, pos0, rot0, parent).transform;
+        SetText(ui.Find("Label"), label);
+        List<INPUT> Inputs = new List<INPUT>();
+        foreach (string name in Vec3Path){
+            var path = $"Components/{name}";
+            var Input = ui.Find(path);
+            Inputs.Add(Input.GetComponent<INPUT>());
+            SetPlaceHolder(Input, "0");
+            SetInputType(Input, INPUT.ContentType.DecimalNumber);
+        }
+        return Inputs;
+    }
+    public INPUT Value(string label, string Placeholder, string text, INPUT.ContentType type, Transform parent){
+        var ui = Instantiate(ValuePref, pos0, rot0, parent).transform;
+        SetText(ui.Find("Label"), label);
+        var path = "Components/Input";
+        var Input = ui.Find(path);
+        SetPlaceHolder(Input, Placeholder);
+        SetInputText(Input, text);
+        SetInputType(Input, type);
+        return Input.GetComponent<INPUT>();
+    }
+    public Slider Slidr(string label, float min, float max, float value, Transform parent){
+        var ui = Instantiate(SliderPref, pos0, rot0, parent).transform;
+        SetText(ui.Find("Label"), label);
+        var slider = ui.Find("Components/Slider").GetComponent<Slider>();
+        slider.minValue = min;
+        slider.maxValue = max;
+        slider.value = value;
+        SetInputText(ui.Find("Components/Input"), value.ToString());
+        return slider;
+    }
+    public Toggle Togle(string label, bool isOn, Transform parent){
+        var ui = Instantiate(TogglePref, pos0, rot0, parent).transform;
+        SetText(ui.Find("Label"), label);
+        var toggle = ui.Find("Components/Toggle").GetComponent<Toggle>();
+        toggle.isOn = isOn;
+        return toggle;
     }
 }

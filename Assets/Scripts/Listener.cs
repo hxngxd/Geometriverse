@@ -13,8 +13,8 @@ public class Listener : MonoBehaviour
     public void Add_Input(INPUT Input, Action action){
         Input.onDeselect.AddListener(delegate {action();});
     }
-    public void Add_Inputs(List<INPUT> Inputs, int startIndex, Action action){
-        for (int i=startIndex;i<Inputs.Count;i++) Add_Input(Inputs[i], action);
+    public void Add_Inputs(List<INPUT> Inputs, Action action){
+        for (int i=0;i<Inputs.Count;i++) Add_Input(Inputs[i], action);
     }
     public void Add_Button(Button button, Action action){
         button.onClick.AddListener(delegate {action();});
@@ -31,8 +31,8 @@ public class Listener : MonoBehaviour
     public void Remove_Input(INPUT Input){
         Input.onDeselect.RemoveAllListeners();
     }
-    public void Remove_Inputs(List<INPUT> Inputs, int startIndex){
-        for (int i=startIndex;i<Inputs.Count;i++) Remove_Input(Inputs[i]);
+    public void Remove_Inputs(List<INPUT> Inputs){
+        for (int i=0;i<Inputs.Count;i++) Remove_Input(Inputs[i]);
     }
     public void Remove_Button(Button button){
         button.onClick.RemoveAllListeners();

@@ -2,22 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using TMPro;
+using INPUT=TMPro.TMP_InputField;
 public class drawPoint : MonoBehaviour
 {
+    public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
     Draw draw;
     public bool pointing = false, overlapsed = false;
+    public Transform content;
     void Start()
     {
         draw = FindObjectOfType<Draw>();
+        Inspector();
     }
-
-    public IEnumerator PointInit(Action subActionWhileDrawing, Action subActionDoneDrawing, Action onCancel){
+    public void Inspector(){
+        Inputs.Add("name", new List<INPUT>(){draw.uiobj.Value("Tên điểm", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
+        Inputs.Add("pos", draw.uiobj.Vec3("Toạ độ", content));
+        content.gameObject.SetActive(false);
+    }
+    public IEnumerator PointInit(Action subActionWhileDrawing, Action subActionDoneDrawing, Action onCancel, List<INPUT> Pos){
         pointing = true;
         var point = draw.obj.Point(Vector3.zero, draw.hierContent);
         Hierarchy.currentObjects["point"].Add(point);
         while (true){
             subActionWhileDrawing();
-            whileDrawing(point);
+            whileDrawing(point, Pos);
             if (Input.GetMouseButtonDown(0) && !draw.raycast.isMouseOverUI()){
                 subActionWhileDrawing();
                 doneDrawing(point, "");
@@ -31,7 +40,7 @@ public class drawPoint : MonoBehaviour
             yield return null;
         }
     }
-    public void whileDrawing(GameObject point){
+    public void whileDrawing(GameObject point, List<INPUT> Pos){
         if (point==null) return;
         var hit = draw.raycast.Hit();
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)){
@@ -57,6 +66,7 @@ public class drawPoint : MonoBehaviour
                 }
             }
         }
+        draw.inputhandler.Vec2Input(Pos, draw.calc.swapYZ(point.transform.position));
     }
     public void doneDrawing(GameObject point, string name){
         if (point==null) return;
@@ -82,10 +92,11 @@ public class drawPoint : MonoBehaviour
         draw.hier.AddPoint(name, parent, point);
     }
     public IEnumerator Okay(){
+        content.gameObject.SetActive(true);
         draw.mouse.UnselectAll();
         while (true){
             draw.drawing = true;
-            StartCoroutine(PointInit(()=>{}, ()=>{}, Cancel));
+            StartCoroutine(PointInit(()=>{}, ()=>{}, Cancel, Inputs["pos"]));
             yield return new WaitUntil(() => !pointing);
             draw.hier.ResetCurrentObjects();
             yield return new WaitForSeconds(0.015f);
@@ -93,6 +104,7 @@ public class drawPoint : MonoBehaviour
     }
     public IEnumerator OnSelect(GameObject point){
         draw.mouse.Select(point.transform);
+        RealtimeInput(point.name);
         var hit = new RaycastHandler.MouseHit();
         float startTime = 0f, holdTime = 0f;
         var startPosition = new Vector3();
@@ -130,8 +142,25 @@ public class drawPoint : MonoBehaviour
                     break;
             }
         }
+        draw.inputhandler.Vec2Input(Inputs["pos"], draw.calc.swapYZ(point.transform.position));
+    }
+    public void RealtimeInput(string ID){
+        content.gameObject.SetActive(true);
+        var obj = Hierarchy.Points[ID];
+        var point = obj.go;
+        Inputs["name"][0].text = obj.name;
+        draw.inputhandler.Vec2Input(Inputs["pos"], draw.calc.swapYZ(point.transform.position));
+        
+        draw.listener.Add_Input(Inputs["name"][0], () => draw.inputhandler.Update_Point_Name(ID, Inputs["name"][0].text));
+
+        if (obj.parent == ""){
+            draw.listener.Add_Inputs(Inputs["pos"], () => draw.inputhandler.Update_Position(point, draw.inputhandler.Input2Vec(Inputs["pos"])));
+        }
     }
     public void Cancel(){
+        content.gameObject.SetActive(false);
+        draw.inputhandler.ResetInput(Inputs["name"][0]);
+        draw.inputhandler.ResetInputs(Inputs["pos"]);
         draw.Cancel();
     }
 }

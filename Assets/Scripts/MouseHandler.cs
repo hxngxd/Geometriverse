@@ -63,6 +63,29 @@ public class MouseHandler : MonoBehaviour
     }
     void Update(){
         if (Highlighted != null) Unhighlight();
+
+        if (Selected.Count != 0){
+            if (Input.GetKeyDown(KeyCode.Escape)){
+                UnselectAll();
+                draw.Refresh();
+            }
+            else if (Input.GetKeyDown(KeyCode.Delete)){
+                foreach (var selection in Selected){
+                    string ID = selection.name;
+                    switch (Hierarchy.Types[ID]){
+                        case "point":
+                            draw.hier.RemovePoint(ID);
+                            break;
+                        case "line":
+                            draw.hier.RemoveLine(ID);
+                            break;
+                    }
+                }
+                Selected.Clear();
+                UnselectAll();
+                draw.Refresh();
+            }
+        }
         PickUp();
     }
     void PickUp(){
@@ -153,6 +176,7 @@ public class MouseHandler : MonoBehaviour
         return;
     }
     public void SetMaterial(Transform obj, int state){
+        if (obj == null || !Hierarchy.Types.ContainsKey(obj.name)) return;
         switch (Hierarchy.Types[obj.name]){
             case "point":
                 obj.Find("dot").GetComponent<MeshRenderer>().material = defaultMat[state];

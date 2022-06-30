@@ -13,9 +13,12 @@ public class Draw : MonoBehaviour
     public CreateUIObjects uiobj;
     public RaycastHandler raycast;
     public MouseHandler mouse;
+    public InputFieldHandler inputhandler;
+    public Listener listener;
     public Calculate calc;
     public drawPoint point;
     public drawLine line;
+    public CameraController cam;
     public bool drawing = false;
     public Coroutine current = null;
     public void Point(){
@@ -26,9 +29,15 @@ public class Draw : MonoBehaviour
         Refresh();
         current = StartCoroutine(line.Okay());
     }
+    public void CameraControl(){
+        Refresh();
+        current = StartCoroutine(cam.Okay());
+    }
     public void Refresh(){
         drawing = false;
-        Cancel();
+        point.Cancel();
+        line.Cancel();
+        cam.Cancel();
         current = null;
     }
     public void Cancel(){

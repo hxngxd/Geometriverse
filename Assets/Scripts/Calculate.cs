@@ -82,6 +82,9 @@ public class Calculate : MonoBehaviour
     public float fRound(float p, float n){
         return Mathf.Round(p * pow(10, n))/pow(10, n);
     }
+    public Vector3 roundVec3(Vector3 vec, float n){
+        return new Vector3(fRound(vec.x, n), fRound(vec.y, n), fRound(vec.z, n));
+    }
     public float sqr(float x){
         return x*x;
     }
