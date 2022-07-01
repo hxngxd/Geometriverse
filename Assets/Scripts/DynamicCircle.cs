@@ -28,7 +28,7 @@ public class DynamicCircle : MonoBehaviour
                     preName = C.name;
                     string s = $"Đường tròn: {C.name}";
                     if (C.plane != ""){
-                        s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[C.plane].name})";
+                        s += $" (Thuộc mặt phẳng: {Hierarchy.Planes[C.plane].name})";
                     }
                     hierItem.Find("Text").GetComponent<TextMeshProUGUI>().text = s;
                 }

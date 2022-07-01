@@ -10,6 +10,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
     MenuManager menu;
     ConnectToServer connect;
     IDHandler idhandler;
+    PanelManager panel;
+    ChatManager chat;
     public INPUT JoinInput, CreateInput, JoinName, RoomID, CreateID;
     public string ID;
     public static bool inRoom = false;
@@ -18,6 +20,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
         menu = FindObjectOfType<MenuManager>();
         idhandler = FindObjectOfType<IDHandler>();
         connect = FindObjectOfType<ConnectToServer>();
+        panel = FindObjectOfType<PanelManager>();
+        chat = FindObjectOfType<ChatManager>();
     }
 
     public void Create(){
@@ -61,6 +65,12 @@ public class RoomManager : MonoBehaviourPunCallbacks
         RoomID.gameObject.SetActive(true);
         RoomID.text = ID;
         inRoom = true;
+        panel.CreateTab("Trò chuyện", panel.Chat);
+        menu.Buttoggle("Trò chuyện", true);
+        menu.Tickle("Trò chuyện", true);
+        chat.input.text = "";
+        chat.content.text = "";
+        chat.Send($"<b>{PhotonNetwork.NickName} đã tham gia phòng!</b>");
     }
     public override void OnLeftRoom()
     {
@@ -73,6 +83,10 @@ public class RoomManager : MonoBehaviourPunCallbacks
         menu.Buttoggle("Thoát khỏi Server", true);
         RoomID.gameObject.SetActive(false);
         inRoom = false;
+        panel.CloseTab("Trò chuyện");
+        chat.Send($"<b>{PhotonNetwork.NickName} đã thoát phòng!</b>");
+        menu.Buttoggle("Trò chuyện", false);
+        menu.Tickle("Trò chuyện", false);
     }
     public override void OnJoinRoomFailed(short returnCode, string message)
     {

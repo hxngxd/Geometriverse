@@ -7,10 +7,10 @@ public class PanelManager : MonoBehaviour
 {
     Draw draw;
     public DynamicPanelsCanvas canvas;
-    public RectTransform Inspector, Hierarchy, About, Manual, Settings;
+    public RectTransform Inspector, Hierarchy, About, Manual, Settings, Chat;
     Dictionary<string, PanelTab> TabsList = new Dictionary<string, PanelTab>();
     public Transform Tabs;
-    Vector2 minSize = new Vector2(500f, 250f);
+    Vector2 minSize = new Vector2(400f, 250f);
     float initSize = 550f;
     void Awake(){
         draw = FindObjectOfType<Draw>();
@@ -43,7 +43,7 @@ public class PanelManager : MonoBehaviour
         TabsList[name].Content.gameObject.SetActive(false);
         TabsList[name].Content.transform.SetParent(Tabs);
         TabsList[name].Destroy();
-        TabsList.Remove(TabsList[name].Content.name);
+        TabsList.Remove(name);
     }
     
 }

@@ -32,13 +32,13 @@ public class DynamicPoint : MonoBehaviour
                     if (p.parent != ""){
                         switch (Hierarchy.Types[p.parent]){
                             case "line":
-                                s += $"\n(Thuộc đoạn thẳng: {Hierarchy.Lines[p.parent].name})";
+                                s += $" (Thuộc đoạn thẳng: {Hierarchy.Lines[p.parent].name})";
                                 break;
                             case "plane":
-                                s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[p.parent].name})";
+                                s += $" (Thuộc mặt phẳng: {Hierarchy.Planes[p.parent].name})";
                                 break;
                             case "3pointcircle":
-                                s += $"\n(Thuộc đường tròn: {Hierarchy.Circles[p.parent].name})";
+                                s += $" (Thuộc đường tròn: {Hierarchy.Circles[p.parent].name})";
                                 break;
                         }
                     }

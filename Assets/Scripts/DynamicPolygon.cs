@@ -32,7 +32,7 @@ public class DynamicPolygon : MonoBehaviour
                     preName = P.name;
                     string s = (P.type ? $"Đường tròn: {P.name}" : $"Đoạn thẳng: {P.name}");
                     if (P.plane != ""){
-                        s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[P.plane].name})";
+                        s += $" (Thuộc mặt phẳng: {Hierarchy.Planes[P.plane].name})";
                     }
                     hierItem.Find("Text").GetComponent<TextMeshProUGUI>().text = s;
                 }

@@ -30,7 +30,7 @@ public class DynamicLine : MonoBehaviour
                     preName = L.name;
                     string s = $"Đoạn thẳng: {L.name}";
                     if (L.plane != ""){
-                        s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[L.plane].name})";
+                        s += $" (Thuộc mặt phẳng: {Hierarchy.Planes[L.plane].name})";
                     }
                     hierItem.Find("Text").GetComponent<TextMeshProUGUI>().text = s;
                 }

@@ -162,8 +162,17 @@ public class MenuManager : MonoBehaviour
             {"Thoát phòng(0)", () => {
                 room.Leave();
             }},
+            {$"Trò chuyện(/{b2i(draw.panel.Chat.gameObject.activeSelf)})", () => {
+                if (draw.panel.Chat.gameObject.activeSelf){
+                    draw.panel.CloseTab("Trò chuyện");
+                }
+                else{
+                    draw.panel.CreateTab("Trò chuyện", draw.panel.Chat);
+                }
+            }},
         };
         CreateCommands(cmd, container, false);
+        Buttoggle("Trò chuyện", false);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
     public void ToggleContainer(RectTransform container){

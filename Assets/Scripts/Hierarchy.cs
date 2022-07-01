@@ -102,13 +102,13 @@ public class Hierarchy : MonoBehaviour
         if (parent != ""){
             switch (Hierarchy.Types[parent]){
                 case "line":
-                    s += $"\n(Thuộc đoạn thẳng: {Hierarchy.Lines[parent].name})";
+                    s += $" (Thuộc đoạn thẳng: {Hierarchy.Lines[parent].name})";
                     break;
                 case "plane":
-                    s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[parent].name})";
+                    s += $" (Thuộc mặt phẳng: {Hierarchy.Planes[parent].name})";
                     break;
                 case "3pointcircle":
-                    s += $"\n(Thuộc đường tròn: {Hierarchy.Circles[parent].name})";
+                    s += $" (Thuộc đường tròn: {Hierarchy.Circles[parent].name})";
                     break;
             }
         }
@@ -137,7 +137,7 @@ public class Hierarchy : MonoBehaviour
 
         string s = $"Đoạn thẳng: {name}";
         if (plane != ""){
-            s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
+            s += $" (Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
         }
         AddItem(go.gameObject, s);
 
@@ -191,7 +191,7 @@ public class Hierarchy : MonoBehaviour
 
         string s = $"Đường tròn: {name}";
         if (plane != ""){
-            s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
+            s += $" (Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
         }
         AddItem(go.gameObject, s);
 
@@ -221,7 +221,7 @@ public class Hierarchy : MonoBehaviour
         
         string s = (type ? $"Đường tròn: {name}" : $"Đa giác: {name}");
         if (plane != ""){
-            s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
+            s += $" (Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
         }
         AddItem(go.gameObject, s);
 
@@ -306,13 +306,13 @@ public class Hierarchy : MonoBehaviour
         if (parent != ""){
             switch (Hierarchy.Types[parent]){
                 case "line":
-                    s += $"\n(Thuộc đoạn thẳng: {Hierarchy.Lines[parent].name})";
+                    s += $" (Thuộc đoạn thẳng: {Hierarchy.Lines[parent].name})";
                     break;
                 case "plane":
-                    s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[parent].name})";
+                    s += $" (Thuộc mặt phẳng: {Hierarchy.Planes[parent].name})";
                     break;
                 case "3pointcircle":
-                    s += $"\n(Thuộc đường tròn: {Hierarchy.Circles[parent].name})";
+                    s += $" (Thuộc đường tròn: {Hierarchy.Circles[parent].name})";
                     break;
             }
         }
@@ -335,7 +335,7 @@ public class Hierarchy : MonoBehaviour
 
         string s = $"Đoạn thẳng: {name}";
         if (plane != ""){
-            s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
+            s += $" (Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
         }
         AddItem(go.gameObject, s);
     }
@@ -376,7 +376,7 @@ public class Hierarchy : MonoBehaviour
 
         string s = $"Đường tròn: {name}";
         if (plane != ""){
-            s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
+            s += $" (Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
         }
         AddItem(go.gameObject, s);
     }
@@ -400,7 +400,7 @@ public class Hierarchy : MonoBehaviour
 
         string s = (type ? $"Đường tròn: {name}" : $"Đa giác: {name}");
         if (plane != ""){
-            s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
+            s += $" (Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
         }
         AddItem(go.gameObject, s);
     }
