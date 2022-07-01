@@ -83,7 +83,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         menu.Buttoggle("Thoát khỏi Server", true);
         RoomID.gameObject.SetActive(false);
         inRoom = false;
-        panel.CloseTab("Trò chuyện");
+        if (panel.TabsList.ContainsKey("Trò chuyện")) panel.CloseTab("Trò chuyện");
         chat.Send($"<b>{PhotonNetwork.NickName} đã thoát phòng!</b>");
         menu.Buttoggle("Trò chuyện", false);
         menu.Tickle("Trò chuyện", false);

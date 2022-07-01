@@ -8,7 +8,7 @@ public class PanelManager : MonoBehaviour
     Draw draw;
     public DynamicPanelsCanvas canvas;
     public RectTransform Inspector, Hierarchy, About, Manual, Settings, Chat;
-    Dictionary<string, PanelTab> TabsList = new Dictionary<string, PanelTab>();
+    public Dictionary<string, PanelTab> TabsList = new Dictionary<string, PanelTab>();
     public Transform Tabs;
     Vector2 minSize = new Vector2(400f, 250f);
     float initSize = 550f;
