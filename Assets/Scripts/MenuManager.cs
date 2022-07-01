@@ -14,10 +14,14 @@ public class MenuManager : MonoBehaviour
     bool someoneIsNotHidden;
     Transform previousHit;
     Transform currentSubContainer;
+    ConnectToServer connect;
+    RoomManager room;
     void Start()
     {
+        connect = FindObjectOfType<ConnectToServer>();
         dockAH = FindObjectOfType<DockAutoHide>();
         draw = FindObjectOfType<Draw>();
+        room = FindObjectOfType<RoomManager>();
         File();
         Edit();
         Tool();
@@ -140,11 +144,24 @@ public class MenuManager : MonoBehaviour
         var container = draw.uiobj.CommandContainer("Mạng", Containers);
         var item = draw.uiobj.MenuItem("Mạng", () => ToggleContainer(container), itemsContainer);
         var cmd = new Dictionary<string, Action>(){
-            {"Kết nối đến Server(1)", () => {}},
-            {"Thoát khỏi Server(0)", () => {}},
-            {"Tạo phòng(0)", () => {}},
-            {"Tham gia phòng(0)", () => {}},
-            {"Thoát phòng(0)", () => {}},
+            {"Kết nối đến Server(1)", () => {
+                connect.Connect();
+            }},
+            {"Thoát khỏi Server(0)", () => {
+                connect.Disconnect();
+            }},
+            {"Tạo phòng(0)", () => {
+                connect.Canvas.SetActive(true);
+                connect.Create.SetActive(true);
+                room.CreateID.text = room.ID = $"{draw.idhandler.RoomID(7)}-{draw.idhandler.RoomID(7)}-{draw.idhandler.RoomID(7)}";
+            }},
+            {"Tham gia phòng(0)", () => {
+                connect.Canvas.SetActive(true);
+                connect.Join.SetActive(true);
+            }},
+            {"Thoát phòng(0)", () => {
+                room.Leave();
+            }},
         };
         CreateCommands(cmd, container, false);
         draw.uiobj.RebuildLayout(MenuCanvas);

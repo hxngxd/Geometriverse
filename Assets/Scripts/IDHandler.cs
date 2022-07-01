@@ -18,4 +18,12 @@ public class IDHandler : MonoBehaviour
         }
         return ID;
     }
+    public string RoomID(int len){
+        string ID = "";
+        for (int i=0;i<len;i++){
+            int randomID = Random.Range(0, CharList.Count);
+            ID += CharList[randomID];
+        }
+        return ID;
+    }
 }
