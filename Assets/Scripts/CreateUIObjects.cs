@@ -10,7 +10,7 @@ public class CreateUIObjects : MonoBehaviour
     Draw draw;
     Quaternion rot0 = Quaternion.identity;
     Vector3 pos0 = Vector3.zero;
-    public GameObject DockButtonPref, DividerPref, Vector3Pref, ValuePref, SliderPref, TogglePref, MenuItemPref, MenuCommandPref, CommandContainerPref;
+    public GameObject DockButtonPref, DividerPref, Vector3Pref, ValuePref, SliderPref, TogglePref, MenuItemPref, MenuCommandPref, CommandContainerPref, HierItemPref;
     List<string> Vec3Path = new List<string>(){
         "Input_X", "Input_Y", "Input_Z"
     };
@@ -41,6 +41,12 @@ public class CreateUIObjects : MonoBehaviour
     public void DockDivider(Transform parent){
         var divider = Instantiate(DividerPref, pos0, rot0, parent).transform;
         divider.localScale = Vector3.one;
+    }
+    public void HierarchyItem(string ID, string label, Action onclick, Transform parent){
+        var item = Instantiate(HierItemPref, pos0, rot0, parent).GetComponent<Toggle>();
+        SetText(item.transform.Find("Text"), label);
+        item.name = ID;
+        draw.listener.Add_Toggle(item, onclick);
     }
     public List<INPUT> Vec3(string label, Transform parent){
         var ui = Instantiate(Vector3Pref, pos0, rot0, parent).transform;

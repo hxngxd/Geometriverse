@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Hierarchy : MonoBehaviour
 {
@@ -21,8 +22,32 @@ public class Hierarchy : MonoBehaviour
     public static Dictionary<string, string> Types = new Dictionary<string, string>(); 
     public static Dictionary<string, Point> Points = new Dictionary<string, Point>();
     public static Dictionary<string, Line> Lines = new Dictionary<string, Line>();
+    public Transform content;
     void Start(){
         draw = FindObjectOfType<Draw>();
+    }
+    public void AddItem(GameObject go, string name){
+        //MULTI SELECT PLEASE
+        string ID = go.name;
+        draw.uiobj.HierarchyItem(ID, name, () => {
+            var item = content.Find(ID).GetComponent<Toggle>();
+            if (item.isOn){
+                foreach (Transform child in content){
+                    if (child.name != ID){
+                        child.GetComponent<Toggle>().isOn = false;
+                    }
+                }
+                draw.mouse.UnselectAll();
+                draw.Refresh();
+                draw.mouse.OnSelect(go.transform);
+            }
+        }, content);
+    }
+    public void UnselectAllItem(){
+        if (content.childCount==0) return;
+        foreach (Transform child in content){
+            child.GetComponent<Toggle>().isOn = false;
+        }
     }
     public void AddPoint(string name, string parent, GameObject go){
         var obj = new Point();
@@ -31,16 +56,15 @@ public class Hierarchy : MonoBehaviour
         obj.go = go;
         Points.Add(go.name, obj);
         Types.Add(go.name, "point");
+
+        var pos = draw.calc.roundVec3(go.transform.position, 2);
+        AddItem(go, $"Điểm {name}({pos.x},{pos.z},{pos.y})");
     }
     public void RemovePoint(string ID){
         Destroy(Points[ID].go);
         Points.Remove(ID);
         Types.Remove(ID);
-    }
-    public void RemoveLine(string ID){
-        Destroy(Lines[ID].go.gameObject);
-        Lines.Remove(ID);
-        Types.Remove(ID);
+        Destroy(content.Find(ID).gameObject);
     }
     public void AddLine(string name, string start, string end, string plane, LineRenderer go, List<string> Children){
         var obj = new Line();
@@ -52,6 +76,14 @@ public class Hierarchy : MonoBehaviour
         obj.children = Children;
         Lines.Add(go.name, obj);
         Types.Add(go.name, "line");
+
+        AddItem(go.gameObject, $"Đoạn thẳng {name} (Điểm đầu: {Hierarchy.Points[start].name}, điểm cuối: {Hierarchy.Points[end].name})");
+    }
+    public void RemoveLine(string ID){
+        Destroy(Lines[ID].go.gameObject);
+        Lines.Remove(ID);
+        Types.Remove(ID);
+        Destroy(content.Find(ID).gameObject);
     }
     public void RemoveCurrentObjects(){
         foreach (var obj in currentObjects){

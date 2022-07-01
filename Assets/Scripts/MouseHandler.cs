@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MouseHandler : MonoBehaviour
 {
@@ -62,28 +63,23 @@ public class MouseHandler : MonoBehaviour
         gameObject.transform.position = Camera.main.ScreenToWorldPoint(mousePos);
     }
     void Update(){
+        // string a = "";
+        // foreach (var t in Selected){
+        //     a += t.name + " ";
+        // }
+        // print(a);
+        // print(Selected.Count);
+        // print(Hierarchy.Types.Count);
         if (Highlighted != null) Unhighlight();
 
         if (Selected.Count != 0){
             if (Input.GetKeyDown(KeyCode.Escape)){
                 UnselectAll();
                 draw.Refresh();
+                draw.hier.UnselectAllItem();
             }
             else if (Input.GetKeyDown(KeyCode.Delete)){
-                foreach (var selection in Selected){
-                    string ID = selection.name;
-                    switch (Hierarchy.Types[ID]){
-                        case "point":
-                            draw.hier.RemovePoint(ID);
-                            break;
-                        case "line":
-                            draw.hier.RemoveLine(ID);
-                            break;
-                    }
-                }
-                Selected.Clear();
-                UnselectAll();
-                draw.Refresh();
+                DeleteSelected();
             }
         }
         PickUp();
@@ -129,23 +125,49 @@ public class MouseHandler : MonoBehaviour
             else{
                 UnselectAll();
                 draw.Refresh();
+                draw.hier.UnselectAllItem();
             }
         }
     }
     public void OnSelect(Transform obj){
-        switch (Hierarchy.Types[obj.name]){
-            case "point":
-                draw.current = StartCoroutine(draw.point.OnSelect(obj.gameObject));
-                break;
-            case "line":
-                draw.current = StartCoroutine(draw.line.OnSelect(obj.GetComponent<LineRenderer>()));
-                break;
+        var hierItem = draw.hier.content.Find(obj.name).GetComponent<Toggle>();
+        if (!hierItem.isOn) hierItem.isOn = true;
+        if (!Selected.Contains(obj)){
+            switch (Hierarchy.Types[obj.name]){
+                case "point":
+                    draw.current = StartCoroutine(draw.point.OnSelect(obj.gameObject));
+                    break;
+                case "line":
+                    draw.current = StartCoroutine(draw.line.OnSelect(obj.GetComponent<LineRenderer>()));
+                    break;
+            }
         }
+    }
+    public void DeleteSelected(){
+        foreach (var selection in Selected){
+            string ID = selection.name;
+            switch (Hierarchy.Types[ID]){
+                case "point":
+                    draw.hier.RemovePoint(ID);
+                    break;
+                case "line":
+                    draw.hier.RemoveLine(ID);
+                    break;
+            }
+        }
+        Selected.Clear();
+        SelectionCount.Clear();
+        foreach (string type in Types) SelectionCount.Add(type, 0);
+        OnSelectionsChange();
+        UnselectAll();
+        draw.Refresh();
     }
     public void Select(Transform obj){
         SetMaterial(obj, 2);
-        Selected.Add(obj);
-        SelectionCount[Hierarchy.Types[obj.name]]++;
+        if (!Selected.Contains(obj)){
+            Selected.Add(obj);
+            SelectionCount[Hierarchy.Types[obj.name]]++;
+        }
         OnSelectionsChange();
     }
     public void Unselect(Transform obj){
@@ -173,7 +195,8 @@ public class MouseHandler : MonoBehaviour
         Highlighted = null;        
     }
     public void OnSelectionsChange(){
-        return;
+        bool noselected = Selected.Count == 0;
+        draw.menu.Buttoggle("Xoá", !noselected);
     }
     public void SetMaterial(Transform obj, int state){
         if (obj == null || !Hierarchy.Types.ContainsKey(obj.name)) return;

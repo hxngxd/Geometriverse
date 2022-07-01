@@ -41,6 +41,7 @@ public class Draw : MonoBehaviour
     }
     public void SetScrollContent(Transform content){
         InspectorSR.content = content.GetComponent<RectTransform>();
+        hier.UnselectAllItem();
     }
     public void Refresh(){
         drawing = false;

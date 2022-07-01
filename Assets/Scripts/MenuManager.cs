@@ -43,11 +43,8 @@ public class MenuManager : MonoBehaviour
         var container = draw.uiobj.CommandContainer("Chỉnh sửa", Containers);
         var item = draw.uiobj.MenuItem("Chỉnh sửa", () => ToggleContainer(container), itemsContainer);
         var cmd = new Dictionary<string, Action>(){
-            {"edit1(1)", () => {
-                
-            }},
-            {"Xoá(1)", () => {
-                
+            {"Xoá(0)", () => {
+                draw.mouse.DeleteSelected();
             }},
         };
         CreateCommands(cmd, container, false);
