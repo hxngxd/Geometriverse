@@ -87,7 +87,7 @@ public class drawPolygon : MonoBehaviour
 
             Hierarchy.Planes[plane].children.Add(vertex.name);
             Hierarchy.Planes[plane].children.Add(polygon.name);
-            draw.hier.AddPolygon("", center.name, vertex.name, plane, (type ? 90 : draw.inputhandler.toInt(Inputs["step"][0])), polygon, new Dictionary<string, float>(), type);
+            draw.hier.AddPolygon("", center.name, vertex.name, plane, (type ? 90 : draw.inputhandler.toInt(Inputs["step"][0])), polygon, new List<string>(), new Dictionary<string, float>(), type);
             polygon.gameObject.AddComponent<DynamicPolygon>();
             linecollider.AddCollider(polygon);
 

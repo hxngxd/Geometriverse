@@ -39,6 +39,11 @@ MonoBehaviour:
   - DestroySpaceship
   - Fire
   - RespawnSpaceship
+  - RPC_AddCircle
+  - RPC_AddLine
+  - RPC_AddPlane
+  - RPC_AddPoint
+  - RPC_AddPolygon
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

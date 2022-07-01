@@ -12,6 +12,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
     IDHandler idhandler;
     public INPUT JoinInput, CreateInput, JoinName, RoomID, CreateID;
     public string ID;
+    public static bool inRoom = false;
     void Start()
     {
         menu = FindObjectOfType<MenuManager>();
@@ -59,6 +60,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         menu.Buttoggle("Thoát khỏi Server", false);
         RoomID.gameObject.SetActive(true);
         RoomID.text = ID;
+        inRoom = true;
     }
     public override void OnLeftRoom()
     {
@@ -70,6 +72,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         menu.Buttoggle("Thoát phòng", false);
         menu.Buttoggle("Thoát khỏi Server", true);
         RoomID.gameObject.SetActive(false);
+        inRoom = false;
     }
     public override void OnJoinRoomFailed(short returnCode, string message)
     {

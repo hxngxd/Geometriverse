@@ -79,7 +79,7 @@ public class MenuManager : MonoBehaviour
                 Resolution[] resolutions = Screen.resolutions;
                 var cmd = new Dictionary<string, Action>();
                 foreach (var res in resolutions){
-                    cmd.Add($"{res.width}x{res.height}(1)", () => {
+                    if (!cmd.ContainsKey($"{res.width}x{res.height}(1)")) cmd.Add($"{res.width}x{res.height}(1)", () => {
                         Screen.SetResolution(res.width, res.height, Screen.fullScreen);
                     });
                 }
