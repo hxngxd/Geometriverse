@@ -5,9 +5,86 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 public class Calculate : MonoBehaviour
 {
+    public const float pi = Mathf.PI;
     void Start()
     {
         
+    }
+    public KeyValuePair<bool, Vector3> intersect_line_plane(KeyValuePair<Vector3, Vector3> Line, Dictionary<string, float> Plane){
+        var M = Line.Key;
+        var u = Line.Value - M;
+        if (Vector3.Dot(u, new Vector3(Plane["a"], Plane["b"], Plane["c"]))==0) return new KeyValuePair<bool, Vector3>(false, Vector3.positiveInfinity);
+        var N1 = Plane["a"]*M.x + Plane["b"]*M.y + Plane["c"]*M.z + Plane["d"];
+        var N2 = Plane["a"]*u.x + Plane["b"]*u.y + Plane["c"]*u.z;
+        var t = -(N1/N2);
+        return new KeyValuePair<bool, Vector3>(true, new Vector3(M.x+u.x*t, M.y+u.y*t, M.z+u.z*t));
+    }
+    public Vector3 MatrixRotate(Vector3 center, Vector3 originPos, Matrix<double> RotationMatrix){
+        originPos = I_Translate(center, originPos);
+        var v = Vec2Mat(originPos).Transpose();
+        return Translate(center, Mat2Vec(RotationMatrix.Multiply(v).Transpose()));
+    }
+    public Dictionary<string, float> plane_equation(Vector3 A, Vector3 B, Vector3 C){
+        var equation = new Dictionary<string, float>();
+        var perp = Vector3.Cross(B - A, C - A);
+        equation.Add("a", perp.x);
+        equation.Add("b", perp.y);
+        equation.Add("c", perp.z);
+        equation.Add("d", (-perp.x*A.x) + (-perp.y*A.y) + (-perp.z*A.z));
+        return equation;
+    }
+    public Matrix<double> RM_Plane_XY(Vector3 A, Vector3 B, Vector3 C){
+        var perp = Vector3.Cross(B - A, C - A).normalized;
+        return RM_Vectors(Vector3.zero, new Vector3(0,0,1), perp);
+    }
+    public Matrix<double> RM_Vectors(Vector3 center, Vector3 A, Vector3 B){
+        A = I_Translate(center, KC_sang_toa_do(center, A, 1f));
+        B = I_Translate(center, KC_sang_toa_do(center, B, 1f));
+        var c = Vector3.Dot(A, B);
+
+        if (c==1) return Euler_to_RM(Vector3.zero);
+        else if (c==-1) return Euler_to_RM(new Vector3(pi, 0, 0));
+
+        var v = Vector3.Cross(A, B);
+        var s = Vector3.Magnitude(v);
+        var vx = DenseMatrix.OfArray(new double[,]{
+            {0, -v.z, v.y},
+            {v.z, 0, -v.x},
+            {-v.y, v.x, 0}
+        });
+        var R = DenseMatrix.CreateIdentity(3) + vx + vx.Multiply(vx)*(1-c)/(sqr(s));
+        return R;
+    }
+    public Matrix<double> RotationMatrixX(float angle){
+        var Rx = DenseMatrix.OfArray(new double[,]{
+            {1, 0, 0},
+            {0, cos(angle), -sin(angle)},
+            {0, sin(angle), cos(angle)}
+        });
+        return Rx;
+    }
+    public Matrix<double> RotationMatrixY(float angle){
+        var Ry = DenseMatrix.OfArray(new double[,]{
+            {cos(angle), 0, sin(angle)},
+            {0, 1, 0},
+            {-sin(angle), 0, cos(angle)}
+        });
+        return Ry;
+    }
+    public Matrix<double> RotationMatrixZ(float angle){
+        var Rz = DenseMatrix.OfArray(new double[,]{
+            {cos(angle), -sin(angle), 0},
+            {sin(angle), cos(angle), 0},
+            {0, 0, 1}
+        });
+        return Rz;
+    }
+    public Matrix<double> Euler_to_RM(Vector3 angle){
+        var Rx = RotationMatrixX(angle.x);
+        var Ry = RotationMatrixY(angle.y);
+        var Rz = RotationMatrixZ(angle.z);
+        var R = Rz.Multiply(Ry).Multiply(Rx);
+        return R;
     }
     public KeyValuePair<Vector3, Vector3> Duong_vuong_goc_chung(KeyValuePair<Vector3, Vector3> firstLine, KeyValuePair<Vector3, Vector3> secondLine){
         var u1 = firstLine.Value - firstLine.Key;
@@ -111,5 +188,11 @@ public class Calculate : MonoBehaviour
     }
     public Vector3 swapXY(Vector3 vt){
         return new Vector3(vt.y, vt.x, vt.z);
+    }
+    public Matrix<double> Vec2Mat(Vector3 vt){
+        return DenseMatrix.OfArray(new double[,]{{vt.x, vt.y, vt.z}});
+    }
+    public Vector3 Mat2Vec(Matrix<double> M){
+        return new Vector3((float)M.Row(0)[0], (float)M.Row(0)[1], (float)M.Row(0)[2]);
     }
 }

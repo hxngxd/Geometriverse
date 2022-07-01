@@ -64,7 +64,11 @@ public class drawLine : MonoBehaviour
             }
 
             if (!overlapseLine){
-                draw.hier.AddLine("", start, end, "", line, new List<string>());
+                var plane = "";
+                var startparent = Hierarchy.Points[start].parent;
+                var endparent = Hierarchy.Points[end].parent;
+                if (startparent == endparent && startparent != "") plane = startparent;
+                draw.hier.AddLine("", start, end, plane, line, new List<string>());
                 linecollder.AddCollider(line);
             }
 

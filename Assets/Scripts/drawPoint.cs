@@ -63,6 +63,10 @@ public class drawPoint : MonoBehaviour
                         var end = Hierarchy.Points[Hierarchy.Lines[hit.ID].end].go.transform.position;
                         point.transform.position = draw.calc.HC_diem_len_duong_thang(hit.point, new KeyValuePair<Vector3, Vector3>(start, end));
                         break;
+                    case "plane":
+                        if (!point.activeSelf) point.SetActive(true);
+                        point.transform.position = hit.point;
+                        break;
                 }
             }
         }
@@ -84,6 +88,10 @@ public class drawPoint : MonoBehaviour
                 case "line":
                     parent = hit.ID;
                     Hierarchy.Lines[hit.ID].children.Add(point.name);
+                    break;
+                case "plane":
+                    parent = hit.ID;
+                    Hierarchy.Planes[hit.ID].children.Add(point.name);
                     break;
             }
         }
@@ -139,6 +147,11 @@ public class drawPoint : MonoBehaviour
                     var end = Hierarchy.Lines[parent].end;
                     var line = new KeyValuePair<Vector3, Vector3>(draw.calc.swapYZ(Hierarchy.Points[start].go.transform.position), draw.calc.swapYZ(Hierarchy.Points[end].go.transform.position));
                     point.transform.position = draw.calc.swapYZ(draw.calc.Duong_vuong_goc_chung(line, mouseRay).Key);
+                    break;
+                case "plane":
+                    var mouseray = draw.raycast.MouseToRay();
+                    var plane = Hierarchy.Planes[parent].equation;
+                    point.transform.position = draw.calc.swapYZ(draw.calc.intersect_line_plane(mouseray, plane).Value);
                     break;
             }
         }

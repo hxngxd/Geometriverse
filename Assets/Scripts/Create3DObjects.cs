@@ -5,7 +5,7 @@ using UnityEngine;
 public class Create3DObjects : MonoBehaviour
 {
     IDHandler idhandler;
-    public GameObject pointPref, linePref;
+    public GameObject pointPref, linePref, planePref;
     Quaternion rot0 = Quaternion.identity;
     Vector3 pos0 = Vector3.zero;
     void Start(){
@@ -20,5 +20,10 @@ public class Create3DObjects : MonoBehaviour
         var line = Instantiate(linePref, pos0, rot0, parent);
         line.name = idhandler.GenID();
         return line.GetComponent<LineRenderer>();
+    }
+    public GameObject Plane(Transform parent){
+        var plane = Instantiate(planePref, pos0, rot0, parent);
+        plane.name = idhandler.GenID();
+        return plane;
     }
 }

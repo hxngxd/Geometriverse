@@ -20,6 +20,7 @@ public class Draw : MonoBehaviour
     public Calculate calc;
     public drawPoint point;
     public drawLine line;
+    public drawPlane plane;
     public CameraController cam;
     public bool drawing = false;
     public Coroutine current = null;
@@ -33,6 +34,11 @@ public class Draw : MonoBehaviour
         Refresh();
         SetScrollContent(line.content);
         current = StartCoroutine(line.Okay());
+    }
+    public void Plane(){
+        Refresh();
+        SetScrollContent(plane.content);
+        current = StartCoroutine(plane.Okay());
     }
     public void CameraControl(){
         Refresh();
@@ -48,6 +54,7 @@ public class Draw : MonoBehaviour
         point.Cancel();
         line.Cancel();
         cam.Cancel();
+        plane.Cancel();
         current = null;
     }
     public void Cancel(){

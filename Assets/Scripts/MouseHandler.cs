@@ -13,7 +13,7 @@ public class MouseHandler : MonoBehaviour
     public Transform Highlighted = null;
     public List<Transform> Selected = new List<Transform>();
     public Dictionary<string, int> SelectionCount = new Dictionary<string, int>();
-    public List<string> Types = new List<string>(){"point", "line"};
+    public List<string> Types = new List<string>(){"point", "line", "plane"};
     void Start(){
         draw = FindObjectOfType<Draw>();
         foreach (string type in Types) SelectionCount.Add(type, 0);
@@ -105,13 +105,6 @@ public class MouseHandler : MonoBehaviour
                     }
                     else{
                         Unselect(obj);
-                        if (Selected.Count==1){
-                            OnSelect(Selected[0]);
-                            SelectionCount[Hierarchy.Types[Selected[0].name]]--;
-                            OnSelectionsChange();
-                            Selected.RemoveAt(0);
-                        }
-                        else if (Selected.Count==0) draw.Refresh();
                     }
                 }
                 else{
@@ -140,20 +133,15 @@ public class MouseHandler : MonoBehaviour
                 case "line":
                     draw.current = StartCoroutine(draw.line.OnSelect(obj.GetComponent<LineRenderer>()));
                     break;
+                case "plane":
+                    draw.current = StartCoroutine(draw.plane.OnSelect(obj.gameObject));
+                    break;
             }
         }
     }
     public void DeleteSelected(){
         foreach (var selection in Selected){
-            string ID = selection.name;
-            switch (Hierarchy.Types[ID]){
-                case "point":
-                    draw.hier.RemovePoint(ID);
-                    break;
-                case "line":
-                    draw.hier.RemoveLine(ID);
-                    break;
-            }
+            draw.hier.RemoveObjectsWithID(selection.name);
         }
         Selected.Clear();
         SelectionCount.Clear();
@@ -206,6 +194,9 @@ public class MouseHandler : MonoBehaviour
                 break;
             case "line":
                 obj.GetComponent<LineRenderer>().material = defaultMat[state];
+                break;
+            case "plane":
+                obj.GetComponent<MeshRenderer>().material = plane[state];
                 break;
         }
     }

@@ -61,11 +61,15 @@ public class InputFieldHandler : MonoBehaviour
         var obj = Hierarchy.Points[ID];
         obj.name = name;
         Hierarchy.Points[ID] = obj;
-        obj.go.transform.Find("value").GetComponent<TextMeshPro>().text = name;
     }
     public void Update_Line_Name(string ID, string name){
         var obj = Hierarchy.Lines[ID];
         obj.name = name;
         Hierarchy.Lines[ID] = obj;
+    }
+    public void Update_Plane_Name(string ID, string name){
+        var obj = Hierarchy.Planes[ID];
+        obj.name = name;
+        Hierarchy.Planes[ID] = obj;
     }
 }
