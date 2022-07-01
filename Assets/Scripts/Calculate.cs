@@ -10,6 +10,28 @@ public class Calculate : MonoBehaviour
     {
         
     }
+    public KeyValuePair<Vector3, Vector3> Duong_vg_chung(KeyValuePair<Vector3, Vector3> firstLine, KeyValuePair<Vector3, Vector3> secondLine){
+        var u1 = firstLine.Value - firstLine.Key;
+        var u2 = secondLine.Value - secondLine.Key;
+        var A = DenseMatrix.OfArray(new double[,]{
+            {-sqr(Vector3.Distance(Vector3.zero, u1)), Vector3.Dot(u1, u2)},
+            {-Vector3.Dot(u1,u2), sqr(Vector3.Distance(Vector3.zero, u2))},
+        });
+        var B = DenseMatrix.OfArray(new double[,]{
+            {- u1.x*(secondLine.Key.x - firstLine.Key.x) - u1.y*(secondLine.Key.y - firstLine.Key.y) - u1.z*(secondLine.Key.z - firstLine.Key.z)},
+            {- u2.x*(secondLine.Key.x - firstLine.Key.x) - u2.y*(secondLine.Key.y - firstLine.Key.y) - u2.z*(secondLine.Key.z - firstLine.Key.z)},
+        });
+        var res = A.Inverse().Multiply(B);
+        var t1 = (float)res.Row(0)[0];
+        var t2 = (float)res.Row(1)[0];
+        return new KeyValuePair<Vector3, Vector3>(new Vector3(firstLine.Key.x+u1.x*t1, firstLine.Key.y+u1.y*t1, firstLine.Key.z+u1.z*t1), new Vector3(secondLine.Key.x+u2.x*t2, secondLine.Key.y+u2.y*t2, secondLine.Key.z+u2.z*t2));
+    }
+    public Vector3 HC_diem_len_mp(Vector3 M, Dictionary<string, float> Plane){
+        float A = Plane["a"]*M.x + Plane["b"]*M.y + Plane["c"]*M.z + Plane["d"];
+        float B = sqr(Plane["a"]) + sqr(Plane["b"]) + sqr(Plane["c"]);
+        float k = -A/B;
+        return new Vector3(M.x + Plane["a"]*k, M.y + Plane["b"]*k, M.z + Plane["c"]*k);
+    }
     public void PolygonVertex(LineRenderer line, Vector3 center, Vector3 vertex, int step, Matrix<double> RotationMatrix){
         line.positionCount = step;
         float radius = Vector3.Distance(center, vertex);

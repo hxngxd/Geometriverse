@@ -201,5 +201,14 @@ public class MouseHandler : MonoBehaviour
                 break;
         }
     }
-
+    public Dictionary<string, List<string>> GetSelections(){
+        var d = new Dictionary<string, List<string>>();
+        foreach (var selection in Selected){
+            if (!d.ContainsKey(Hierarchy.Types[selection.name])) d.Add(Hierarchy.Types[selection.name], new List<string>(){selection.name});
+            else{
+                d[Hierarchy.Types[selection.name]].Add(selection.name);
+            }
+        }
+        return d;
+    }
 }
