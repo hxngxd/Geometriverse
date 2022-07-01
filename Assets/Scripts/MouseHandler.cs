@@ -63,13 +63,6 @@ public class MouseHandler : MonoBehaviour
         gameObject.transform.position = Camera.main.ScreenToWorldPoint(mousePos);
     }
     void Update(){
-        // string a = "";
-        // foreach (var t in Selected){
-        //     a += t.name + " ";
-        // }
-        // print(a);
-        // print(Selected.Count);
-        // print(Hierarchy.Types.Count);
         if (Highlighted != null) Unhighlight();
 
         if (Selected.Count != 0){
