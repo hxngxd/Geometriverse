@@ -10,7 +10,7 @@ using Photon.Realtime;
 public class Hierarchy : MonoBehaviour
 {
     Draw draw;
-    PhotonView photon;
+    public PhotonView photon;
     public struct Point{
         public string name, parent;
         public GameObject go;
@@ -183,6 +183,7 @@ public class Hierarchy : MonoBehaviour
         obj.plane = plane;
         obj.go = go;
         obj.vertices = vertices;
+        obj.children = children;
         obj.rotation = rotation;
         obj.equation = equation;
         Circles.Add(go.name, obj);
@@ -371,7 +372,7 @@ public class Hierarchy : MonoBehaviour
         obj.rotation = ArrayToMatrix(rotation);
         obj.equation = equation;
         Circles.Add(ID, obj);
-        Types.Add(ID, "circle");
+        Types.Add(ID, "3pointcircle");
 
         string s = $"Đường tròn: {name}";
         if (plane != ""){

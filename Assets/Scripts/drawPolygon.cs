@@ -5,6 +5,7 @@ using TMPro;
 using INPUT=TMPro.TMP_InputField;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using Photon.Pun;
 public class drawPolygon : MonoBehaviour
 {
     public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
@@ -87,6 +88,10 @@ public class drawPolygon : MonoBehaviour
 
             Hierarchy.Planes[plane].children.Add(vertex.name);
             Hierarchy.Planes[plane].children.Add(polygon.name);
+            if (RoomManager.inRoom){
+                this.GetComponent<PhotonView>().RPC("AddChildren", RpcTarget.OthersBuffered, plane, vertex.name);
+                this.GetComponent<PhotonView>().RPC("AddChildren", RpcTarget.OthersBuffered, plane, polygon.name);
+            }
             draw.hier.AddPolygon("", center.name, vertex.name, plane, (type ? 90 : draw.inputhandler.toInt(Inputs["step"][0])), polygon, new List<string>(), new Dictionary<string, float>(), type);
             polygon.gameObject.AddComponent<DynamicPolygon>();
             linecollider.AddCollider(polygon);
@@ -94,6 +99,10 @@ public class drawPolygon : MonoBehaviour
             draw.hier.ResetCurrentObjects();
             yield return new WaitForSeconds(0.015f);
         }
+    }
+    [PunRPC]
+    void AddChildren(string parent, string child){
+        draw.point.RPC_AddChildren(parent, child);
     }
     public IEnumerator OnSelect(LineRenderer polygon){
         draw.mouse.Select(polygon.transform);

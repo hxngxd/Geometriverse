@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using TMPro;
 using INPUT=TMPro.TMP_InputField;
+using Photon.Pun;
 public class drawPoint : MonoBehaviour
 {
     public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
@@ -37,6 +38,10 @@ public class drawPoint : MonoBehaviour
             yield return null;
         }
     }
+    [PunRPC]
+    void SyncPos(string ID, Vector3 pos){
+        Hierarchy.Points[ID].go.transform.position = pos;
+    }
     public void whileDrawing(GameObject point, List<INPUT> Pos){
         if (point==null) return;
         var hit = draw.raycast.Hit();
@@ -67,35 +72,39 @@ public class drawPoint : MonoBehaviour
         }
         draw.inputhandler.Vec2Input(Pos, draw.calc.swapYZ(point.transform.position));
     }
+    [PunRPC]
+    public void RPC_AddChildren(string parent, string child){
+        switch (Hierarchy.Types[parent]){
+            case "line":
+                Hierarchy.Lines[parent].children.Add(child);
+                break;
+            case "plane":
+                Hierarchy.Planes[parent].children.Add(child);
+                break;
+            case "3pointcircle":
+                Hierarchy.Circles[parent].children.Add(child);
+                break;
+            case "polygon":
+                Hierarchy.Polygons[parent].children.Add(child);
+                break;
+        }
+    }
     public void doneDrawing(GameObject point, string name){
         if (point==null) return;
         var hit = draw.raycast.Hit();
         var parent = "";
         overlapsed = false;
         if (Hierarchy.Types.ContainsKey(hit.ID)){
-            switch (Hierarchy.Types[hit.ID]){
-                case "point":
-                    int index = Hierarchy.currentObjects["point"].IndexOf(point);
-                    Destroy(point);
-                    Hierarchy.currentObjects["point"][index] = point = Hierarchy.Points[hit.ID].go;
-                    overlapsed = true;
-                    break;
-                case "line":
-                    parent = hit.ID;
-                    Hierarchy.Lines[hit.ID].children.Add(point.name);
-                    break;
-                case "plane":
-                    parent = hit.ID;
-                    Hierarchy.Planes[hit.ID].children.Add(point.name);
-                    break;
-                case "3pointcircle":
-                    parent = hit.ID;
-                    Hierarchy.Circles[hit.ID].children.Add(point.name);
-                    break;
-                case "polygon":
-                    parent = hit.ID;
-                    Hierarchy.Polygons[hit.ID].children.Add(point.name);
-                    break;
+            if (Hierarchy.Types[hit.ID] == "point"){
+                int index = Hierarchy.currentObjects["point"].IndexOf(point);
+                Destroy(point);
+                Hierarchy.currentObjects["point"][index] = point = Hierarchy.Points[hit.ID].go;
+                overlapsed = true;
+            }
+            else{
+                parent = hit.ID;
+                RPC_AddChildren(hit.ID, point.name);
+                if (RoomManager.inRoom) this.GetComponent<PhotonView>().RPC("RPC_AddChildren", RpcTarget.OthersBuffered, hit.ID, point.name);
             }
         }
         point.GetComponent<SphereCollider>().enabled = true;
@@ -167,12 +176,16 @@ public class drawPoint : MonoBehaviour
                     point.transform.position = draw.calc.swapYZ(draw.calc.intersect_line_plane(mouseray, plane).Value);
                     break;
                 case "3pointcircle":
-                    break;
                 case "polygon":
+                    var hit = draw.raycast.Hit();
+                    if (hit.ID == parent) point.transform.position = hit.point;
                     break;
             }
         }
         draw.inputhandler.Vec2Input(Inputs["pos"], draw.calc.swapYZ(point.transform.position));
+        if (RoomManager.inRoom){
+            this.GetComponent<PhotonView>().RPC("SyncPos", RpcTarget.OthersBuffered, point.name, point.transform.position);
+        }
     }
     public void SnapOnAxis(GameObject point, RaycastHandler.MouseHit hit){
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)){

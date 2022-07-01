@@ -1822,7 +1822,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 80, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 90}
   m_Pivot: {x: 0.5, y: 1.0000002}
 --- !u!114 &392983292
@@ -3624,6 +3624,7 @@ GameObject:
   - component: {fileID: 701543701}
   - component: {fileID: 701543702}
   - component: {fileID: 701543703}
+  - component: {fileID: 701543704}
   m_Layer: 0
   m_Name: Draw
   m_TagString: Untagged
@@ -3746,6 +3747,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   content: {fileID: 778307917}
+--- !u!114 &701543704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701543696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 2
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &711552755
 GameObject:
   m_ObjectHideFlags: 0
@@ -4532,6 +4555,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f11195b9ec034396e4b4bbde13fc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  photon: {fileID: 0}
   content: {fileID: 1662232605}
 --- !u!114 &867914204
 MonoBehaviour:
@@ -5758,6 +5782,10 @@ PrefabInstance:
     - target: {fileID: 4514117254681294398, guid: d8f6a7ccc3923cd4ea682098520f5880, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4279834905
+      objectReference: {fileID: 0}
+    - target: {fileID: 4587902745683255516, guid: d8f6a7ccc3923cd4ea682098520f5880, type: 3}
+      propertyPath: sceneViewId
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5907081930511382586, guid: d8f6a7ccc3923cd4ea682098520f5880, type: 3}
       propertyPath: m_Radius
