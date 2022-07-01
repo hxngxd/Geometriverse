@@ -7,13 +7,13 @@ public class drawLine : MonoBehaviour
 {
     public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
     Draw draw;
-    LineCollider linecollder;
+    LineCollider linecollider;
     public float ratio;
     public Transform content;
     void Start()
     {
         draw = FindObjectOfType<Draw>();
-        linecollder = FindObjectOfType<LineCollider>();
+        linecollider = FindObjectOfType<LineCollider>();
         Inspector();
     }
     public void Inspector(){
@@ -22,6 +22,7 @@ public class drawLine : MonoBehaviour
         Inputs.Add("start_pos", draw.uiobj.Vec3("Toạ độ", content));
         Inputs.Add("end_name", new List<INPUT>(){draw.uiobj.Value("Tên điểm cuối", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
         Inputs.Add("end_pos", draw.uiobj.Vec3("Toạ độ", content));
+        Inputs.Add("dist", new List<INPUT>(){draw.uiobj.Value("Độ dài", "0", "", INPUT.ContentType.DecimalNumber, content)});
         content.gameObject.SetActive(false);
     }
     public IEnumerator Okay(){
@@ -30,7 +31,12 @@ public class drawLine : MonoBehaviour
         while (true){
             ResetInputsList();
             draw.drawing = true;
-            StartCoroutine(draw.point.PointInit(()=>{}, ()=>{}, Cancel, Inputs["start_pos"]));
+            StartCoroutine(draw.point.PointInit(()=>{
+                draw.point.whileDrawing(Hierarchy.currentObjects["point"][Hierarchy.currentObjects["point"].Count-1].gameObject, Inputs["start_pos"]);
+            }, ()=>{
+                draw.point.doneDrawing(Hierarchy.currentObjects["point"][Hierarchy.currentObjects["point"].Count-1], "");
+                draw.point.pointing = false;
+            }, Cancel));
             yield return new WaitUntil(() => !draw.point.pointing);
             
             var line = draw.obj.Line(draw.hierContent);
@@ -38,24 +44,30 @@ public class drawLine : MonoBehaviour
             line.positionCount++;
             line.SetPosition(0, Hierarchy.currentObjects["point"][0].transform.position);
 
-            var start = Hierarchy.currentObjects["point"][0].name;
+            var start = Hierarchy.currentObjects["point"][0].transform;
             var overlapsedStart = draw.point.overlapsed;
             if (overlapsedStart) Hierarchy.currentObjects["point"].RemoveAt(0);
 
             yield return new WaitForSeconds(0.01f);
             StartCoroutine(draw.point.PointInit(()=>{
+                var p = Hierarchy.currentObjects["point"][Hierarchy.currentObjects["point"].Count-1].gameObject;
+                draw.point.whileDrawing(p, Inputs["end_pos"]);
                 if (line.positionCount < 2) line.positionCount++;
                 line.SetPosition(1, Hierarchy.currentObjects["point"][overlapsedStart ? 0 : 1].transform.position);
                 line.startWidth = Vector3.Distance(Camera.main.transform.position, line.GetPosition(0))*ratio;
                 line.endWidth = Vector3.Distance(Camera.main.transform.position, line.GetPosition(1))*ratio;
-            }, ()=>{}, Cancel, Inputs["end_pos"]));
+                draw.inputhandler.Float2Input(Inputs["dist"][0], Vector3.Distance(start.position, p.transform.position));
+            }, ()=>{
+                draw.point.doneDrawing(Hierarchy.currentObjects["point"][Hierarchy.currentObjects["point"].Count-1], "");
+                draw.point.pointing = false;
+            }, Cancel));
             yield return new WaitUntil(() => !draw.point.pointing);
 
-            var end = Hierarchy.currentObjects["point"][overlapsedStart ? 0 : 1].name;
+            var end = Hierarchy.currentObjects["point"][overlapsedStart ? 0 : 1].transform;
 
             bool overlapseLine = false;
             foreach (var l in Hierarchy.Lines){
-                if ((l.Value.start == start && l.Value.end == end) || (l.Value.start == end && l.Value.end == start)){
+                if ((l.Value.start == start.name && l.Value.end == end.name) || (l.Value.start == end.name && l.Value.end == start.name)){
                     overlapseLine = true;
                     Destroy(line.gameObject);
                     line = l.Value.go;
@@ -65,11 +77,13 @@ public class drawLine : MonoBehaviour
 
             if (!overlapseLine){
                 var plane = "";
-                var startparent = Hierarchy.Points[start].parent;
-                var endparent = Hierarchy.Points[end].parent;
-                if (startparent == endparent && startparent != "") plane = startparent;
-                draw.hier.AddLine("", start, end, plane, line, new List<string>());
-                linecollder.AddCollider(line);
+                var startparent = Hierarchy.Points[start.name].parent;
+                var endparent = Hierarchy.Points[end.name].parent;
+                if (startparent == endparent && startparent != "" && Hierarchy.Planes.ContainsKey(startparent)){
+                    plane = startparent;
+                }
+                draw.hier.AddLine("", start.name, end.name, plane, line, new List<string>());
+                linecollider.AddCollider(line);
             }
 
             draw.hier.ResetCurrentObjects();
@@ -93,6 +107,7 @@ public class drawLine : MonoBehaviour
         Inputs["name"][0].text = line.name;
         Inputs["start_name"][0].text = start.name;
         Inputs["end_name"][0].text = end.name;
+        draw.inputhandler.Float2Input(Inputs["dist"][0], Vector3.Distance(start.go.transform.position, end.go.transform.position));
         draw.inputhandler.Vec2Input(Inputs["start_pos"], draw.calc.swapYZ(start.go.transform.position));
         draw.inputhandler.Vec2Input(Inputs["end_pos"], draw.calc.swapYZ(end.go.transform.position));
 
@@ -119,5 +134,4 @@ public class drawLine : MonoBehaviour
         draw.inputhandler.ResetInputs(Inputs["start_pos"]);
         draw.inputhandler.ResetInputs(Inputs["end_pos"]);
     }
-    
 }

@@ -72,4 +72,14 @@ public class InputFieldHandler : MonoBehaviour
         obj.name = name;
         Hierarchy.Planes[ID] = obj;
     }
+    public void Update_Circle_Name(string ID, string name){
+        var obj = Hierarchy.Circles[ID];
+        obj.name = name;
+        Hierarchy.Circles[ID] = obj;
+    }
+    public void Update_Polygon_Name(string ID, string name){
+        var obj = Hierarchy.Polygons[ID];
+        obj.name = name;
+        Hierarchy.Polygons[ID] = obj;
+    }
 }

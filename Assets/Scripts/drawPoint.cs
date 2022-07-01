@@ -20,18 +20,15 @@ public class drawPoint : MonoBehaviour
         Inputs.Add("pos", draw.uiobj.Vec3("Toạ độ", content));
         content.gameObject.SetActive(false);
     }
-    public IEnumerator PointInit(Action subActionWhileDrawing, Action subActionDoneDrawing, Action onCancel, List<INPUT> Pos){
+    public IEnumerator PointInit(Action subActionWhileDrawing, Action subActionDoneDrawing, Action onCancel){
         pointing = true;
         var point = draw.obj.Point(Vector3.zero, draw.hierContent);
         Hierarchy.currentObjects["point"].Add(point);
         while (true){
             subActionWhileDrawing();
-            whileDrawing(point, Pos);
             if (Input.GetMouseButtonDown(0) && !draw.raycast.isMouseOverUI()){
-                subActionWhileDrawing();
-                doneDrawing(point, "");
-                pointing = false;
-                break;
+                subActionDoneDrawing();
+                if (pointing == false) break;
             }
             if (Input.GetKeyDown(KeyCode.Escape)){
                 onCancel();
@@ -56,6 +53,8 @@ public class drawPoint : MonoBehaviour
                     point.transform.position = draw.calc.HC_diem_len_duong_thang(hit.point, new KeyValuePair<Vector3, Vector3>(start, end));
                     break;
                 case "plane":
+                case "3pointcircle":
+                case "polygon":
                     if (!point.activeSelf) point.SetActive(true);
                     point.transform.position = hit.point;
                     break;
@@ -89,6 +88,14 @@ public class drawPoint : MonoBehaviour
                     parent = hit.ID;
                     Hierarchy.Planes[hit.ID].children.Add(point.name);
                     break;
+                case "3pointcircle":
+                    parent = hit.ID;
+                    Hierarchy.Circles[hit.ID].children.Add(point.name);
+                    break;
+                case "polygon":
+                    parent = hit.ID;
+                    Hierarchy.Polygons[hit.ID].children.Add(point.name);
+                    break;
             }
         }
         point.GetComponent<SphereCollider>().enabled = true;
@@ -100,7 +107,12 @@ public class drawPoint : MonoBehaviour
         draw.mouse.UnselectAll();
         while (true){
             draw.drawing = true;
-            StartCoroutine(PointInit(()=>{}, ()=>{}, Cancel, Inputs["pos"]));
+            StartCoroutine(PointInit(()=>{
+                whileDrawing(Hierarchy.currentObjects["point"][Hierarchy.currentObjects["point"].Count-1].gameObject, Inputs["pos"]);
+            }, ()=>{
+                doneDrawing(Hierarchy.currentObjects["point"][Hierarchy.currentObjects["point"].Count-1], "");
+                draw.point.pointing = false;
+            }, Cancel));
             yield return new WaitUntil(() => !pointing);
             draw.hier.ResetCurrentObjects();
             yield return new WaitForSeconds(0.015f);
@@ -153,6 +165,10 @@ public class drawPoint : MonoBehaviour
                     var mouseray = draw.raycast.MouseToRay();
                     var plane = Hierarchy.Planes[parent].equation;
                     point.transform.position = draw.calc.swapYZ(draw.calc.intersect_line_plane(mouseray, plane).Value);
+                    break;
+                case "3pointcircle":
+                    break;
+                case "polygon":
                     break;
             }
         }

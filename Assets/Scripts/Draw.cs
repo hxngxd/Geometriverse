@@ -21,6 +21,8 @@ public class Draw : MonoBehaviour
     public drawPoint point;
     public drawLine line;
     public drawPlane plane;
+    public draw3PointCircle circle3;
+    public drawPolygon polygon;
     public CameraController cam;
     public bool drawing = false;
     public Coroutine current = null;
@@ -45,16 +47,29 @@ public class Draw : MonoBehaviour
         SetScrollContent(cam.content);
         current = StartCoroutine(cam.Okay());
     }
+    public void Circle3Point(){
+        Refresh();
+        SetScrollContent(circle3.content);
+        current = StartCoroutine(circle3.Okay());
+    }
+    public void Polygon(bool type){
+        Refresh();
+        SetScrollContent(polygon.content);
+        current = StartCoroutine(polygon.Okay(type));
+    }
     public void SetScrollContent(Transform content){
         InspectorSR.content = content.GetComponent<RectTransform>();
         hier.UnselectAllItem();
     }
     public void Refresh(){
+        //neu nhan icon luc dang ve thi loi
         drawing = false;
         point.Cancel();
         line.Cancel();
         cam.Cancel();
         plane.Cancel();
+        circle3.Cancel();
+        polygon.Cancel();
         current = null;
     }
     public void Cancel(){

@@ -25,15 +25,35 @@ public class Hierarchy : MonoBehaviour
         public Matrix<double> rotation;
         public Dictionary<string, float> equation;
     }
+    public struct Circle{
+        public string name, center, vertex, plane;
+        public LineRenderer go;
+        public List<string> vertices;
+        public List<string> children;
+        public Matrix<double> rotation;
+        public Dictionary<string, float> equation;
+    }
+    public struct Polygon{
+        public string name, center, vertex, plane;
+        public int step;
+        public LineRenderer go;
+        public List<string> children;
+        public Dictionary<string, float> equation;
+        public bool type;
+    }
     public static Dictionary<string, List<GameObject>> currentObjects = new Dictionary<string, List<GameObject>>(){
         {"point", new List<GameObject>()},
         {"line", new List<GameObject>()},
         {"plane", new List<GameObject>()},
+        {"3pointcircle", new List<GameObject>()},
+        {"polygon", new List<GameObject>()}
     };
     public static Dictionary<string, string> Types = new Dictionary<string, string>(); 
     public static Dictionary<string, Point> Points = new Dictionary<string, Point>();
     public static Dictionary<string, Line> Lines = new Dictionary<string, Line>();
     public static Dictionary<string, Plane> Planes = new Dictionary<string, Plane>();
+    public static Dictionary<string, Circle> Circles = new Dictionary<string, Circle>();
+    public static Dictionary<string, Polygon> Polygons = new Dictionary<string, Polygon>();
     public Transform content;
     void Start(){
         draw = FindObjectOfType<Draw>();
@@ -81,6 +101,9 @@ public class Hierarchy : MonoBehaviour
                     break;
                 case "plane":
                     s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[parent].name})";
+                    break;
+                case "3pointcircle":
+                    s += $"\n(Thuộc đường tròn: {Hierarchy.Circles[parent].name})";
                     break;
             }
         }
@@ -135,6 +158,56 @@ public class Hierarchy : MonoBehaviour
         Types.Remove(ID);
         Destroy(content.Find(ID).gameObject);
     }
+    public void AddCircle(string name, string center, string vertex, string plane, LineRenderer go, List<string> vertices, List<string> children, Matrix<double> rotation, Dictionary<string, float> equation){
+        var obj = new Circle();
+        obj.name = name;
+        obj.center = center;
+        obj.vertex = vertex;
+        obj.plane = plane;
+        obj.go = go;
+        obj.vertices = vertices;
+        obj.rotation = rotation;
+        obj.equation = equation;
+        Circles.Add(go.name, obj);
+        Types.Add(go.name, "3pointcircle");
+
+        string s = $"Đường tròn: {name}";
+        if (plane != ""){
+            s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
+        }
+        AddItem(go.gameObject, s);
+    }
+    public void RemoveCircle(string ID){
+        Destroy(Circles[ID].go.gameObject);
+        Circles.Remove(ID);
+        Types.Remove(ID);
+        Destroy(content.Find(ID).gameObject);
+    }
+    public void AddPolygon(string name, string center, string vertex, string plane, int step, LineRenderer go, Dictionary<string, float> equation, bool type){
+        var obj = new Polygon();
+        obj.name = name;
+        obj.center = center;
+        obj.vertex = vertex;
+        obj.plane = plane;
+        obj.step = step;
+        obj.go = go;
+        obj.equation = equation;
+        obj.type = type;
+        Polygons.Add(go.name, obj);
+        Types.Add(go.name, "polygon");
+        
+        string s = (type ? $"Đường tròn: {name}" : $"Đa giác: {name}");
+        if (plane != ""){
+            s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[plane].name})";
+        }
+        AddItem(go.gameObject, s);
+    }
+    public void RemovePolygon(string ID){
+        Destroy(Polygons[ID].go.gameObject);
+        Polygons.Remove(ID);
+        Types.Remove(ID);
+        Destroy(content.Find(ID).gameObject);
+    }
     public void RemoveCurrentObjects(){
         foreach (var obj in currentObjects){
             foreach (var go in obj.Value){
@@ -167,7 +240,7 @@ public class Hierarchy : MonoBehaviour
         draw.Refresh();
         draw.mouse.Selected.Clear();
         draw.mouse.SelectionCount.Clear();
-        foreach (string type in draw.mouse.Types) draw.mouse.SelectionCount.Add(type, 0);
+        foreach (string type in MouseHandler.Types) draw.mouse.SelectionCount.Add(type, 0);
         draw.mouse.OnSelectionsChange();
     }
     public void RemoveObjectsWithID(string ID){
@@ -180,6 +253,12 @@ public class Hierarchy : MonoBehaviour
                 break;
             case "plane":
                 RemovePlane(ID);
+                break;
+            case "3pointcircle":
+                RemoveCircle(ID);
+                break;
+            case "polygon":
+                RemovePolygon(ID);
                 break;
         }
     }

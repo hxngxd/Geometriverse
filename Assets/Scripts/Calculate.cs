@@ -10,6 +10,32 @@ public class Calculate : MonoBehaviour
     {
         
     }
+    public void PolygonVertex(LineRenderer line, Vector3 center, Vector3 vertex, int step, Matrix<double> RotationMatrix){
+        line.positionCount = step;
+        float radius = Vector3.Distance(center, vertex);
+        for (int cur_step = 0;cur_step<step;cur_step++){
+            float progress = (float)cur_step/step;
+            float rad = progress * 2 * pi;
+            float Xp = cos(rad), Yp = sin(rad);
+            var origin = Translate(center, new Vector3(Xp, Yp, 0));
+            var rotate = MatrixRotate(center, KC_sang_toa_do(center, origin, radius), RotationMatrix);
+            line.SetPosition(cur_step, swapYZ(rotate));
+        }
+    }
+    public Vector3 tam_duong_tron_ngoai_tiep(Vector3 A, Vector3 B, Vector3 C){
+        var p = Vector3.Cross(B-A, C-A);
+        var M = DenseMatrix.OfArray(new double[,]{
+            {-2*(A.x-B.x), -2*(A.y-B.y), -2*(A.z-B.z)},
+            {-2*(A.x-C.x), -2*(A.y-C.y), -2*(A.z-C.z)},
+            {p.x, p.y, p.z}
+        });
+        var N = DenseMatrix.OfArray(new double[,]{
+            {sqr(Vector3.Distance(Vector3.zero, B)) - sqr(Vector3.Distance(Vector3.zero, A))},
+            {sqr(Vector3.Distance(Vector3.zero, C)) - sqr(Vector3.Distance(Vector3.zero, A))},
+            {p.x*A.x + p.y*A.y + p.z*A.z}
+        });
+        return Mat2Vec(M.Inverse().Multiply(N).Transpose());
+    } 
     public KeyValuePair<bool, Vector3> intersect_line_plane(KeyValuePair<Vector3, Vector3> Line, Dictionary<string, float> Plane){
         var M = Line.Key;
         var u = Line.Value - M;

@@ -37,6 +37,9 @@ public class DynamicPoint : MonoBehaviour
                             case "plane":
                                 s += $"\n(Thuộc mặt phẳng: {Hierarchy.Planes[p.parent].name})";
                                 break;
+                            case "3pointcircle":
+                                s += $"\n(Thuộc đường tròn: {Hierarchy.Circles[p.parent].name})";
+                                break;
                         }
                     }
                     hierItem.Find("Text").GetComponent<TextMeshProUGUI>().text = s;

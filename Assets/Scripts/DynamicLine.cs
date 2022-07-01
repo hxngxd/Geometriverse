@@ -53,7 +53,6 @@ public class DynamicLine : MonoBehaviour
                     preEnd = end;
                     line.SetPosition(0, start);
                     line.SetPosition(1, end);
-                    linecollider.RebuildCollider(line);
                 }
                 linecollider.RebuildCollider(line);
                 line.startWidth = Vector3.Distance(Camera.main.transform.position, start)*draw.line.ratio;
