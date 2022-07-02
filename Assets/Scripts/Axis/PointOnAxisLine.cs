@@ -17,13 +17,16 @@ public class PointOnAxisLine : MonoBehaviour
         for (float i=-range;i<=range;i+=Step){
             var x = obj.Point(new Vector3(i,0,0), Xs);
             x.AddComponent<DynamicAxisPoint>();
-            x.name = $"X_{i}";
+            x.name = $"pointX_{i}";
+            x.GetComponent<SphereCollider>().enabled = true;
             var y = obj.Point(new Vector3(0,0,i), Ys);
             y.AddComponent<DynamicAxisPoint>();
-            y.name = $"Y_{i}";
+            y.name = $"pointY_{i}";
+            y.GetComponent<SphereCollider>().enabled = true;
             var z = obj.Point(new Vector3(0,i,0), Zs);
             z.AddComponent<DynamicAxisPoint>();
-            z.name = $"Z_{i}";
+            z.name = $"pointZ_{i}";
+            z.GetComponent<SphereCollider>().enabled = true;
             z.transform.Find("value").transform.localPosition = new Vector3(-0.12f, 0, 0);
         }
     }

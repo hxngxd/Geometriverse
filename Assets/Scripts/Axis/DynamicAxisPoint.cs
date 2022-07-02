@@ -6,13 +6,11 @@ public class DynamicAxisPoint : MonoBehaviour
 {
     PointOnAxisLine poal;
     TextMeshPro value;
-    string axis;
     Vector3 previousPosition;
     void Start()
     {
         poal = FindObjectOfType<PointOnAxisLine>();
         value = this.transform.Find("value").GetComponent<TextMeshPro>();
-        axis = this.name[0].ToString();
         this.GetComponent<DynamicSize>().ratio /= 1.25f;
         this.transform.Find("dot").localScale /= 1.75f;
     }
@@ -21,16 +19,14 @@ public class DynamicAxisPoint : MonoBehaviour
     {
         if (this.transform.position != previousPosition){
             previousPosition = this.transform.position;
-            switch (axis){
-                case "X":
-                    value.text = this.transform.position.x.ToString();
-                    break;
-                case "Y":
-                    value.text = this.transform.position.z.ToString();
-                    break;
-                case "Z":
-                    value.text = this.transform.position.y.ToString();
-                    break;
+            if (this.name.Contains("X")){
+                value.text = this.transform.position.x.ToString();
+            }
+            else if (this.name.Contains("Y")){
+                value.text = this.transform.position.z.ToString();
+            }
+            else{
+                value.text = this.transform.position.y.ToString();
             }
         }
         if (this.transform.position == Vector3.zero) this.transform.localScale = Vector3.zero;

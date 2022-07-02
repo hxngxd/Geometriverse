@@ -189,19 +189,31 @@ public class drawPoint : MonoBehaviour
     }
     public void SnapOnAxis(GameObject point, RaycastHandler.MouseHit hit){
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)){
-            switch (hit.ID){
-                case "X":
-                    point.transform.position = new Vector3(hit.point.x, 0, 0);
-                    break;
-                case "Y":
-                    point.transform.position = new Vector3(0, 0, hit.point.z);
-                    break;
-                case "Z":
-                    point.transform.position = new Vector3(0, hit.point.y, 0);
-                    break;
-                case "Centre":
-                    point.transform.position = Vector3.zero;
-                    break;
+            if (hit.ID == "X"){
+                point.transform.position = new Vector3(hit.point.x, 0, 0);
+            }
+            else if (hit.ID == "Y"){
+                point.transform.position = new Vector3(0, 0, hit.point.z);
+            }
+            else if (hit.ID == "Z"){
+                point.transform.position = new Vector3(0, hit.point.y, 0);
+            }
+            else if (hit.ID == "Centre"){
+                point.transform.position = Vector3.zero;
+            }
+            else if (hit.ID.Contains("point")){
+                if (hit.transform.Find("dot").gameObject.activeSelf) point.transform.position = hit.transform.position;
+                else{
+                    if (hit.ID.Contains("X")){
+                        point.transform.position = new Vector3(hit.point.x, 0, 0);
+                    }
+                    else if (hit.ID.Contains("Y")){
+                        point.transform.position = new Vector3(0, 0, hit.point.z);
+                    }
+                    else if (hit.ID.Contains("Z")){
+                        point.transform.position = new Vector3(0, hit.point.y, 0);
+                    }
+                }
             }
         }
     }

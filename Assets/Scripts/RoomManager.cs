@@ -84,9 +84,12 @@ public class RoomManager : MonoBehaviourPunCallbacks
         RoomID.gameObject.SetActive(false);
         inRoom = false;
         if (panel.TabsList.ContainsKey("Trò chuyện")) panel.CloseTab("Trò chuyện");
-        chat.Send($"<b>{PhotonNetwork.NickName} đã thoát phòng!</b>");
         menu.Buttoggle("Trò chuyện", false);
         menu.Tickle("Trò chuyện", false);
+    }
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        chat.Receive($"<b>{otherPlayer.NickName} đã thoát phòng!</b>");
     }
     public override void OnJoinRoomFailed(short returnCode, string message)
     {

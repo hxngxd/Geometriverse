@@ -18,7 +18,7 @@ public class ChatManager : MonoBehaviour
         }
     }
     [PunRPC]
-    void Receive(string msg){
+    public void Receive(string msg){
         content.text += msg + "\n";
     }
     public void Send(string msg){
