@@ -10,18 +10,16 @@ public class InputFieldHandler : MonoBehaviour
         draw = FindObjectOfType<Draw>();
     }
     public bool isValid(string value){
-        bool valid = !string.IsNullOrEmpty(value) && !string.IsNullOrWhiteSpace(value) && value != "";
-        if (value.Length==1){
-            if (value[0]=='.' || value[0]=='-') valid = false;
-        }
-        return valid;
+        bool notEmpty = !string.IsNullOrEmpty(value) && !string.IsNullOrWhiteSpace(value);
+        bool notOnlySign = !(value.Length==1 && (value[0]=='.' || value[0]=='-'));
+        return notEmpty && notOnlySign;
     }
     public float toFloat(INPUT Input){
         try{
             return isValid(Input.text) ? float.Parse(Input.text) : 0f;
         }
         catch{
-            return 0;
+            return 0f;
         }
     }
     public int toInt(INPUT Input){
@@ -37,12 +35,6 @@ public class InputFieldHandler : MonoBehaviour
         Inputs[1].text = vector.y.ToString();
         Inputs[2].text = vector.z.ToString();
     }
-    public void Float2Input(INPUT Input, float value){
-        Input.text = value.ToString();
-    }
-    public void Int2Input(INPUT Input, int value){
-        Input.text = value.ToString();
-    }
     public Vector3 Input2Vec(List<INPUT> Inputs){
         return new Vector3(toFloat(Inputs[0]), toFloat(Inputs[1]), toFloat(Inputs[2]));
     }
@@ -57,8 +49,9 @@ public class InputFieldHandler : MonoBehaviour
     public void Update_Position(GameObject go, Vector3 position){
         go.transform.position = draw.calc.ztoy(position);
     }
-    public void Update_GeoObj_Name(string ID, string name){
+    public void Update_Name(string ID, string name){
         var obj = Hierarchy.Objs[ID];
-        // Hierarchy.Points[ID] = obj;
+        obj.name = name;
+        Hierarchy.Objs[ID] = obj;
     }
 }

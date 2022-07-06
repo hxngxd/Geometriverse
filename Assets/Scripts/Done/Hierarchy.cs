@@ -62,7 +62,6 @@ public class Hierarchy : MonoBehaviour
     public void Remove(string ID){
         Destroy(Objs[ID].go);
         Objs.Remove(ID);
-        Destroy(content.Find(ID).gameObject);
     }
     public void RemoveCurrentObjects(){
         foreach (Transform child in current){
@@ -70,21 +69,17 @@ public class Hierarchy : MonoBehaviour
         }
     }
     public void ResetAll(){
-        // RemoveCurrentObjs();
-        // List<string> IDs = new List<string>();
-        // foreach (var obj in Hierarchy.Types) IDs.Add(obj.Key);
-        // foreach (string ID in IDs){
-        //     RemoveObjsWithID(ID);
-        // }
-        // Types.Clear();
-        // Points.Clear();
-        // Lines.Clear();
-        // draw.cam.ResetCamera();
-        // draw.Refresh();
-        // draw.mouse.Selected.Clear();
-        // draw.mouse.SelectionCount.Clear();
-        // foreach (string type in MouseHandler.Types) draw.mouse.SelectionCount.Add(type, 0);
-        // draw.mouse.OnSelectionsChange();
+        RemoveCurrentObjects();
+        foreach (var obj in Objs){
+            Destroy(obj.Value.go);
+        }
+        Objs.Clear();
+        draw.cam.ResetCamera();
+        draw.Refresh();
+        draw.mouse.Selected.Clear();
+        draw.mouse.SelectionCount.Clear();
+        foreach (string type in MouseHandler.Types) draw.mouse.SelectionCount.Add(type, 0);
+        draw.mouse.OnSelectionsChange();
     }
     public Matrix<double> ArrayToMatrix(float[] M){
         return DenseMatrix.OfArray(new double[,]{

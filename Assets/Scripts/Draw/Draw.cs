@@ -11,7 +11,7 @@ public class Draw : MonoBehaviour
     public CreateUIObjects uiobj;
     public RaycastHandler raycast;
     public MouseHandler mouse;
-    public InputFieldHandler inputhandler;
+    public InputFieldHandler input;
     public MenuManager menu;
     public PanelManager panel;
     public Listener listener;

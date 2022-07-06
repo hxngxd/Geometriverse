@@ -10,7 +10,7 @@ public class MouseHandler : MonoBehaviour
     public Transform Highlighted = null;
     public List<Transform> Selected = new List<Transform>();
     public Dictionary<string, int> SelectionCount = new Dictionary<string, int>();
-    public static List<string> Types = new List<string>(){"point", "line", "plane", "3pointcircle", "polygon"};
+    public static List<string> Types = new List<string>(){"point", "line", "plane", "circle"};
     void Start(){
         draw = FindObjectOfType<Draw>();
         foreach (string type in Types) SelectionCount.Add(type, 0);
@@ -88,7 +88,6 @@ public class MouseHandler : MonoBehaviour
         //         case "3pointcircle":
         //             draw.current = StartCoroutine(draw.circle3.OnSelect(obj.GetComponent<LineRenderer>()));
         //             break;
-        //         case "polygon":
         //             draw.current = StartCoroutine(draw.polygon.OnSelect(obj.GetComponent<LineRenderer>()));
         //             break;
         //     }
@@ -149,7 +148,6 @@ public class MouseHandler : MonoBehaviour
         //         break;
         //     case "line":
         //     case "3pointcircle":
-        //     case "polygon":
         //         obj.GetComponent<LineRenderer>().material = defaultMat[state];
         //         break;
         //     case "plane":

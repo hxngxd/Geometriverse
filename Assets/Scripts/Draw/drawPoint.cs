@@ -61,7 +61,7 @@ public class drawPoint : MonoBehaviour
             draw.mouse.Follow(point);
             SnapOnAxis(point, hit);
         }
-        draw.inputhandler.Vec2Input(Pos, draw.calc.ztoy(point.transform.position));
+        draw.input.Vec2Input(Pos, draw.calc.ztoy(point.transform.position));
     }
     public void doneDrawing(GameObject point, string name, string vertexof){
         var hit = draw.raycast.Hit();
@@ -147,13 +147,12 @@ public class drawPoint : MonoBehaviour
                     point.transform.position = draw.calc.ztoy(draw.calc.gd_dt_mp(mouseray, plane).Value);
                     break;
                 case "circle":
-                case "polygon":
                     var hit = draw.raycast.Hit();
                     if (hit.ID == parent) point.transform.position = hit.point;
                     break;
             }
         }
-        draw.inputhandler.Vec2Input(Inputs["pos"], draw.calc.ztoy(point.transform.position));
+        draw.input.Vec2Input(Inputs["pos"], draw.calc.ztoy(point.transform.position));
     }
     public void SnapOnAxis(GameObject point, RaycastHandler.MouseHit hit){
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)){
@@ -193,18 +192,18 @@ public class drawPoint : MonoBehaviour
         var obj = Hierarchy.Objs[ID];
         var point = obj.go;
         Inputs["name"][0].text = obj.name;
-        draw.inputhandler.Vec2Input(Inputs["pos"], draw.calc.ztoy(point.transform.position));
+        draw.input.Vec2Input(Inputs["pos"], draw.calc.ztoy(point.transform.position));
         
-        draw.listener.Add(Inputs["name"][0], () => draw.inputhandler.Update_GeoObj_Name(ID, Inputs["name"][0].text));
+        draw.listener.Add(Inputs["name"][0], () => draw.input.Update_Name(ID, Inputs["name"][0].text));
 
         if (obj.parent == ""){
-            draw.listener.Add(Inputs["pos"], () => draw.inputhandler.Update_Position(point, draw.inputhandler.Input2Vec(Inputs["pos"])));
+            draw.listener.Add(Inputs["pos"], () => draw.input.Update_Position(point, draw.input.Input2Vec(Inputs["pos"])));
         }
     }
     public void Cancel(){
         content.gameObject.SetActive(false);
-        draw.inputhandler.ResetInput(Inputs["name"][0]);
-        draw.inputhandler.ResetInputs(Inputs["pos"]);
+        draw.input.ResetInput(Inputs["name"][0]);
+        draw.input.ResetInputs(Inputs["pos"]);
         draw.Cancel();
     }
 }
