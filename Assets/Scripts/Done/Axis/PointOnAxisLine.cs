@@ -20,14 +20,14 @@ public class PointOnAxisLine : MonoBehaviour
         float current_step = 1f, current_range = range;
         while (current_step != Step/2f){
             for (float i=-current_range;i<=current_range;i+=current_step){
-                if (Xs.Find($"pointX_{i}") == null){
-                    var x = CreatePoint(new Vector3(i,0,0), Xs, $"pointX_{i}");
+                if (Xs.Find($"Xpoint_{i}") == null){
+                    var x = CreatePoint(new Vector3(i,0,0), Xs, $"Xpoint_{i}");
                 }
-                if (Ys.Find($"pointY_{i}") == null){
-                    var y = CreatePoint(new Vector3(0,0,i), Ys, $"pointY_{i}");
+                if (Ys.Find($"Ypoint_{i}") == null){
+                    var y = CreatePoint(new Vector3(0,0,i), Ys, $"Ypoint_{i}");
                 }
-                if (Zs.Find($"pointZ_{i}") == null){
-                    var z = CreatePoint(new Vector3(0,i,0), Zs, $"pointZ_{i}");
+                if (Zs.Find($"Zpoint_{i}") == null){
+                    var z = CreatePoint(new Vector3(0,i,0), Zs, $"Zpoint_{i}");
                     z.transform.Find("value").transform.localPosition = new Vector3(-0.12f, 0, 0);
                 }
             }

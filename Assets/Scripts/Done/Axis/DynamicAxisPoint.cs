@@ -12,21 +12,24 @@ public class DynamicAxisPoint : MonoBehaviour
         poal = FindObjectOfType<PointOnAxisLine>();
         value = this.transform.Find("value").GetComponent<TextMeshPro>();
         this.GetComponent<DynamicSize>().ratio /= 1.25f;
-        this.transform.Find("dot").localScale /= 1.75f;
+        this.transform.Find("dot").localScale /= 1.5f;
+        this.GetComponent<SphereCollider>().radius = 0.08f;
     }
 
     void Update()
     {
         if (this.transform.position != previousPosition){
             previousPosition = this.transform.position;
-            if (this.name.Contains("X")){
-                value.text = this.transform.position.x.ToString();
-            }
-            else if (this.name.Contains("Y")){
-                value.text = this.transform.position.z.ToString();
-            }
-            else{
-                value.text = this.transform.position.y.ToString();
+            switch (this.name[0]){
+                case 'X':
+                    value.text = this.transform.position.x.ToString();
+                    break;
+                case 'Y':
+                    value.text = this.transform.position.z.ToString();
+                    break;
+                case 'Z':
+                    value.text = this.transform.position.y.ToString();
+                    break;
             }
         }
         if (this.transform.position == Vector3.zero){
@@ -38,9 +41,9 @@ public class DynamicAxisPoint : MonoBehaviour
         if (this.name.Contains('.')){
             bool active = this.transform.localScale.x <= poal.requireSize[NumAfterDot(this.name)];
             this.transform.Find("dot").gameObject.SetActive(active);
-            this.transform.Find("value").gameObject.SetActive(active);
+            value.gameObject.SetActive(active);
         }
-        this.GetComponent<SphereCollider>().enabled = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
+        this.GetComponent<SphereCollider>().enabled = ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && value.gameObject.activeSelf);
     }
     public int NumAfterDot(string name){
         return name.Length - name.IndexOf('.') - 1;

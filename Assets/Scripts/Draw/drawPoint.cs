@@ -4,7 +4,6 @@ using UnityEngine;
 using System;
 using TMPro;
 using INPUT=TMPro.TMP_InputField;
-using Photon.Pun;
 public class drawPoint : MonoBehaviour
 {
     public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
@@ -155,37 +154,37 @@ public class drawPoint : MonoBehaviour
             }
         }
         draw.inputhandler.Vec2Input(Inputs["pos"], draw.calc.ztoy(point.transform.position));
-        if (RoomManager.inRoom){
-            this.GetComponent<PhotonView>().RPC("SyncPos", RpcTarget.OthersBuffered, point.name, point.transform.position);
-        }
     }
     public void SnapOnAxis(GameObject point, RaycastHandler.MouseHit hit){
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)){
-            if (hit.ID == "X"){
-                point.transform.position = new Vector3(hit.point.x, 0, 0);
+            if (hit.ID.Contains("line")){
+                switch (hit.ID[0]){
+                    case 'X':
+                        point.transform.position = new Vector3(hit.point.x, 0, 0);
+                        break;
+                    case 'Y':
+                        point.transform.position = new Vector3(0, 0, hit.point.z);
+                        break;
+                    case 'Z':
+                        point.transform.position = new Vector3(0, hit.point.y, 0);
+                        break;
+                }
             }
-            else if (hit.ID == "Y"){
-                point.transform.position = new Vector3(0, 0, hit.point.z);
-            }
-            else if (hit.ID == "Z"){
-                point.transform.position = new Vector3(0, hit.point.y, 0);
+            else if (hit.ID.Contains("point")){
+                switch (hit.ID[0]){
+                    case 'X':
+                        point.transform.position = new Vector3(hit.transform.position.x, 0, 0);
+                        break;
+                    case 'Y':
+                        point.transform.position = new Vector3(0, 0, hit.transform.position.z);
+                        break;
+                    case 'Z':
+                        point.transform.position = new Vector3(0, hit.transform.position.y, 0);
+                        break;
+                }
             }
             else if (hit.ID == "Centre"){
                 point.transform.position = Vector3.zero;
-            }
-            else if (hit.ID.Contains("point")){
-                if (hit.transform.Find("dot").gameObject.activeSelf) point.transform.position = hit.transform.position;
-                else{
-                    if (hit.ID.Contains("X")){
-                        point.transform.position = new Vector3(hit.point.x, 0, 0);
-                    }
-                    else if (hit.ID.Contains("Y")){
-                        point.transform.position = new Vector3(0, 0, hit.point.z);
-                    }
-                    else if (hit.ID.Contains("Z")){
-                        point.transform.position = new Vector3(0, hit.point.y, 0);
-                    }
-                }
             }
         }
     }
