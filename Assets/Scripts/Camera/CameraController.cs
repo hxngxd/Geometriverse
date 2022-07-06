@@ -62,7 +62,6 @@ public class CameraController : MonoBehaviour
         Move();
         Drag();
         Zoom();
-        Move();
     }
 
     void Rotate(){

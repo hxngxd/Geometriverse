@@ -20,10 +20,8 @@ public class DockManager : MonoBehaviour
             new ListPair("Điểm", new Pair(() => {draw.Point();}, Load("point"))),
             new ListPair("Đoạn thẳng", new Pair(() => {draw.Line();}, Load("line"))),
             new ListPair("Đoạn thẳng liên tục", new Pair(() => {draw.Line();}, Load("multiline"))),
-            // new ListPair("Mặt phẳng", new Pair(() => {draw.Plane();}, Load("plane"))),
-            // new ListPair("Đường tròn qua 3 điểm", new Pair(() => {draw.Circle3Point();}, Load("circle3point"))),
-            // new ListPair("Đường tròn trên mặt phẳng", new Pair(() => {draw.Polygon(true);}, Load("circleonplane"))),
-            // new ListPair("Đa giác đều trên mặt phẳng", new Pair(() => {draw.Polygon(false);}, Load("polygon"))),
+            new ListPair("Mặt phẳng", new Pair(() => {draw.Plane();}, Load("plane"))),
+            new ListPair("Đường tròn qua 3 điểm", new Pair(() => {draw.Circle3Point();}, Load("circle3point"))),
             new ListPair("/", new Pair(() => {}, Load(""))),
             new ListPair("Camera", new Pair(() => {draw.CameraControl();}, Load("camera"))),
         };
