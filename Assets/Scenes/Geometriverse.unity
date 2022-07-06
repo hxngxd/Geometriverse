@@ -2388,6 +2388,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 421452608}
+  - component: {fileID: 421452609}
   m_Layer: 0
   m_Name: Hierarchy
   m_TagString: Untagged
@@ -2413,6 +2414,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &421452609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421452607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b82f11195b9ec034396e4b4bbde13fc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  created: {fileID: 1306228086}
+  current: {fileID: 731816810}
+  selected: {fileID: 1578219988}
+  content: {fileID: 0}
 --- !u!1 &423000277
 GameObject:
   m_ObjectHideFlags: 0
@@ -4232,7 +4249,6 @@ GameObject:
   - component: {fileID: 701543700}
   - component: {fileID: 701543701}
   - component: {fileID: 701543702}
-  - component: {fileID: 701543704}
   m_Layer: 0
   m_Name: Draw
   m_TagString: Untagged
@@ -4252,8 +4268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 492b05388c1f3004ab6021b12ee89091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointing: 0
-  overlapsed: 0
+  current_point: {fileID: 0}
   content: {fileID: 584841018}
 --- !u!4 &701543698
 Transform:
@@ -4282,8 +4297,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ad4c051b96e8ca44817091b10e50ec0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ratio: 0.015
-  content: {fileID: 605412240}
 --- !u!114 &701543700
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4296,9 +4309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a4874a1417f6944a9db0c32777968f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idhandler: {fileID: 867914197}
-  hierContent: {fileID: 421452608}
-  hier: {fileID: 867914203}
+  hier: {fileID: 421452609}
   obj: {fileID: 867914196}
   uiobj: {fileID: 867914200}
   raycast: {fileID: 867914195}
@@ -4309,13 +4320,8 @@ MonoBehaviour:
   listener: {fileID: 867914198}
   calc: {fileID: 867914199}
   point: {fileID: 701543697}
-  line: {fileID: 701543699}
-  plane: {fileID: 701543701}
-  circle3: {fileID: 701543702}
-  polygon: {fileID: 0}
   cam: {fileID: 1127025138}
-  drawing: 0
-  InspectorSR: {fileID: 1336217471}
+  scroll: {fileID: 1336217471}
 --- !u!114 &701543701
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4328,7 +4334,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20780608b575f7f4a9135aadcf67e59a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  content: {fileID: 1187633941}
 --- !u!114 &701543702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4341,29 +4346,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b4b5be9fbd177c40a693acc50563b0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  content: {fileID: 248460986}
---- !u!114 &701543704
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 701543696}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 2
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1 &711552755
 GameObject:
   m_ObjectHideFlags: 0
@@ -4949,7 +4931,6 @@ GameObject:
   - component: {fileID: 867914200}
   - component: {fileID: 867914199}
   - component: {fileID: 867914198}
-  - component: {fileID: 867914203}
   - component: {fileID: 867914202}
   - component: {fileID: 867914204}
   - component: {fileID: 867914205}
@@ -5009,7 +4990,6 @@ MonoBehaviour:
   pointPref: {fileID: 3665220301382433646, guid: d8f6a7ccc3923cd4ea682098520f5880, type: 3}
   linePref: {fileID: 1020318175158401824, guid: 688c720a4b3434d49bf810db02600cb2, type: 3}
   planePref: {fileID: 7169194321152857623, guid: 0010d11cf1dbb2847a64a291116caa84, type: 3}
-  polygonlinePref: {fileID: 1020318175158401824, guid: 5cbce8fa33502b949b4d91e5f3ddad34, type: 3}
 --- !u!114 &867914197
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5022,7 +5002,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e18237e4eb130514696c9f93a2970cb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ID_Length: 11
   CharList: 6100620063006400650066006700680069006a006b006c006d006e006f0070007100720073007400750076007700780079007a004100420043004400450046004700480049004a004b004c004d004d004f0050005100520053005400550056005700580059005a003000310032003300340035003600370038003900
 --- !u!114 &867914198
 MonoBehaviour:
@@ -5092,20 +5071,6 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 9ada5651021f3664fb83abace79c9b8d, type: 2}
   Highlighted: {fileID: 0}
   Selected: []
---- !u!114 &867914203
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 867914193}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b82f11195b9ec034396e4b4bbde13fc9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  photon: {fileID: 0}
-  content: {fileID: 1662232605}
 --- !u!114 &867914204
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7629,7 +7594,6 @@ MonoBehaviour:
   - {fileID: 1583510390}
   - {fileID: 829023258}
   - {fileID: 1186521849}
-  content: {fileID: 786976663}
 --- !u!4 &1127025139
 Transform:
   m_ObjectHideFlags: 0
@@ -8829,7 +8793,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1306228086}
   m_Layer: 0
-  m_Name: Added
+  m_Name: Created
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -46,7 +46,7 @@ public class CreateUIObjects : MonoBehaviour
         var item = Instantiate(HierItemPref, pos0, rot0, parent).GetComponent<Toggle>();
         SetText(item.transform.Find("Text"), label);
         item.name = ID;
-        draw.listener.Add_Toggle(item, onclick);
+        draw.listener.Add(item, onclick);
     }
     public List<INPUT> Vec3(string label, Transform parent){
         var ui = Instantiate(Vector3Pref, pos0, rot0, parent).transform;

@@ -14,7 +14,7 @@ public class SliderHandler : MonoBehaviour
     void Start()
     {
         draw = FindObjectOfType<Draw>();
-        draw.listener.Add_Input(valueInput, () => {
+        draw.listener.Add(valueInput, () => {
             float min = slider.minValue, max = slider.maxValue;
             float currentval = draw.inputhandler.toFloat(valueInput);
             if (currentval < min) currentval = min;

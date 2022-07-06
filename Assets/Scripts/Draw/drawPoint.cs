@@ -48,7 +48,7 @@ public class drawPoint : MonoBehaviour
                     if (!point.activeSelf) point.SetActive(true);
                     var start = Hierarchy.Objs[Hierarchy.Objs[hit.ID].vertices[0]].go.transform.position;
                     var end = Hierarchy.Objs[Hierarchy.Objs[hit.ID].vertices[1]].go.transform.position;
-                    point.transform.position = draw.calc.HC_diem_len_duong_thang(hit.point, new KeyValuePair<Vector3, Vector3>(start, end));
+                    point.transform.position = draw.calc.hc_diem_dt(hit.point, new KeyValuePair<Vector3, Vector3>(start, end));
                     break;
                 case "plane":
                 case "circle":
@@ -62,7 +62,7 @@ public class drawPoint : MonoBehaviour
             draw.mouse.Follow(point);
             SnapOnAxis(point, hit);
         }
-        draw.inputhandler.Vec2Input(Pos, draw.calc.swapYZ(point.transform.position));
+        draw.inputhandler.Vec2Input(Pos, draw.calc.ztoy(point.transform.position));
     }
     public void doneDrawing(GameObject point, string name, string vertexof){
         var hit = draw.raycast.Hit();
@@ -139,13 +139,13 @@ public class drawPoint : MonoBehaviour
                     var mouseRay = draw.raycast.MouseToRay();
                     var start = Hierarchy.Objs[parent].vertices[0];
                     var end = Hierarchy.Objs[parent].vertices[1];
-                    var line = new KeyValuePair<Vector3, Vector3>(draw.calc.swapYZ(Hierarchy.Objs[start].go.transform.position), draw.calc.swapYZ(Hierarchy.Objs[end].go.transform.position));
-                    point.transform.position = draw.calc.swapYZ(draw.calc.Duong_vuong_goc_chung(line, mouseRay).Key);
+                    var line = new KeyValuePair<Vector3, Vector3>(draw.calc.ztoy(Hierarchy.Objs[start].go.transform.position), draw.calc.ztoy(Hierarchy.Objs[end].go.transform.position));
+                    point.transform.position = draw.calc.ztoy(draw.calc.duong_vgc(line, mouseRay).Key);
                     break;
                 case "plane":
                     var mouseray = draw.raycast.MouseToRay();
                     var plane = Hierarchy.Objs[parent].equation;
-                    point.transform.position = draw.calc.swapYZ(draw.calc.intersect_line_plane(mouseray, plane).Value);
+                    point.transform.position = draw.calc.ztoy(draw.calc.gd_dt_mp(mouseray, plane).Value);
                     break;
                 case "circle":
                 case "polygon":
@@ -154,7 +154,7 @@ public class drawPoint : MonoBehaviour
                     break;
             }
         }
-        draw.inputhandler.Vec2Input(Inputs["pos"], draw.calc.swapYZ(point.transform.position));
+        draw.inputhandler.Vec2Input(Inputs["pos"], draw.calc.ztoy(point.transform.position));
         if (RoomManager.inRoom){
             this.GetComponent<PhotonView>().RPC("SyncPos", RpcTarget.OthersBuffered, point.name, point.transform.position);
         }
@@ -194,12 +194,12 @@ public class drawPoint : MonoBehaviour
         var obj = Hierarchy.Objs[ID];
         var point = obj.go;
         Inputs["name"][0].text = obj.name;
-        draw.inputhandler.Vec2Input(Inputs["pos"], draw.calc.swapYZ(point.transform.position));
+        draw.inputhandler.Vec2Input(Inputs["pos"], draw.calc.ztoy(point.transform.position));
         
-        draw.listener.Add_Input(Inputs["name"][0], () => draw.inputhandler.Update_GeoObj_Name(ID, Inputs["name"][0].text));
+        draw.listener.Add(Inputs["name"][0], () => draw.inputhandler.Update_GeoObj_Name(ID, Inputs["name"][0].text));
 
         if (obj.parent == ""){
-            draw.listener.Add_Inputs(Inputs["pos"], () => draw.inputhandler.Update_Position(point, draw.inputhandler.Input2Vec(Inputs["pos"])));
+            draw.listener.Add(Inputs["pos"], () => draw.inputhandler.Update_Position(point, draw.inputhandler.Input2Vec(Inputs["pos"])));
         }
     }
     public void Cancel(){

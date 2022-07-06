@@ -47,7 +47,7 @@ public class InputFieldHandler : MonoBehaviour
         return new Vector3(toFloat(Inputs[0]), toFloat(Inputs[1]), toFloat(Inputs[2]));
     }
     public void ResetInput(INPUT Input){
-        draw.listener.Remove_Input(Input);
+        draw.listener.Remove(Input);
         Input.text = "";
     }
     public void ResetInputs(List<INPUT> Inputs){
@@ -55,7 +55,7 @@ public class InputFieldHandler : MonoBehaviour
     }
 
     public void Update_Position(GameObject go, Vector3 position){
-        go.transform.position = draw.calc.swapYZ(position);
+        go.transform.position = draw.calc.ztoy(position);
     }
     public void Update_GeoObj_Name(string ID, string name){
         var obj = Hierarchy.Objs[ID];
