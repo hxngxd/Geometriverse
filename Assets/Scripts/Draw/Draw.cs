@@ -6,8 +6,6 @@ using UnityEngine.UI;
 using TMPro;
 public class Draw : MonoBehaviour
 {
-    public IDHandler idhandler;
-    public Transform hierContent;
     public Hierarchy hier;
     public Create3DObjects obj;
     public CreateUIObjects uiobj;
@@ -19,64 +17,59 @@ public class Draw : MonoBehaviour
     public Listener listener;
     public Calculate calc;
     public drawPoint point;
-    public drawLine line;
-    public drawPlane plane;
-    public draw3PointCircle circle3;
-    public drawPolygon polygon;
+    // public drawLine line;
+    // public drawPlane plane;
+    // public draw3PointCircle circle3;
+    // public drawPolygon polygon;
     public CameraController cam;
-    public bool drawing = false;
     public Coroutine current = null;
-    public ScrollRect InspectorSR;
+    public ScrollRect scroll;
     public void Point(){
         Refresh();
-        SetScrollContent(point.content);
-        current = StartCoroutine(point.Okay());
+        StartDrawing(point.content, point.Okay());
     }
-    public void Line(){
-        Refresh();
-        SetScrollContent(line.content);
-        current = StartCoroutine(line.Okay());
-    }
-    public void Plane(){
-        Refresh();
-        SetScrollContent(plane.content);
-        current = StartCoroutine(plane.Okay());
-    }
-    public void CameraControl(){
-        Refresh();
-        SetScrollContent(cam.content);
-        current = StartCoroutine(cam.Okay());
-    }
-    public void Circle3Point(){
-        Refresh();
-        SetScrollContent(circle3.content);
-        current = StartCoroutine(circle3.Okay());
-    }
-    public void Polygon(bool type){
-        Refresh();
-        SetScrollContent(polygon.content);
-        current = StartCoroutine(polygon.Okay(type));
-    }
-    public void SetScrollContent(Transform content){
-        InspectorSR.content = content.GetComponent<RectTransform>();
-        hier.UnselectAllItem();
+    // public void Line(){
+    //     Refresh();
+    //     SetScrollContent(line.content);
+    //     current = StartCoroutine(line.Okay());
+    // }
+    // public void Plane(){
+    //     Refresh();
+    //     SetScrollContent(plane.content);
+    //     current = StartCoroutine(plane.Okay());
+    // }
+    // public void CameraControl(){
+    //     Refresh();
+    //     SetScrollContent(cam.content);
+    //     current = StartCoroutine(cam.Okay());
+    // }
+    // public void Circle3Point(){
+    //     Refresh();
+    //     SetScrollContent(circle3.content);
+    //     current = StartCoroutine(circle3.Okay());
+    // }
+    // public void Polygon(bool type){
+    //     Refresh();
+    //     SetScrollContent(polygon.content);
+    //     current = StartCoroutine(polygon.Okay(type));
+    // }
+    public void StartDrawing(Transform content, IEnumerator Okay){
+        scroll.content = content.GetComponent<RectTransform>();
+        current = StartCoroutine(Okay);
     }
     public void Refresh(){
-        //neu nhan icon luc dang ve thi loi
-        drawing = false;
+        Cancel();
         point.Cancel();
-        line.Cancel();
-        cam.Cancel();
-        plane.Cancel();
-        circle3.Cancel();
-        polygon.Cancel();
-        current = null;
+        // line.Cancel();
+        // plane.Cancel();
+        // circle3.Cancel();
+        // polygon.Cancel();
     }
     public void Cancel(){
         if (current != null){
-            StopCoroutine(current);
+            StopAllCoroutines();
             hier.RemoveCurrentObjects();
+            current = null;
         }
-        drawing = false;
     }
 }

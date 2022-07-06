@@ -13,9 +13,9 @@ public class RaycastHandler : MonoBehaviour
         public Vector3 point;
     }
     [SerializeField] EventSystem m_EventSystem;
-    Draw draw;
+    Calculate calc;
     void Start(){
-        draw = FindObjectOfType<Draw>();
+        calc = FindObjectOfType<Calculate>();
     }
     public Transform GetUI(RectTransform canvasRect)
     {
@@ -32,7 +32,7 @@ public class RaycastHandler : MonoBehaviour
     }
     public KeyValuePair<Vector3, Vector3> MouseToRay(){
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        return new KeyValuePair<Vector3, Vector3>(draw.calc.swapYZ(ray.origin), draw.calc.swapYZ(ray.GetPoint(1)));
+        return new KeyValuePair<Vector3, Vector3>(calc.swapYZ(ray.origin), calc.swapYZ(ray.GetPoint(1)));
     }
     public MouseHit Hit(){
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

@@ -15,15 +15,15 @@ public class DockManager : MonoBehaviour
         draw = FindObjectOfType<Draw>();
         uiobj = FindObjectOfType<CreateUIObjects>();
         Functions = new List<ListPair>(){
-            new ListPair("Chuột", new Pair(() => {draw.Refresh(); draw.hier.UnselectAllItem();}, Load("cursor"))),
+            new ListPair("Chuột", new Pair(() => {draw.Refresh();}, Load("cursor"))),
             new ListPair("/", new Pair(() => {}, Load(""))),
             new ListPair("Điểm", new Pair(() => {draw.Point();}, Load("point"))),
-            new ListPair("Đoạn thẳng", new Pair(() => {draw.Line();}, Load("line"))),
-            new ListPair("Đoạn thẳng liên tục", new Pair(() => {draw.Line();}, Load("multiline"))),
-            new ListPair("Mặt phẳng", new Pair(() => {draw.Plane();}, Load("plane"))),
-            new ListPair("Đường tròn qua 3 điểm", new Pair(() => {draw.Circle3Point();}, Load("circle3point"))),
+            new ListPair("Đoạn thẳng", new Pair(() => {}, Load("line"))),
+            new ListPair("Đoạn thẳng liên tục", new Pair(() => {}, Load("multiline"))),
+            new ListPair("Mặt phẳng", new Pair(() => {}, Load("plane"))),
+            new ListPair("Đường tròn qua 3 điểm", new Pair(() => {}, Load("circle3point"))),
             new ListPair("/", new Pair(() => {}, Load(""))),
-            new ListPair("Camera", new Pair(() => {draw.CameraControl();}, Load("camera"))),
+            new ListPair("Camera", new Pair(() => {}, Load("camera"))),
         };
         Create();
     }

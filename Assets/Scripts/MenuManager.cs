@@ -53,7 +53,7 @@ public class MenuManager : MonoBehaviour
         var item = draw.uiobj.MenuItem("Chỉnh sửa", () => ToggleContainer(container), itemsContainer);
         var cmd = new Dictionary<string, Action>(){
             {"Xoá(0)", () => {
-                draw.mouse.DeleteSelected();
+                // draw.mouse.DeleteSelected();
             }},
         };
         CreateCommands(cmd, container, false);
@@ -61,177 +61,177 @@ public class MenuManager : MonoBehaviour
     }
     [PunRPC]
     void AddChildren(string parent, string child){
-        draw.point.RPC_AddChildren(parent, child);
+        // draw.point.RPC_AddChildren(parent, child);
     }
     public void Tool(){
         var container = draw.uiobj.CommandContainer("Công cụ", Containers);
         var item = draw.uiobj.MenuItem("Công cụ", () => ToggleContainer(container), itemsContainer);
-        var cmd = new Dictionary<string, Action>(){
-            {"Hình chiếu(>)", () => {
-                var cmd = new Dictionary<string, Action>(){
-                    {"Điểm lên đoạn thẳng(1)", () => {
-                        if (!(draw.mouse.SelectionCount["point"]==1 && draw.mouse.SelectionCount["line"]==1 && draw.mouse.Selected.Count==2)) return;
-                        var d = draw.mouse.GetSelections();
-                        var start = Hierarchy.Lines[d["line"][0]].start;
-                        var end = Hierarchy.Lines[d["line"][0]].end;
-                        var p = Hierarchy.Points[d["point"][0]];
-                        var p1 = draw.obj.Point((Hierarchy.Points[start].go.transform.position+Hierarchy.Points[end].go.transform.position)/2, draw.hierContent);
-                        p1.GetComponent<SphereCollider>().enabled = true;
-                        draw.hier.AddPoint("", d["line"][0], p1);
-                        Hierarchy.Lines[d["line"][0]].children.Add(p1.name);
-                        if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["line"][0], p1.name);
-                    }},
-                    {"Điểm lên mặt phẳng(1)", () => {
-                        if (!(draw.mouse.SelectionCount["point"]==1 && draw.mouse.SelectionCount["plane"]==1 && draw.mouse.Selected.Count==2)) return;
-                        var d = draw.mouse.GetSelections();
-                        var p = Hierarchy.Points[d["point"][0]];
-                        var plane = Hierarchy.Planes[d["plane"][0]];
-                        var equation = plane.equation;
-                        var p1 = draw.obj.Point(draw.calc.swapYZ(draw.calc.HC_diem_len_mp(draw.calc.swapYZ(p.go.transform.position), equation)), draw.hierContent);
-                        p1.GetComponent<SphereCollider>().enabled = true;
-                        draw.hier.AddPoint("", d["plane"][0], p1);
-                        Hierarchy.Planes[d["plane"][0]].children.Add(p1.name);
-                        if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["plane"][0], p1.name);
-                    }},
-                    {"Đoạn thẳng lên măt phẳng(1)", () => {
-                        if (!(draw.mouse.SelectionCount["line"]==1 && draw.mouse.SelectionCount["plane"]==1 && draw.mouse.Selected.Count==2)) return;
-                        var d = draw.mouse.GetSelections();
-                        var start = Hierarchy.Lines[d["line"][0]].start;
-                        var end = Hierarchy.Lines[d["line"][0]].end;
-                        var plane = Hierarchy.Planes[d["plane"][0]];
-                        var equation = plane.equation;
-                        var p1 = draw.obj.Point(draw.calc.swapYZ(draw.calc.HC_diem_len_mp(draw.calc.swapYZ(Hierarchy.Points[start].go.transform.position), equation)), draw.hierContent);
-                        p1.GetComponent<SphereCollider>().enabled = true;
-                        draw.hier.AddPoint("", d["plane"][0], p1);
-                        Hierarchy.Planes[d["plane"][0]].children.Add(p1.name);
-                        if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["plane"][0], p1.name);
-                        var p2 = draw.obj.Point(draw.calc.swapYZ(draw.calc.HC_diem_len_mp(draw.calc.swapYZ(Hierarchy.Points[end].go.transform.position), equation)), draw.hierContent);
-                        p2.GetComponent<SphereCollider>().enabled = true;
-                        draw.hier.AddPoint("", d["plane"][0], p2);
-                        Hierarchy.Planes[d["plane"][0]].children.Add(p2.name);
-                        if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["plane"][0], p2.name);
-                        var l = draw.obj.Line(draw.hierContent);
-                        draw.hier.AddLine("", p1.name, p2.name, d["plane"][0], l, new List<string>());
-                        Hierarchy.Planes[d["plane"][0]].children.Add(l.name);
-                        if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["plane"][0], l.name);
-                    }}
-                };
-                MenuObjects["Hình chiếu"] = cmd;
-            }},
-            {"Giao điểm(>)", () => {
-                var cmd = new Dictionary<string, Action>(){
-                    {"Đoạn thẳng và đoạn thẳng(1)", () => {
-                        if (!(draw.mouse.SelectionCount["line"]==2 && draw.mouse.Selected.Count==2)) return;
-                        var d = draw.mouse.GetSelections();
-                        var l1 = Hierarchy.Lines[d["line"][0]];
-                        var l2 = Hierarchy.Lines[d["line"][1]];
-                        var p = draw.calc.Duong_vuong_goc_chung(new KeyValuePair<Vector3, Vector3>(Hierarchy.Points[l1.start].go.transform.position, Hierarchy.Points[l1.end].go.transform.position), new KeyValuePair<Vector3, Vector3>(Hierarchy.Points[l2.start].go.transform.position, Hierarchy.Points[l2.end].go.transform.position));
-                        var p1 = draw.obj.Point(p.Key, draw.hierContent);
-                        p1.GetComponent<SphereCollider>().enabled = true;
-                        draw.hier.AddPoint("", d["line"][0], p1);
-                        Hierarchy.Lines[d["line"][0]].children.Add(p1.name);
-                        if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["line"][0], p1.name);
-                        if (p.Key != p.Value){
-                            var p2 = draw.obj.Point(p.Value, draw.hierContent);
-                            p2.GetComponent<SphereCollider>().enabled = true;
-                            draw.hier.AddPoint("", d["line"][1], p2);
-                            Hierarchy.Lines[d["line"][1]].children.Add(p2.name);
-                            if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["line"][1], p1.name);
-                        }
-                    }},
-                    {"Đường vuông góc chung 2 đoạn thẳng(1)", () => {
-                        if (!(draw.mouse.SelectionCount["line"]==2 && draw.mouse.Selected.Count==2)) return;
-                        var d = draw.mouse.GetSelections();
-                        var l1 = Hierarchy.Lines[d["line"][0]];
-                        var l2 = Hierarchy.Lines[d["line"][1]];
-                        var p = draw.calc.Duong_vuong_goc_chung(new KeyValuePair<Vector3, Vector3>(Hierarchy.Points[l1.start].go.transform.position, Hierarchy.Points[l1.end].go.transform.position), new KeyValuePair<Vector3, Vector3>(Hierarchy.Points[l2.start].go.transform.position, Hierarchy.Points[l2.end].go.transform.position));
-                        var p1 = draw.obj.Point(p.Key, draw.hierContent);
-                        p1.GetComponent<SphereCollider>().enabled = true;
-                        draw.hier.AddPoint("", d["line"][0], p1);
-                        Hierarchy.Lines[d["line"][0]].children.Add(p1.name);
-                        if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["line"][0], p1.name);
-                        if (p.Key != p.Value){
-                            var p2 = draw.obj.Point(p.Value, draw.hierContent);
-                            p2.GetComponent<SphereCollider>().enabled = true;
-                            draw.hier.AddPoint("", d["line"][1], p2);
-                            Hierarchy.Lines[d["line"][1]].children.Add(p2.name);
-                            if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["line"][1], p1.name);
+        // var cmd = new Dictionary<string, Action>(){
+        //     {"Hình chiếu(>)", () => {
+        //         var cmd = new Dictionary<string, Action>(){
+        //             {"Điểm lên đoạn thẳng(1)", () => {
+        //                 if (!(draw.mouse.SelectionCount["point"]==1 && draw.mouse.SelectionCount["line"]==1 && draw.mouse.Selected.Count==2)) return;
+        //                 var d = draw.mouse.GetSelections();
+        //                 var start = Hierarchy.Lines[d["line"][0]].start;
+        //                 var end = Hierarchy.Lines[d["line"][0]].end;
+        //                 var p = Hierarchy.Points[d["point"][0]];
+        //                 var p1 = draw.obj.Point((Hierarchy.Points[start].go.transform.position+Hierarchy.Points[end].go.transform.position)/2, draw.hierContent);
+        //                 p1.GetComponent<SphereCollider>().enabled = true;
+        //                 draw.hier.AddPoint("", d["line"][0], p1);
+        //                 Hierarchy.Lines[d["line"][0]].children.Add(p1.name);
+        //                 if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["line"][0], p1.name);
+        //             }},
+        //             {"Điểm lên mặt phẳng(1)", () => {
+        //                 if (!(draw.mouse.SelectionCount["point"]==1 && draw.mouse.SelectionCount["plane"]==1 && draw.mouse.Selected.Count==2)) return;
+        //                 var d = draw.mouse.GetSelections();
+        //                 var p = Hierarchy.Points[d["point"][0]];
+        //                 var plane = Hierarchy.Planes[d["plane"][0]];
+        //                 var equation = plane.equation;
+        //                 var p1 = draw.obj.Point(draw.calc.swapYZ(draw.calc.HC_diem_len_mp(draw.calc.swapYZ(p.go.transform.position), equation)), draw.hierContent);
+        //                 p1.GetComponent<SphereCollider>().enabled = true;
+        //                 draw.hier.AddPoint("", d["plane"][0], p1);
+        //                 Hierarchy.Planes[d["plane"][0]].children.Add(p1.name);
+        //                 if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["plane"][0], p1.name);
+        //             }},
+        //             {"Đoạn thẳng lên măt phẳng(1)", () => {
+        //                 if (!(draw.mouse.SelectionCount["line"]==1 && draw.mouse.SelectionCount["plane"]==1 && draw.mouse.Selected.Count==2)) return;
+        //                 var d = draw.mouse.GetSelections();
+        //                 var start = Hierarchy.Lines[d["line"][0]].start;
+        //                 var end = Hierarchy.Lines[d["line"][0]].end;
+        //                 var plane = Hierarchy.Planes[d["plane"][0]];
+        //                 var equation = plane.equation;
+        //                 var p1 = draw.obj.Point(draw.calc.swapYZ(draw.calc.HC_diem_len_mp(draw.calc.swapYZ(Hierarchy.Points[start].go.transform.position), equation)), draw.hierContent);
+        //                 p1.GetComponent<SphereCollider>().enabled = true;
+        //                 draw.hier.AddPoint("", d["plane"][0], p1);
+        //                 Hierarchy.Planes[d["plane"][0]].children.Add(p1.name);
+        //                 if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["plane"][0], p1.name);
+        //                 var p2 = draw.obj.Point(draw.calc.swapYZ(draw.calc.HC_diem_len_mp(draw.calc.swapYZ(Hierarchy.Points[end].go.transform.position), equation)), draw.hierContent);
+        //                 p2.GetComponent<SphereCollider>().enabled = true;
+        //                 draw.hier.AddPoint("", d["plane"][0], p2);
+        //                 Hierarchy.Planes[d["plane"][0]].children.Add(p2.name);
+        //                 if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["plane"][0], p2.name);
+        //                 var l = draw.obj.Line(draw.hierContent);
+        //                 draw.hier.AddLine("", p1.name, p2.name, d["plane"][0], l, new List<string>());
+        //                 Hierarchy.Planes[d["plane"][0]].children.Add(l.name);
+        //                 if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["plane"][0], l.name);
+        //             }}
+        //         };
+        //         MenuObjects["Hình chiếu"] = cmd;
+        //     }},
+        //     {"Giao điểm(>)", () => {
+        //         var cmd = new Dictionary<string, Action>(){
+        //             {"Đoạn thẳng và đoạn thẳng(1)", () => {
+        //                 if (!(draw.mouse.SelectionCount["line"]==2 && draw.mouse.Selected.Count==2)) return;
+        //                 var d = draw.mouse.GetSelections();
+        //                 var l1 = Hierarchy.Lines[d["line"][0]];
+        //                 var l2 = Hierarchy.Lines[d["line"][1]];
+        //                 var p = draw.calc.Duong_vuong_goc_chung(new KeyValuePair<Vector3, Vector3>(Hierarchy.Points[l1.start].go.transform.position, Hierarchy.Points[l1.end].go.transform.position), new KeyValuePair<Vector3, Vector3>(Hierarchy.Points[l2.start].go.transform.position, Hierarchy.Points[l2.end].go.transform.position));
+        //                 var p1 = draw.obj.Point(p.Key, draw.hierContent);
+        //                 p1.GetComponent<SphereCollider>().enabled = true;
+        //                 draw.hier.AddPoint("", d["line"][0], p1);
+        //                 Hierarchy.Lines[d["line"][0]].children.Add(p1.name);
+        //                 if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["line"][0], p1.name);
+        //                 if (p.Key != p.Value){
+        //                     var p2 = draw.obj.Point(p.Value, draw.hierContent);
+        //                     p2.GetComponent<SphereCollider>().enabled = true;
+        //                     draw.hier.AddPoint("", d["line"][1], p2);
+        //                     Hierarchy.Lines[d["line"][1]].children.Add(p2.name);
+        //                     if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["line"][1], p1.name);
+        //                 }
+        //             }},
+        //             {"Đường vuông góc chung 2 đoạn thẳng(1)", () => {
+        //                 if (!(draw.mouse.SelectionCount["line"]==2 && draw.mouse.Selected.Count==2)) return;
+        //                 var d = draw.mouse.GetSelections();
+        //                 var l1 = Hierarchy.Lines[d["line"][0]];
+        //                 var l2 = Hierarchy.Lines[d["line"][1]];
+        //                 var p = draw.calc.Duong_vuong_goc_chung(new KeyValuePair<Vector3, Vector3>(Hierarchy.Points[l1.start].go.transform.position, Hierarchy.Points[l1.end].go.transform.position), new KeyValuePair<Vector3, Vector3>(Hierarchy.Points[l2.start].go.transform.position, Hierarchy.Points[l2.end].go.transform.position));
+        //                 var p1 = draw.obj.Point(p.Key, draw.hierContent);
+        //                 p1.GetComponent<SphereCollider>().enabled = true;
+        //                 draw.hier.AddPoint("", d["line"][0], p1);
+        //                 Hierarchy.Lines[d["line"][0]].children.Add(p1.name);
+        //                 if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["line"][0], p1.name);
+        //                 if (p.Key != p.Value){
+        //                     var p2 = draw.obj.Point(p.Value, draw.hierContent);
+        //                     p2.GetComponent<SphereCollider>().enabled = true;
+        //                     draw.hier.AddPoint("", d["line"][1], p2);
+        //                     Hierarchy.Lines[d["line"][1]].children.Add(p2.name);
+        //                     if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["line"][1], p1.name);
 
-                            var l3 = draw.obj.Line(draw.hierContent);
-                            l3.positionCount=2;
-                            draw.hier.AddLine("", p1.name, p2.name, "", l3, new List<string>());
-                        }
-                    }},
-                    {"Đoạn thẳng và mặt phẳng(1)", () => {
-                        if (!(draw.mouse.SelectionCount["line"]==1 && draw.mouse.SelectionCount["plane"]==1 && draw.mouse.Selected.Count==2)) return;
-                        var d = draw.mouse.GetSelections();
-                        var l = Hierarchy.Lines[d["line"][0]];
-                        var plane = Hierarchy.Planes[d["plane"][0]];
-                        var equation = plane.equation;
-                        var start = Hierarchy.Points[l.start];
-                        var end = Hierarchy.Points[l.end];
-                        var intersect = draw.calc.intersect_line_plane(new KeyValuePair<Vector3, Vector3>(draw.calc.swapYZ(start.go.transform.position), draw.calc.swapYZ(end.go.transform.position)), equation);
-                        if (intersect.Key){
-                            var p1 = draw.obj.Point(draw.calc.swapYZ(intersect.Value), draw.hierContent);
-                            p1.GetComponent<SphereCollider>().enabled = true;
-                            draw.hier.AddPoint("", d["plane"][0], p1);
-                            Hierarchy.Planes[d["plane"][0]].children.Add(p1.name);
-                            if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["plane"][0], p1.name);
-                        }
-                    }},
-                };
-                MenuObjects["Giao điểm"] = cmd;
-            }},
-        };
-        CreateCommands(cmd, container, false);
+        //                     var l3 = draw.obj.Line(draw.hierContent);
+        //                     l3.positionCount=2;
+        //                     draw.hier.AddLine("", p1.name, p2.name, "", l3, new List<string>());
+        //                 }
+        //             }},
+        //             {"Đoạn thẳng và mặt phẳng(1)", () => {
+        //                 if (!(draw.mouse.SelectionCount["line"]==1 && draw.mouse.SelectionCount["plane"]==1 && draw.mouse.Selected.Count==2)) return;
+        //                 var d = draw.mouse.GetSelections();
+        //                 var l = Hierarchy.Lines[d["line"][0]];
+        //                 var plane = Hierarchy.Planes[d["plane"][0]];
+        //                 var equation = plane.equation;
+        //                 var start = Hierarchy.Points[l.start];
+        //                 var end = Hierarchy.Points[l.end];
+        //                 var intersect = draw.calc.intersect_line_plane(new KeyValuePair<Vector3, Vector3>(draw.calc.swapYZ(start.go.transform.position), draw.calc.swapYZ(end.go.transform.position)), equation);
+        //                 if (intersect.Key){
+        //                     var p1 = draw.obj.Point(draw.calc.swapYZ(intersect.Value), draw.hierContent);
+        //                     p1.GetComponent<SphereCollider>().enabled = true;
+        //                     draw.hier.AddPoint("", d["plane"][0], p1);
+        //                     Hierarchy.Planes[d["plane"][0]].children.Add(p1.name);
+        //                     if (RoomManager.inRoom) photon.RPC("AddChildren", RpcTarget.OthersBuffered, d["plane"][0], p1.name);
+        //                 }
+        //             }},
+        //         };
+        //         MenuObjects["Giao điểm"] = cmd;
+        //     }},
+        // };
+        // CreateCommands(cmd, container, false);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
     public void Window(){
         var container = draw.uiobj.CommandContainer("Cửa sổ", Containers);
         var item = draw.uiobj.MenuItem("Cửa sổ", () => ToggleContainer(container), itemsContainer);
-        var cmd = new Dictionary<string, Action>(){
-            {$"Toàn màn hình(/{b2i(Screen.fullScreen)})", () => {
-                Screen.fullScreen = !Screen.fullScreen;
-            }},
-            {$"Độ phân giải(>)", () => {
-                Resolution[] resolutions = Screen.resolutions;
-                var cmd = new Dictionary<string, Action>();
-                foreach (var res in resolutions){
-                    if (!cmd.ContainsKey($"{res.width}x{res.height}(1)")) cmd.Add($"{res.width}x{res.height}(1)", () => {
-                        Screen.SetResolution(res.width, res.height, Screen.fullScreen);
-                    });
-                }
-                MenuObjects["Độ phân giải"] = cmd;
-            }},
-            {$"Tự động ẩn thanh công cụ(/{b2i(dockAH.autohide)})", () => {
-                dockAH.autohide = !dockAH.autohide;
-            }},
-            {$"Hierarchy(/{b2i(draw.panel.Hierarchy.gameObject.activeSelf)})", () => {
-                if (draw.panel.Hierarchy.gameObject.activeSelf){
-                    draw.panel.CloseTab("Hierarchy");
-                }
-                else{
-                    draw.panel.CreateTab("Hierarchy", draw.panel.Hierarchy);
-                }
-            }},
-            {$"Inspector(/{b2i(draw.panel.Inspector.gameObject.activeSelf)})", () => {
-                if (draw.panel.Inspector.gameObject.activeSelf){
-                    draw.panel.CloseTab("Inspector");
-                }
-                else{
-                    draw.panel.CreateTab("Inspector", draw.panel.Inspector);
-                }
-            }},
-            // {$"Cài đặt(/{b2i(draw.panel.Settings.gameObject.activeSelf)})", () => {
-            //     if (draw.panel.Settings.gameObject.activeSelf){
-            //         draw.panel.CloseTab("Cài đặt");
-            //     }
-            //     else{
-            //         draw.panel.CreateTab("Cài đặt", draw.panel.Settings);
-            //     }
-            // }}
-        };
-        CreateCommands(cmd, container, false);
+        // var cmd = new Dictionary<string, Action>(){
+        //     {$"Toàn màn hình(/{b2i(Screen.fullScreen)})", () => {
+        //         Screen.fullScreen = !Screen.fullScreen;
+        //     }},
+        //     {$"Độ phân giải(>)", () => {
+        //         Resolution[] resolutions = Screen.resolutions;
+        //         var cmd = new Dictionary<string, Action>();
+        //         foreach (var res in resolutions){
+        //             if (!cmd.ContainsKey($"{res.width}x{res.height}(1)")) cmd.Add($"{res.width}x{res.height}(1)", () => {
+        //                 Screen.SetResolution(res.width, res.height, Screen.fullScreen);
+        //             });
+        //         }
+        //         MenuObjects["Độ phân giải"] = cmd;
+        //     }},
+        //     {$"Tự động ẩn thanh công cụ(/{b2i(dockAH.autohide)})", () => {
+        //         dockAH.autohide = !dockAH.autohide;
+        //     }},
+        //     {$"Hierarchy(/{b2i(draw.panel.Hierarchy.gameObject.activeSelf)})", () => {
+        //         if (draw.panel.Hierarchy.gameObject.activeSelf){
+        //             draw.panel.CloseTab("Hierarchy");
+        //         }
+        //         else{
+        //             draw.panel.CreateTab("Hierarchy", draw.panel.Hierarchy);
+        //         }
+        //     }},
+        //     {$"Inspector(/{b2i(draw.panel.Inspector.gameObject.activeSelf)})", () => {
+        //         if (draw.panel.Inspector.gameObject.activeSelf){
+        //             draw.panel.CloseTab("Inspector");
+        //         }
+        //         else{
+        //             draw.panel.CreateTab("Inspector", draw.panel.Inspector);
+        //         }
+        //     }},
+        //     // {$"Cài đặt(/{b2i(draw.panel.Settings.gameObject.activeSelf)})", () => {
+        //     //     if (draw.panel.Settings.gameObject.activeSelf){
+        //     //         draw.panel.CloseTab("Cài đặt");
+        //     //     }
+        //     //     else{
+        //     //         draw.panel.CreateTab("Cài đặt", draw.panel.Settings);
+        //     //     }
+        //     // }}
+        // };
+        // CreateCommands(cmd, container, false);
         draw.uiobj.RebuildLayout(MenuCanvas);
     }
     public void Help(){
@@ -271,7 +271,7 @@ public class MenuManager : MonoBehaviour
             {"Tạo phòng(0)", () => {
                 connect.Canvas.SetActive(true);
                 connect.Create.SetActive(true);
-                room.CreateID.text = room.ID = $"{draw.idhandler.RoomID(7)}-{draw.idhandler.RoomID(7)}-{draw.idhandler.RoomID(7)}";
+                // room.CreateID.text = room.ID = $"{draw.idhandler.RoomID(7)}-{draw.idhandler.RoomID(7)}-{draw.idhandler.RoomID(7)}";
             }},
             {"Tham gia phòng(0)", () => {
                 connect.Canvas.SetActive(true);

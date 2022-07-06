@@ -57,29 +57,8 @@ public class InputFieldHandler : MonoBehaviour
     public void Update_Position(GameObject go, Vector3 position){
         go.transform.position = draw.calc.swapYZ(position);
     }
-    public void Update_Point_Name(string ID, string name){
-        var obj = Hierarchy.Points[ID];
-        obj.name = name;
-        Hierarchy.Points[ID] = obj;
-    }
-    public void Update_Line_Name(string ID, string name){
-        var obj = Hierarchy.Lines[ID];
-        obj.name = name;
-        Hierarchy.Lines[ID] = obj;
-    }
-    public void Update_Plane_Name(string ID, string name){
-        var obj = Hierarchy.Planes[ID];
-        obj.name = name;
-        Hierarchy.Planes[ID] = obj;
-    }
-    public void Update_Circle_Name(string ID, string name){
-        var obj = Hierarchy.Circles[ID];
-        obj.name = name;
-        Hierarchy.Circles[ID] = obj;
-    }
-    public void Update_Polygon_Name(string ID, string name){
-        var obj = Hierarchy.Polygons[ID];
-        obj.name = name;
-        Hierarchy.Polygons[ID] = obj;
+    public void Update_GeoObj_Name(string ID, string name){
+        var obj = Hierarchy.Objs[ID];
+        // Hierarchy.Points[ID] = obj;
     }
 }

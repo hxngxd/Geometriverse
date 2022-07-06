@@ -9,7 +9,7 @@ public class drawPoint : MonoBehaviour
 {
     public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
     Draw draw;
-    public bool pointing = false, overlapsed = false;
+    public GameObject current_point = null;
     public Transform content;
     void Start()
     {
@@ -21,45 +21,37 @@ public class drawPoint : MonoBehaviour
         Inputs.Add("pos", draw.uiobj.Vec3("Toạ độ", content));
         content.gameObject.SetActive(false);
     }
-    public IEnumerator PointInit(Action subActionWhileDrawing, Action subActionDoneDrawing, Action onCancel){
-        pointing = true;
-        var point = draw.obj.Point(Vector3.zero, draw.hierContent);
-        Hierarchy.currentObjects["point"].Add(point);
+    public IEnumerator PointInit(Action while_drawing, Action done_drawing, Action cancel){
+        current_point = draw.obj.Point(Vector3.zero, draw.hier.current);
         while (true){
-            subActionWhileDrawing();
+            while_drawing();
             if (Input.GetMouseButtonDown(0) && !draw.raycast.isMouseOverUI()){
-                subActionDoneDrawing();
-                if (pointing == false) break;
+                done_drawing();
+                if (current_point == null) break;
             }
             if (Input.GetKeyDown(KeyCode.Escape)){
-                onCancel();
+                cancel();
                 break;
             }
             yield return null;
         }
     }
-    [PunRPC]
-    void SyncPos(string ID, Vector3 pos){
-        Hierarchy.Points[ID].go.transform.position = pos;
-    }
     public void whileDrawing(GameObject point, List<INPUT> Pos){
-        if (point==null) return;
         var hit = draw.raycast.Hit();
-        if (Hierarchy.Types.ContainsKey(hit.ID)){
-            switch (Hierarchy.Types[hit.ID]){
+        if (Hierarchy.Objs.ContainsKey(hit.ID)){
+            switch (Hierarchy.Objs[hit.ID].type){
                 case "point":
                     if (point.activeSelf) point.SetActive(false);
-                    point.transform.position = Hierarchy.Points[hit.ID].go.transform.position;
+                    point.transform.position = Hierarchy.Objs[hit.ID].go.transform.position;
                     break;
                 case "line":
                     if (!point.activeSelf) point.SetActive(true);
-                    var start = Hierarchy.Points[Hierarchy.Lines[hit.ID].start].go.transform.position;
-                    var end = Hierarchy.Points[Hierarchy.Lines[hit.ID].end].go.transform.position;
+                    var start = Hierarchy.Objs[Hierarchy.Objs[hit.ID].vertices[0]].go.transform.position;
+                    var end = Hierarchy.Objs[Hierarchy.Objs[hit.ID].vertices[1]].go.transform.position;
                     point.transform.position = draw.calc.HC_diem_len_duong_thang(hit.point, new KeyValuePair<Vector3, Vector3>(start, end));
                     break;
                 case "plane":
-                case "3pointcircle":
-                case "polygon":
+                case "circle":
                     if (!point.activeSelf) point.SetActive(true);
                     point.transform.position = hit.point;
                     break;
@@ -72,66 +64,46 @@ public class drawPoint : MonoBehaviour
         }
         draw.inputhandler.Vec2Input(Pos, draw.calc.swapYZ(point.transform.position));
     }
-    [PunRPC]
-    public void RPC_AddChildren(string parent, string child){
-        switch (Hierarchy.Types[parent]){
-            case "line":
-                Hierarchy.Lines[parent].children.Add(child);
-                break;
-            case "plane":
-                Hierarchy.Planes[parent].children.Add(child);
-                break;
-            case "3pointcircle":
-                Hierarchy.Circles[parent].children.Add(child);
-                break;
-            case "polygon":
-                Hierarchy.Polygons[parent].children.Add(child);
-                break;
-        }
-    }
-    public void doneDrawing(GameObject point, string name){
-        if (point==null) return;
+    public void doneDrawing(GameObject point, string name, string vertexof){
         var hit = draw.raycast.Hit();
         var parent = "";
-        overlapsed = false;
-        if (Hierarchy.Types.ContainsKey(hit.ID)){
-            if (Hierarchy.Types[hit.ID] == "point"){
-                int index = Hierarchy.currentObjects["point"].IndexOf(point);
+        bool overlapsed = false;
+        if (Hierarchy.Objs.ContainsKey(hit.ID)){
+            if (Hierarchy.Objs[hit.ID].type == "point"){
                 Destroy(point);
-                Hierarchy.currentObjects["point"][index] = point = Hierarchy.Points[hit.ID].go;
+                point = Hierarchy.Objs[hit.ID].go;
                 overlapsed = true;
             }
             else{
                 parent = hit.ID;
-                RPC_AddChildren(hit.ID, point.name);
-                if (RoomManager.inRoom) this.GetComponent<PhotonView>().RPC("RPC_AddChildren", RpcTarget.OthersBuffered, hit.ID, point.name);
+                Hierarchy.Objs[parent].children.Add(point.name);
             }
         }
-        point.GetComponent<SphereCollider>().enabled = true;
-        if (overlapsed) return;
-        draw.hier.AddPoint(name, parent, point);
+        if (!overlapsed){
+            point.GetComponent<SphereCollider>().enabled = true;
+            draw.hier.Add(name, parent, vertexof, point);
+            point.transform.SetParent(draw.hier.created);
+        }
     }
     public IEnumerator Okay(){
         content.gameObject.SetActive(true);
         draw.mouse.UnselectAll();
         while (true){
-            draw.drawing = true;
             StartCoroutine(PointInit(()=>{
-                whileDrawing(Hierarchy.currentObjects["point"][Hierarchy.currentObjects["point"].Count-1].gameObject, Inputs["pos"]);
+                whileDrawing(current_point, Inputs["pos"]);
             }, ()=>{
-                doneDrawing(Hierarchy.currentObjects["point"][Hierarchy.currentObjects["point"].Count-1], "");
-                draw.point.pointing = false;
+                doneDrawing(current_point, Inputs["name"][0].text, "");
+                current_point = null;
             }, Cancel));
-            yield return new WaitUntil(() => !pointing);
-            draw.hier.ResetCurrentObjects();
-            yield return new WaitForSeconds(0.015f);
+            yield return new WaitUntil(() => current_point==null);
+            yield return new WaitForSeconds(0.01f);
         }
     }
     public IEnumerator OnSelect(GameObject point){
         draw.mouse.Select(point.transform);
         RealtimeInput(point.name);
-        var hit = new RaycastHandler.MouseHit();
         float startTime = 0f, holdTime = 0f;
+        var hit = new RaycastHandler.MouseHit();
         var startPosition = new Vector3();
         while (!Input.GetKeyDown(KeyCode.Escape)){
             if (Input.GetMouseButtonDown(0)){
@@ -156,26 +128,26 @@ public class drawPoint : MonoBehaviour
         Cancel();
     }
     public void Drag(GameObject point){
-        var parent = Hierarchy.Points[point.name].parent;
+        var parent = Hierarchy.Objs[point.name].parent;
         if (parent == ""){
             draw.mouse.Follow(point);
             SnapOnAxis(point, draw.raycast.Hit());
         }
         else{
-            switch (Hierarchy.Types[parent]){
+            switch (Hierarchy.Objs[parent].type){
                 case "line":
                     var mouseRay = draw.raycast.MouseToRay();
-                    var start = Hierarchy.Lines[parent].start;
-                    var end = Hierarchy.Lines[parent].end;
-                    var line = new KeyValuePair<Vector3, Vector3>(draw.calc.swapYZ(Hierarchy.Points[start].go.transform.position), draw.calc.swapYZ(Hierarchy.Points[end].go.transform.position));
+                    var start = Hierarchy.Objs[parent].vertices[0];
+                    var end = Hierarchy.Objs[parent].vertices[1];
+                    var line = new KeyValuePair<Vector3, Vector3>(draw.calc.swapYZ(Hierarchy.Objs[start].go.transform.position), draw.calc.swapYZ(Hierarchy.Objs[end].go.transform.position));
                     point.transform.position = draw.calc.swapYZ(draw.calc.Duong_vuong_goc_chung(line, mouseRay).Key);
                     break;
                 case "plane":
                     var mouseray = draw.raycast.MouseToRay();
-                    var plane = Hierarchy.Planes[parent].equation;
+                    var plane = Hierarchy.Objs[parent].equation;
                     point.transform.position = draw.calc.swapYZ(draw.calc.intersect_line_plane(mouseray, plane).Value);
                     break;
-                case "3pointcircle":
+                case "circle":
                 case "polygon":
                     var hit = draw.raycast.Hit();
                     if (hit.ID == parent) point.transform.position = hit.point;
@@ -219,12 +191,12 @@ public class drawPoint : MonoBehaviour
     }
     public void RealtimeInput(string ID){
         content.gameObject.SetActive(true);
-        var obj = Hierarchy.Points[ID];
+        var obj = Hierarchy.Objs[ID];
         var point = obj.go;
         Inputs["name"][0].text = obj.name;
         draw.inputhandler.Vec2Input(Inputs["pos"], draw.calc.swapYZ(point.transform.position));
         
-        draw.listener.Add_Input(Inputs["name"][0], () => draw.inputhandler.Update_Point_Name(ID, Inputs["name"][0].text));
+        draw.listener.Add_Input(Inputs["name"][0], () => draw.inputhandler.Update_GeoObj_Name(ID, Inputs["name"][0].text));
 
         if (obj.parent == ""){
             draw.listener.Add_Inputs(Inputs["pos"], () => draw.inputhandler.Update_Position(point, draw.inputhandler.Input2Vec(Inputs["pos"])));

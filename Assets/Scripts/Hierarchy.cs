@@ -8,48 +8,48 @@ using MathNet.Numerics.LinearAlgebra.Double;
 public class Hierarchy : MonoBehaviour
 {
     Draw draw;
-    public struct GeoObject{
+    public struct Obj{
         public string name, parent, type, vertexof;
         public GameObject go;
         public List<string> vertices, children;
         public Dictionary<string, float> equation;
         public Matrix<double> rotation;
     }
-    public static Dictionary<string, GeoObject> GeoObjects = new Dictionary<string, GeoObject>();
-    public Transform content, currentObjects;
+    public static Dictionary<string, Obj> Objs = new Dictionary<string, Obj>();
+    public Transform created, current, selected, content;
     void Start(){
         draw = FindObjectOfType<Draw>();
     }
     public void Add(string name, string parent, string vertexof, GameObject go){
-        var obj = new GeoObject();
+        var obj = new Obj();
         obj.name = name;
         obj.parent = parent;
         obj.vertexof = vertexof;
         obj.go = go;
         obj.type = "point";
-        GeoObjects.Add(go.name, obj);
+        Objs.Add(go.name, obj);
     }
     public void Add(string name, string parent, List<string> vertices, GameObject go){
-        var obj = new GeoObject();
+        var obj = new Obj();
         obj.name = name;
         obj.vertices = vertices;
         obj.go = go;
         obj.children = new List<string>();
         obj.type = "line";
-        GeoObjects.Add(go.name, obj);
+        Objs.Add(go.name, obj);
     }
     public void Add(string name, List<string> vertices, GameObject go, Matrix<double> rotation, Dictionary<string, float> equation){
-        var obj = new GeoObject();
+        var obj = new Obj();
         obj.name = name;
         obj.vertices = vertices;
         obj.go = go;
         obj.rotation = rotation;
         obj.equation = equation;
         obj.type = "plane";
-        GeoObjects.Add(go.name, obj);
+        Objs.Add(go.name, obj);
     }
     public void Add(string name, string parent, List<string> vertices, GameObject go, Matrix<double> rotation, Dictionary<string, float> equation){
-        var obj = new GeoObject();
+        var obj = new Obj();
         obj.name = name;
         obj.parent = parent;
         obj.go = go;
@@ -57,24 +57,24 @@ public class Hierarchy : MonoBehaviour
         obj.rotation = rotation;
         obj.equation = equation;
         obj.type = "circle";
-        GeoObjects.Add(go.name, obj);
+        Objs.Add(go.name, obj);
     }
     public void Remove(string ID){
-        Destroy(GeoObjects[ID].go);
-        GeoObjects.Remove(ID);
+        Destroy(Objs[ID].go);
+        Objs.Remove(ID);
         Destroy(content.Find(ID).gameObject);
     }
     public void RemoveCurrentObjects(){
-        foreach (Transform child in currentObjects){
+        foreach (Transform child in current){
             Destroy(child.gameObject);
         }
     }
     public void ResetAll(){
-        // RemoveCurrentObjects();
+        // RemoveCurrentObjs();
         // List<string> IDs = new List<string>();
         // foreach (var obj in Hierarchy.Types) IDs.Add(obj.Key);
         // foreach (string ID in IDs){
-        //     RemoveObjectsWithID(ID);
+        //     RemoveObjsWithID(ID);
         // }
         // Types.Clear();
         // Points.Clear();

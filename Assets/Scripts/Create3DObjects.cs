@@ -13,18 +13,18 @@ public class Create3DObjects : MonoBehaviour
     }
     public GameObject Point(Vector3 position, Transform parent){
         var point = Instantiate(pointPref, position, rot0, parent);
-        point.name = idhandler.GenID();
+        point.name = idhandler.GenID(11);
         return point;
     }
     public LineRenderer Line(Transform parent, bool loop){
         var line = Instantiate(linePref, pos0, rot0, parent).GetComponent<LineRenderer>();
-        line.name = idhandler.GenID();
+        line.name = idhandler.GenID(11);
         line.loop = loop;
         return line;
     }
     public GameObject Plane(Transform parent){
         var plane = Instantiate(planePref, pos0, rot0, parent);
-        plane.name = idhandler.GenID();
+        plane.name = idhandler.GenID(11);
         return plane;
     }
 }
