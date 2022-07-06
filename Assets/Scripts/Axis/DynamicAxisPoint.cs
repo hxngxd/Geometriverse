@@ -29,12 +29,18 @@ public class DynamicAxisPoint : MonoBehaviour
                 value.text = this.transform.position.y.ToString();
             }
         }
-        if (this.transform.position == Vector3.zero) this.transform.localScale = Vector3.zero;
-        if (this.transform.localScale.x > poal.maxSize) this.transform.localScale = new Vector3(poal.maxSize,poal.maxSize,poal.maxSize);
-        if (this.name.Contains('.')){
-            this.transform.Find("dot").gameObject.SetActive(this.transform.localScale.x <= poal.requireSize[NumAfterDot(this.name)]);
-            this.transform.Find("value").gameObject.SetActive(this.transform.localScale.x <= poal.requireSize[NumAfterDot(this.name)]);
+        if (this.transform.position == Vector3.zero){
+            this.transform.localScale = Vector3.zero;
         }
+        if (this.transform.localScale.x > poal.requireSize[0]){
+            this.transform.localScale = new Vector3(poal.requireSize[0], poal.requireSize[0], poal.requireSize[0]);
+        }
+        if (this.name.Contains('.')){
+            bool active = this.transform.localScale.x <= poal.requireSize[NumAfterDot(this.name)];
+            this.transform.Find("dot").gameObject.SetActive(active);
+            this.transform.Find("value").gameObject.SetActive(active);
+        }
+        this.GetComponent<SphereCollider>().enabled = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
     }
     public int NumAfterDot(string name){
         return name.Length - name.IndexOf('.') - 1;

@@ -9982,13 +9982,11 @@ MonoBehaviour:
   Xs: {fileID: 1148173714}
   Ys: {fileID: 1983554439}
   Zs: {fileID: 57610468}
-  Step: 0.25
-  range: 7
-  maxSize: 2
+  Step: 0.0625
+  range: 8
   requireSize:
-  - 0
+  - 2
   - 0.5
-  - 0.25
 --- !u!1 &1459880255
 GameObject:
   m_ObjectHideFlags: 0
