@@ -6,14 +6,13 @@ using UnityEngine.UI;
 public class MouseHandler : MonoBehaviour
 {
     Draw draw;
-    public Material[] plane, defaultMat;
+    public Material[] trans, solid;
     public Transform Highlighted = null;
-    public List<Transform> Selected = new List<Transform>();
-    public Dictionary<string, int> SelectionCount = new Dictionary<string, int>();
-    public static List<string> Types = new List<string>(){"point", "line", "plane", "circle"};
+    public Dictionary<string, List<Transform>> Selected = new Dictionary<string, List<Transform>>(){
+        {"point", new List<Transform>()},
+    };
     void Start(){
         draw = FindObjectOfType<Draw>();
-        foreach (string type in Types) SelectionCount.Add(type, 0);
     }
     public void Follow(GameObject gameObject){
         Vector3 mousePos = Input.mousePosition;
@@ -21,6 +20,12 @@ public class MouseHandler : MonoBehaviour
         gameObject.transform.position = Camera.main.ScreenToWorldPoint(mousePos);
     }
     void Update(){
+        string a = "";
+        foreach (var t in Selected){
+            foreach (var s in t.Value) a += s.name + " ";
+        }
+        print(a);
+
         if (Highlighted != null) Unhighlight();
 
         if (Selected.Count != 0){
@@ -39,92 +44,87 @@ public class MouseHandler : MonoBehaviour
 
         var hit = draw.raycast.Hit();
         var obj = hit.transform;
-        if (!Selected.Contains(obj) && hit.ID != "Background") Highlight(obj);
+        if (Hierarchy.Objs.ContainsKey(obj.name) && !Selected[Hierarchy.Objs[obj.name].type].Contains(obj)) Highlight(obj);
 
-        // if (draw.drawing) return;
+        if (draw.current != null) return;
 
-        // if (Input.GetMouseButtonDown(0)){
-        //     if (Hierarchy.Types.ContainsKey(hit.ID)){
-        //         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)){
-        //             if (!Selected.Contains(obj)){
-        //                 if (Selected.Count==0) OnSelect(obj);
-        //                 else{
-        //                     Select(obj);
-        //                     draw.Refresh();
-        //                 }
-        //             }
-        //             else{
-        //                 Unselect(obj);
-        //             }
-        //         }
-        //         else{
-        //             if (!Selected.Contains(obj)){
-        //                 UnselectAll();
-        //                 draw.Refresh();
-        //                 OnSelect(obj);
-        //             }
-        //         }
-        //     }
-        //     else{
-        //         UnselectAll();
-        //         draw.Refresh();
-        //     }
-        // }
+        if (Input.GetMouseButtonDown(0)){
+            if (Hierarchy.Objs.ContainsKey(obj.name)){
+                var type = Hierarchy.Objs[obj.name].type;
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)){
+                    if (!Selected[type].Contains(obj)){
+                        if (Selected[type].Count==0) OnSelect(obj);
+                        else{
+                            Select(obj);
+                            draw.Refresh();
+                        }
+                    }
+                    else{
+                        Unselect(obj);
+                        if (Selected[type].Count==1){
+                            draw.Refresh();
+                            OnSelect(Selected[type][0]);
+                        }
+                    }
+                }
+                else{
+                    if (!Selected[type].Contains(obj)){
+                        UnselectAll();
+                        draw.Refresh();
+                        OnSelect(obj);
+                    }
+                }
+            }
+            else{
+                UnselectAll();
+                draw.Refresh();
+            }
+        }
     }
     public void OnSelect(Transform obj){
-        // var hierItem = draw.hier.content.Find(obj.name).GetComponent<Toggle>();
-        // if (!hierItem.isOn) hierItem.isOn = true;
-        // if (!Selected.Contains(obj)){
-        //     switch (Hierarchy.Types[obj.name]){
-        //         case "point":
-        //             draw.current = StartCoroutine(draw.point.OnSelect(obj.gameObject));
-        //             break;
-        //         case "line":
-        //             draw.current = StartCoroutine(draw.line.OnSelect(obj.GetComponent<LineRenderer>()));
-        //             break;
-        //         case "plane":
-        //             draw.current = StartCoroutine(draw.plane.OnSelect(obj.gameObject));
-        //             break;
-        //         case "3pointcircle":
-        //             draw.current = StartCoroutine(draw.circle3.OnSelect(obj.GetComponent<LineRenderer>()));
-        //             break;
-        //             draw.current = StartCoroutine(draw.polygon.OnSelect(obj.GetComponent<LineRenderer>()));
-        //             break;
-        //     }
-        // }
+        Select(obj);
+        switch (Hierarchy.Objs[obj.name].type){
+            case "point":
+                StartCoroutine(draw.point.OnSelect(obj.gameObject));
+                break;
+            // case "line":
+            //     draw.current = StartCoroutine(draw.line.OnSelect(obj.GetComponent<LineRenderer>()));
+            //     break;
+            // case "plane":
+            //     draw.current = StartCoroutine(draw.plane.OnSelect(obj.gameObject));
+            //     break;
+            // case "circle":
+            //     draw.current = StartCoroutine(draw.circle3.OnSelect(obj.GetComponent<LineRenderer>()));
+            //     break;
+        }
     }
     public void DeleteSelected(){
         foreach (var selection in Selected){
-            // draw.hier.RemoveObjectsWithID(selection.name);
+            foreach (var obj in selection.Value){
+                draw.hier.Remove(obj.name);
+            }
+            selection.Value.Clear();
         }
-        Selected.Clear();
-        SelectionCount.Clear();
-        foreach (string type in Types) SelectionCount.Add(type, 0);
-        OnSelectionsChange();
-        UnselectAll();
         draw.Refresh();
+        OnSelectionsChange();
     }
     public void Select(Transform obj){
         SetMaterial(obj, 2);
-        if (!Selected.Contains(obj)){
-            Selected.Add(obj);
-            // SelectionCount[Hierarchy.Types[obj.name]]++;
-        }
+        var type = Hierarchy.Objs[obj.name].type;
+        if (!Selected[type].Contains(obj)) Selected[type].Add(obj);
         OnSelectionsChange();
     }
     public void Unselect(Transform obj){
         SetMaterial(obj, 0);
-        Selected.Remove(obj);
-        // SelectionCount[Hierarchy.Types[obj.name]]--;
+        Selected[Hierarchy.Objs[obj.name].type].Remove(obj);
         OnSelectionsChange();
     }
     public void UnselectAll(){
-        foreach (Transform obj in Selected){
-            SetMaterial(obj, 0);
-        }
-        Selected.Clear();
-        foreach (string type in Types){
-            SelectionCount[type] = 0;
+        foreach (var selection in Selected){
+            foreach (var obj in selection.Value){
+                SetMaterial(obj, 0);
+            }
+            selection.Value.Clear();
         }
         OnSelectionsChange();
     }
@@ -133,7 +133,8 @@ public class MouseHandler : MonoBehaviour
         SetMaterial(Highlighted, 1);
     }
     public void Unhighlight(){
-        if (!Selected.Contains(Highlighted)) SetMaterial(Highlighted, 0);
+        var type = Hierarchy.Objs[Highlighted.name].type;
+        if (!Selected[type].Contains(Highlighted)) SetMaterial(Highlighted, 0);
         Highlighted = null;        
     }
     public void OnSelectionsChange(){
@@ -141,18 +142,17 @@ public class MouseHandler : MonoBehaviour
         draw.menu.Buttoggle("Xoá", !noselected);
     }
     public void SetMaterial(Transform obj, int state){
-        // if (obj == null || !Hierarchy.Types.ContainsKey(obj.name)) return;
-        // switch (Hierarchy.Types[obj.name]){
-        //     case "point":
-        //         obj.Find("dot").GetComponent<MeshRenderer>().material = defaultMat[state];
-        //         break;
-        //     case "line":
-        //     case "3pointcircle":
-        //         obj.GetComponent<LineRenderer>().material = defaultMat[state];
-        //         break;
-        //     case "plane":
-        //         obj.GetComponent<MeshRenderer>().material = plane[state];
-        //         break;
-        // }
+        switch (Hierarchy.Objs[obj.name].type){
+            case "point":
+                obj.Find("dot").GetComponent<MeshRenderer>().material = solid[state];
+                break;
+            case "line":
+            case "circle":
+                obj.GetComponent<LineRenderer>().material = solid[state];
+                break;
+            case "plane":
+                obj.GetComponent<MeshRenderer>().material = trans[state];
+                break;
+        }
     }
 }

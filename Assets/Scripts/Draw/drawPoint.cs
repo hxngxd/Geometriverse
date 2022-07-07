@@ -36,6 +36,7 @@ public class drawPoint : MonoBehaviour
         }
     }
     public void whileDrawing(GameObject point, List<INPUT> Pos){
+        if (point==null) return;
         var hit = draw.raycast.Hit();
         if (Hierarchy.Objs.ContainsKey(hit.ID)){
             switch (Hierarchy.Objs[hit.ID].type){
@@ -64,6 +65,7 @@ public class drawPoint : MonoBehaviour
         draw.input.Vec2Input(Pos, draw.calc.ztoy(point.transform.position));
     }
     public void doneDrawing(GameObject point, string name, string vertexof){
+        if (point==null) return;
         var hit = draw.raycast.Hit();
         var parent = "";
         bool overlapsed = false;

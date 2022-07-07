@@ -43,7 +43,10 @@ public class RaycastHandler : MonoBehaviour
             result.transform = hit.collider.transform;
             result.point = hit.point;
         }
-        if (result.ID == null) result.ID = "Background";
+        if (result.ID == null){
+            result.transform = GameObject.Find("Background").transform;
+            result.ID = "Background";
+        }
         return result;
     }
 }

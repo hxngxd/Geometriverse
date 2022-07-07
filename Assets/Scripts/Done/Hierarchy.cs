@@ -16,7 +16,7 @@ public class Hierarchy : MonoBehaviour
         public Matrix<double> rotation;
     }
     public static Dictionary<string, Obj> Objs = new Dictionary<string, Obj>();
-    public Transform created, current, selected, content;
+    public Transform created, current, content;
     void Start(){
         draw = FindObjectOfType<Draw>();
     }
@@ -77,8 +77,6 @@ public class Hierarchy : MonoBehaviour
         draw.cam.ResetCamera();
         draw.Refresh();
         draw.mouse.Selected.Clear();
-        draw.mouse.SelectionCount.Clear();
-        foreach (string type in MouseHandler.Types) draw.mouse.SelectionCount.Add(type, 0);
         draw.mouse.OnSelectionsChange();
     }
     public Matrix<double> ArrayToMatrix(float[] M){
