@@ -110,7 +110,6 @@ public class drawPoint : MonoBehaviour
                     current_point.transform.position = draw.calc.hc_diem_dt(hit.point, new KeyValuePair<Vector3, Vector3>(start, end));
                     break;
                 case "plane":
-                case "circle":
                     if (!current_point.activeSelf) current_point.SetActive(true);
                     current_point.transform.position = hit.point;
                     break;
@@ -158,10 +157,6 @@ public class drawPoint : MonoBehaviour
                     var mouseray = draw.raycast.MouseToRay();
                     var plane = Hierarchy.Objs[parent].equation;
                     point.transform.position = draw.calc.ztoy(draw.calc.gd_dt_mp(mouseray, plane).Value);
-                    break;
-                case "circle":
-                    var hit = draw.raycast.Hit();
-                    if (hit.ID == parent) point.transform.position = hit.point;
                     break;
             }
         }

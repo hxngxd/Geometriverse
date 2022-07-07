@@ -90,9 +90,6 @@ public class MouseHandler : MonoBehaviour
             case "plane":
                 StartCoroutine(draw.plane.OnSelect(obj.gameObject));
                 break;
-            // case "circle":
-            //     draw.current = StartCoroutine(draw.circle3.OnSelect(obj.GetComponent<LineRenderer>()));
-            //     break;
         }
     }
     public void DeleteSelected(){
@@ -144,7 +141,6 @@ public class MouseHandler : MonoBehaviour
                 obj.Find("dot").GetComponent<MeshRenderer>().material = solid[state];
                 break;
             case "line":
-            case "circle":
                 obj.GetComponent<LineRenderer>().material = solid[state];
                 break;
             case "plane":

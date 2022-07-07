@@ -14,6 +14,7 @@ public class DynamicLine : MonoBehaviour
         line = this.GetComponent<LineRenderer>();
         draw = FindObjectOfType<Draw>();
         linecollider = FindObjectOfType<LineCollider>();
+        linecollider.AddCollider(line);
     }
 
     void Update()

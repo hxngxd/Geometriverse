@@ -7,13 +7,11 @@ public class drawLine : MonoBehaviour
 {
     public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
     Draw draw;
-    LineCollider linecollider;
     public float ratio;
     public Transform content;
     void Start()
     {
         draw = FindObjectOfType<Draw>();
-        linecollider = FindObjectOfType<LineCollider>();
         Inspector();
     }
     public void Inspector(){
@@ -81,8 +79,8 @@ public class drawLine : MonoBehaviour
                     plane = startp;
                 }
                 draw.hier.Add(Inputs["name"][0].text, plane, new List<string>(){line[0].name, line[1].name}, line[2]);
+                line[2].AddComponent<DynamicLine>();
                 draw.hier.FinishedCurrentObjects();
-                linecollider.AddCollider(line[2].GetComponent<LineRenderer>());
             }
 
             yield return new WaitForSeconds(0.01f);

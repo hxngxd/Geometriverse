@@ -137,7 +137,7 @@ public class Calculate : MonoBehaviour
         float t = -((M.x-A.x)*u.x + (M.y-A.y)*u.y + (M.z-A.z)*u.z)/(sqr(u.x) + sqr(u.y) + sqr(u.z));
         return new Vector3(M.x+u.x*t, M.y+u.y*t, M.z+u.z*t);
     }
-    public float kc_diem_duong_thang(Vector3 A, KeyValuePair<Vector3, Vector3> Line){
+    public float kc_diem_dt(Vector3 A, KeyValuePair<Vector3, Vector3> Line){
         return Vector3.Distance(A, hc_diem_dt(A, Line));
     }
     public Vector3 kc_sang_toa_do(Vector3 center, Vector3 originPos, float dist){
