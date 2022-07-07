@@ -20,80 +20,15 @@ public class drawPoint : MonoBehaviour
         Inputs.Add("pos", draw.uiobj.Vec3("Toạ độ", content));
         content.gameObject.SetActive(false);
     }
-    public IEnumerator PointInit(Action while_drawing, Action done_drawing, Action cancel){
-        current_point = draw.obj.Point(Vector3.zero, draw.hier.current);
-        while (true){
-            while_drawing();
-            if (Input.GetMouseButtonDown(0) && !draw.raycast.isMouseOverUI()){
-                done_drawing();
-                if (current_point == null) break;
-            }
-            if (Input.GetKeyDown(KeyCode.Escape)){
-                cancel();
-                break;
-            }
-            yield return null;
-        }
-    }
-    public void whileDrawing(GameObject point, List<INPUT> Pos){
-        if (point==null) return;
-        var hit = draw.raycast.Hit();
-        if (Hierarchy.Objs.ContainsKey(hit.ID)){
-            switch (Hierarchy.Objs[hit.ID].type){
-                case "point":
-                    if (point.activeSelf) point.SetActive(false);
-                    point.transform.position = Hierarchy.Objs[hit.ID].go.transform.position;
-                    break;
-                case "line":
-                    if (!point.activeSelf) point.SetActive(true);
-                    var start = Hierarchy.Objs[Hierarchy.Objs[hit.ID].vertices[0]].go.transform.position;
-                    var end = Hierarchy.Objs[Hierarchy.Objs[hit.ID].vertices[1]].go.transform.position;
-                    point.transform.position = draw.calc.hc_diem_dt(hit.point, new KeyValuePair<Vector3, Vector3>(start, end));
-                    break;
-                case "plane":
-                case "circle":
-                    if (!point.activeSelf) point.SetActive(true);
-                    point.transform.position = hit.point;
-                    break;
-            }
-        }
-        else{
-            if (!point.activeSelf) point.SetActive(true);
-            draw.mouse.Follow(point);
-            SnapOnAxis(point, hit);
-        }
-        draw.input.Vec2Input(Pos, draw.calc.ztoy(point.transform.position));
-    }
-    public void doneDrawing(GameObject point, string name, string vertexof){
-        if (point==null) return;
-        var hit = draw.raycast.Hit();
-        var parent = "";
-        bool overlapsed = false;
-        if (Hierarchy.Objs.ContainsKey(hit.ID)){
-            if (Hierarchy.Objs[hit.ID].type == "point"){
-                Destroy(point);
-                point = Hierarchy.Objs[hit.ID].go;
-                overlapsed = true;
-            }
-            else{
-                parent = hit.ID;
-                Hierarchy.Objs[parent].children.Add(point.name);
-            }
-        }
-        if (!overlapsed){
-            point.GetComponent<SphereCollider>().enabled = true;
-            draw.hier.Add(name, parent, vertexof, point);
-            point.transform.SetParent(draw.hier.created);
-        }
-    }
     public IEnumerator Okay(){
         content.gameObject.SetActive(true);
         draw.mouse.UnselectAll();
         while (true){
-            StartCoroutine(PointInit(()=>{
-                whileDrawing(current_point, Inputs["pos"]);
+            StartCoroutine(makePoint(()=>{
+                onMove(Inputs["pos"]);
             }, ()=>{
-                doneDrawing(current_point, Inputs["name"][0].text, "");
+                onClick(Inputs["name"][0]);
+                current_point.transform.SetParent(draw.hier.created);
                 current_point = null;
             }, Cancel));
             yield return new WaitUntil(() => current_point==null);
@@ -127,6 +62,83 @@ public class drawPoint : MonoBehaviour
         point.GetComponent<SphereCollider>().enabled = true;
         draw.mouse.Unselect(point.transform);
         Cancel();
+    }
+    public void RealtimeInput(string ID){
+        content.gameObject.SetActive(true);
+        var obj = Hierarchy.Objs[ID];
+        var point = obj.go;
+        Inputs["name"][0].text = obj.name;
+        draw.input.Vec2Input(Inputs["pos"], draw.calc.ztoy(point.transform.position));
+        
+        draw.listener.Add(Inputs["name"][0], () => draw.input.Update_Name(ID, Inputs["name"][0].text));
+
+        if (obj.parent == ""){
+            draw.listener.Add(Inputs["pos"], () => draw.input.Update_Position(point, draw.input.Input2Vec(Inputs["pos"])));
+        }
+    }
+    public void Cancel(){
+        content.gameObject.SetActive(false);
+        draw.input.ResetInput(Inputs["name"][0]);
+        draw.input.ResetInputs(Inputs["pos"]);
+        draw.Cancel();
+    }
+    public IEnumerator makePoint(Action move, Action click, Action cancel){
+        current_point = draw.obj.Point(Vector3.zero, draw.hier.current);
+        while (current_point != null){
+            move();
+            if (Input.GetMouseButtonDown(0) && !draw.raycast.isMouseOverUI()){
+                click();
+            }
+            if (Input.GetKeyDown(KeyCode.Escape)){
+                cancel(); break;
+            }
+            yield return null;
+        }
+    }
+    public void onMove(List<INPUT> PositionInput){
+        if (current_point==null) return;
+        var hit = draw.raycast.Hit();
+        if (Hierarchy.Objs.ContainsKey(hit.ID)){
+            switch (Hierarchy.Objs[hit.ID].type){
+                case "point":
+                    if (current_point.activeSelf) current_point.SetActive(false);
+                    current_point.transform.position = Hierarchy.Objs[hit.ID].go.transform.position;
+                    break;
+                case "line":
+                    if (!current_point.activeSelf) current_point.SetActive(true);
+                    var start = Hierarchy.Objs[Hierarchy.Objs[hit.ID].vertices[0]].go.transform.position;
+                    var end = Hierarchy.Objs[Hierarchy.Objs[hit.ID].vertices[1]].go.transform.position;
+                    current_point.transform.position = draw.calc.hc_diem_dt(hit.point, new KeyValuePair<Vector3, Vector3>(start, end));
+                    break;
+                case "plane":
+                case "circle":
+                    if (!current_point.activeSelf) current_point.SetActive(true);
+                    current_point.transform.position = hit.point;
+                    break;
+            }
+        }
+        else{
+            if (!current_point.activeSelf) current_point.SetActive(true);
+            draw.mouse.Follow(current_point);
+            SnapOnAxis(current_point, hit);
+        }
+        draw.input.Vec2Input(PositionInput, draw.calc.ztoy(current_point.transform.position));
+    }
+    public void onClick(INPUT Name){
+        if (current_point==null) return;
+        var hit = draw.raycast.Hit();
+        if (Hierarchy.Objs.ContainsKey(hit.ID)){
+            if (Hierarchy.Objs[hit.ID].type == "point"){
+                Destroy(current_point);
+                current_point = Hierarchy.Objs[hit.ID].go;
+            }
+            else{
+                draw.hier.Add(Name.text, hit.ID, current_point);
+            }
+        }
+        else{
+            draw.hier.Add(Name.text, "", current_point);
+        }
     }
     public void Drag(GameObject point){
         var parent = Hierarchy.Objs[point.name].parent;
@@ -188,24 +200,5 @@ public class drawPoint : MonoBehaviour
                 point.transform.position = Vector3.zero;
             }
         }
-    }
-    public void RealtimeInput(string ID){
-        content.gameObject.SetActive(true);
-        var obj = Hierarchy.Objs[ID];
-        var point = obj.go;
-        Inputs["name"][0].text = obj.name;
-        draw.input.Vec2Input(Inputs["pos"], draw.calc.ztoy(point.transform.position));
-        
-        draw.listener.Add(Inputs["name"][0], () => draw.input.Update_Name(ID, Inputs["name"][0].text));
-
-        if (obj.parent == ""){
-            draw.listener.Add(Inputs["pos"], () => draw.input.Update_Position(point, draw.input.Input2Vec(Inputs["pos"])));
-        }
-    }
-    public void Cancel(){
-        content.gameObject.SetActive(false);
-        draw.input.ResetInput(Inputs["name"][0]);
-        draw.input.ResetInputs(Inputs["pos"]);
-        draw.Cancel();
     }
 }

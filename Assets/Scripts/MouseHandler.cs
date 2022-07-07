@@ -10,6 +10,7 @@ public class MouseHandler : MonoBehaviour
     public Transform Highlighted = null;
     public Dictionary<string, List<Transform>> Selected = new Dictionary<string, List<Transform>>(){
         {"point", new List<Transform>()},
+        {"line", new List<Transform>()},
     };
     void Start(){
         draw = FindObjectOfType<Draw>();
@@ -20,11 +21,6 @@ public class MouseHandler : MonoBehaviour
         gameObject.transform.position = Camera.main.ScreenToWorldPoint(mousePos);
     }
     void Update(){
-        string a = "";
-        foreach (var t in Selected){
-            foreach (var s in t.Value) a += s.name + " ";
-        }
-        print(a);
 
         if (Highlighted != null) Unhighlight();
 
@@ -46,7 +42,7 @@ public class MouseHandler : MonoBehaviour
         var obj = hit.transform;
         if (Hierarchy.Objs.ContainsKey(obj.name) && !Selected[Hierarchy.Objs[obj.name].type].Contains(obj)) Highlight(obj);
 
-        if (draw.current != null) return;
+        if (draw.isDrawing) return;
 
         if (Input.GetMouseButtonDown(0)){
             if (Hierarchy.Objs.ContainsKey(obj.name)){
@@ -87,9 +83,9 @@ public class MouseHandler : MonoBehaviour
             case "point":
                 StartCoroutine(draw.point.OnSelect(obj.gameObject));
                 break;
-            // case "line":
-            //     draw.current = StartCoroutine(draw.line.OnSelect(obj.GetComponent<LineRenderer>()));
-            //     break;
+            case "line":
+                StartCoroutine(draw.line.OnSelect(obj.GetComponent<LineRenderer>()));
+                break;
             // case "plane":
             //     draw.current = StartCoroutine(draw.plane.OnSelect(obj.gameObject));
             //     break;

@@ -5,133 +5,131 @@ using TMPro;
 using INPUT=TMPro.TMP_InputField;
 public class drawLine : MonoBehaviour
 {
-//     public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
-//     Draw draw;
-//     LineCollider linecollider;
-//     public float ratio;
-//     public Transform content;
-//     void Start()
-//     {
-//         draw = FindObjectOfType<Draw>();
-//         linecollider = FindObjectOfType<LineCollider>();
-//         Inspector();
-//     }
-//     public void Inspector(){
-//         Inputs.Add("name", new List<INPUT>(){draw.uiobj.Value("Tên đoạn", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
-//         Inputs.Add("start_name", new List<INPUT>(){draw.uiobj.Value("Tên điểm đầu", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
-//         Inputs.Add("start_pos", draw.uiobj.Vec3("Toạ độ", content));
-//         Inputs.Add("end_name", new List<INPUT>(){draw.uiobj.Value("Tên điểm cuối", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
-//         Inputs.Add("end_pos", draw.uiobj.Vec3("Toạ độ", content));
-//         Inputs.Add("dist", new List<INPUT>(){draw.uiobj.Value("Độ dài", "0", "", INPUT.ContentType.DecimalNumber, content)});
-//         content.gameObject.SetActive(false);
-//     }
-//     public IEnumerator Okay(){
-//         content.gameObject.SetActive(true);
-//         draw.mouse.UnselectAll();
-//         while (true){
-//             ResetInputsList();
-//             draw.drawing = true;
-//             StartCoroutine(draw.point.PointInit(()=>{
-//                 draw.point.whileDrawing(Hierarchy.currentObjects["point"][Hierarchy.currentObjects["point"].Count-1].gameObject, Inputs["start_pos"]);
-//             }, ()=>{
-//                 draw.point.doneDrawing(Hierarchy.currentObjects["point"][Hierarchy.currentObjects["point"].Count-1], "");
-//                 draw.point.pointing = false;
-//             }, Cancel));
-//             yield return new WaitUntil(() => !draw.point.pointing);
-            
-//             var line = draw.obj.Line(draw.hierContent);
-//             Hierarchy.currentObjects["line"].Add(line.gameObject);
-//             line.positionCount++;
-//             line.SetPosition(0, Hierarchy.currentObjects["point"][0].transform.position);
+    public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
+    Draw draw;
+    LineCollider linecollider;
+    public float ratio;
+    public Transform content;
+    void Start()
+    {
+        draw = FindObjectOfType<Draw>();
+        linecollider = FindObjectOfType<LineCollider>();
+        Inspector();
+    }
+    public void Inspector(){
+        Inputs.Add("name", new List<INPUT>(){draw.uiobj.Value("Tên đoạn", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
+        Inputs.Add("start_name", new List<INPUT>(){draw.uiobj.Value("Tên điểm đầu", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
+        Inputs.Add("start_pos", draw.uiobj.Vec3("Toạ độ", content));
+        Inputs.Add("end_name", new List<INPUT>(){draw.uiobj.Value("Tên điểm cuối", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
+        Inputs.Add("end_pos", draw.uiobj.Vec3("Toạ độ", content));
+        Inputs.Add("dist", new List<INPUT>(){draw.uiobj.Value("Độ dài", "0", "", INPUT.ContentType.DecimalNumber, content)});
+        content.gameObject.SetActive(false);
+    }
+    public IEnumerator Okay(){
+        content.gameObject.SetActive(true);
+        draw.mouse.UnselectAll();
+        while (true){
+            ResetInputsList();
+            var line = new List<GameObject>(new GameObject[3]);
 
-//             var start = Hierarchy.currentObjects["point"][0].transform;
-//             var overlapsedStart = draw.point.overlapsed;
-//             if (overlapsedStart) Hierarchy.currentObjects["point"].RemoveAt(0);
+            StartCoroutine(draw.point.makePoint(()=>{
+                draw.point.onMove(Inputs["start_pos"]);
+            }, ()=>{
+                draw.point.onClick(Inputs["start_name"][0]);
+                line[0] = draw.point.current_point;
+                draw.point.current_point = null;
+            }, Cancel));
+            yield return new WaitUntil(() => draw.point.current_point==null);
 
-//             yield return new WaitForSeconds(0.01f);
-//             StartCoroutine(draw.point.PointInit(()=>{
-//                 var p = Hierarchy.currentObjects["point"][Hierarchy.currentObjects["point"].Count-1].gameObject;
-//                 draw.point.whileDrawing(p, Inputs["end_pos"]);
-//                 if (line.positionCount < 2) line.positionCount++;
-//                 line.SetPosition(1, Hierarchy.currentObjects["point"][overlapsedStart ? 0 : 1].transform.position);
-//                 line.startWidth = Vector3.Distance(Camera.main.transform.position, line.GetPosition(0))*ratio;
-//                 line.endWidth = Vector3.Distance(Camera.main.transform.position, line.GetPosition(1))*ratio;
-//                 draw.inputhandler.Float2Input(Inputs["dist"][0], Vector3.Distance(start.position, p.transform.position));
-//             }, ()=>{
-//                 draw.point.doneDrawing(Hierarchy.currentObjects["point"][Hierarchy.currentObjects["point"].Count-1], "");
-//                 draw.point.pointing = false;
-//             }, Cancel));
-//             yield return new WaitUntil(() => !draw.point.pointing);
+            yield return new WaitForSeconds(0.01f);
+            line[2] = draw.obj.Line(draw.hier.current, false);
+            StartCoroutine(draw.point.makePoint(()=>{
+                draw.point.onMove(Inputs["end_pos"]);
+                var ln = line[2].GetComponent<LineRenderer>();
+                if (ln.positionCount < 2){
+                    ln.positionCount = 2;
+                    ln.SetPosition(0, line[0].transform.position);
+                }
+                ln.SetPosition(1, draw.point.current_point.transform.position);
+                ln.startWidth = Vector3.Distance(Camera.main.transform.position, ln.GetPosition(0))*ratio;
+                ln.endWidth = Vector3.Distance(Camera.main.transform.position, ln.GetPosition(1))*ratio;
+                Inputs["dist"][0].text = Vector3.Distance(ln.GetPosition(0), ln.GetPosition(1)).ToString();
+            }, ()=>{
+                draw.point.onClick(Inputs["end_name"][0]);
+                line[1] = draw.point.current_point;
+                draw.point.current_point = null;
+            }, Cancel));
+            yield return new WaitUntil(() => draw.point.current_point==null);
 
-//             var end = Hierarchy.currentObjects["point"][overlapsedStart ? 0 : 1].transform;
+            bool overlapseLine = false;
+            if (line[0].transform.IsChildOf(draw.hier.created) && line[1].transform.IsChildOf(draw.hier.created)){
+                foreach (var s in Hierarchy.Objs[line[0].name].vertexof){
+                    if (Hierarchy.Objs[s].type == "line" && Hierarchy.Objs[line[1].name].vertexof.Contains(s)){
+                        overlapseLine = true;
+                        break;
+                    }
+                }
+            }
+            if (overlapseLine){
+                Destroy(line[2].gameObject);
+            }
+            else{
+                var plane = "";
+                var startp = Hierarchy.Objs[line[0].name].parent;
+                var endp = Hierarchy.Objs[line[1].name].parent;
+                if (startp == endp && Hierarchy.Objs.ContainsKey(startp) && Hierarchy.Objs[startp].type == "plane"){
+                    plane = startp;
+                }
+                draw.hier.Add(Inputs["name"][0].text, plane, new List<string>(){line[0].name, line[1].name}, line[2]);
+                draw.hier.FinishedCurrentObjects();
+                linecollider.AddCollider(line[2].GetComponent<LineRenderer>());
+            }
 
-//             bool overlapseLine = false;
-//             foreach (var l in Hierarchy.Lines){
-//                 if ((l.Value.start == start.name && l.Value.end == end.name) || (l.Value.start == end.name && l.Value.end == start.name)){
-//                     overlapseLine = true;
-//                     Destroy(line.gameObject);
-//                     line = l.Value.go;
-//                     break;
-//                 }
-//             }
+            yield return new WaitForSeconds(0.01f);
+        }
+    }
+    public IEnumerator OnSelect(LineRenderer line){
+        draw.mouse.Select(line.transform);
+        RealtimeInput(line.name);
+        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));
 
-//             if (!overlapseLine){
-//                 var plane = "";
-//                 var startparent = Hierarchy.Points[start.name].parent;
-//                 var endparent = Hierarchy.Points[end.name].parent;
-//                 if (startparent == endparent && startparent != "" && Hierarchy.Planes.ContainsKey(startparent)){
-//                     plane = startparent;
-//                 }
-//                 draw.hier.AddLine("", start.name, end.name, plane, line, new List<string>());
-//                 linecollider.AddCollider(line);
-//             }
+        Cancel();
+        draw.mouse.Unselect(line.transform);
+    }
+    public void RealtimeInput(string ID){
+        content.gameObject.SetActive(true);
+        // var line = Hierarchy.Objs[ID];
+        // var start = Hierarchy.Objs[line.start];
+        // var end = Hierarchy.Objs[line.end];
 
-//             draw.hier.ResetCurrentObjects();
-//             yield return new WaitForSeconds(0.015f);
-//         }
-//     }
-//     public IEnumerator OnSelect(LineRenderer line){
-//         draw.mouse.Select(line.transform);
-//         RealtimeInput(line.name);
-//         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));
+        // Inputs["name"][0].text = line.name;
+        // Inputs["start_name"][0].text = start.name;
+        // Inputs["end_name"][0].text = end.name;
+        // draw.input.Float2Input(Inputs["dist"][0], Vector3.Distance(start.go.transform.position, end.go.transform.position));
+        // draw.input.Vec2Input(Inputs["start_pos"], draw.calc.ztoy(start.go.transform.position));
+        // draw.input.Vec2Input(Inputs["end_pos"], draw.calc.ztoy(end.go.transform.position));
 
-//         Cancel();
-//         draw.mouse.Unselect(line.transform);
-//     }
-//     public void RealtimeInput(string ID){
-//         content.gameObject.SetActive(true);
-//         var line = Hierarchy.Lines[ID];
-//         var start = Hierarchy.Points[line.start];
-//         var end = Hierarchy.Points[line.end];
-
-//         Inputs["name"][0].text = line.name;
-//         Inputs["start_name"][0].text = start.name;
-//         Inputs["end_name"][0].text = end.name;
-//         draw.inputhandler.Float2Input(Inputs["dist"][0], Vector3.Distance(start.go.transform.position, end.go.transform.position));
-//         draw.inputhandler.Vec2Input(Inputs["start_pos"], draw.calc.swapYZ(start.go.transform.position));
-//         draw.inputhandler.Vec2Input(Inputs["end_pos"], draw.calc.swapYZ(end.go.transform.position));
-
-//         draw.listener.Add_Input(Inputs["name"][0], () => draw.inputhandler.Update_Line_Name(ID, Inputs["name"][0].text));
-//         draw.listener.Add_Input(Inputs["start_name"][0], () => draw.inputhandler.Update_Point_Name(line.start, Inputs["start_name"][0].text));
-//         draw.listener.Add_Input(Inputs["end_name"][0], () => draw.inputhandler.Update_Point_Name(line.end, Inputs["end_name"][0].text));
+        // draw.listener.Add(Inputs["name"][0], () => draw.input.Update_Line_Name(ID, Inputs["name"][0].text));
+        // draw.listener.Add(Inputs["start_name"][0], () => draw.input.Update_Point_Name(line.start, Inputs["start_name"][0].text));
+        // draw.listener.Add(Inputs["end_name"][0], () => draw.input.Update_Point_Name(line.end, Inputs["end_name"][0].text));
         
-//         if (start.parent == ""){
-//             draw.listener.Add_Inputs(Inputs["start_pos"], () => draw.inputhandler.Update_Position(start.go, draw.inputhandler.Input2Vec(Inputs["start_pos"])));
-//         }
-//         if (end.parent == ""){
-//             draw.listener.Add_Inputs(Inputs["end_pos"], () => draw.inputhandler.Update_Position(end.go, draw.inputhandler.Input2Vec(Inputs["end_pos"])));
-//         }
-//     }
-//     public void Cancel(){
-//         content.gameObject.SetActive(false);
-//         ResetInputsList();
-//         draw.Cancel();
-//     }
-//     public void ResetInputsList(){
-//         draw.inputhandler.ResetInput(Inputs["name"][0]);
-//         draw.inputhandler.ResetInput(Inputs["start_name"][0]);
-//         draw.inputhandler.ResetInput(Inputs["end_name"][0]);
-//         draw.inputhandler.ResetInputs(Inputs["start_pos"]);
-//         draw.inputhandler.ResetInputs(Inputs["end_pos"]);
-//     }
+        // if (start.parent == ""){
+        //     draw.listener.Add(Inputs["start_pos"], () => draw.input.Update_Position(start.go, draw.input.Input2Vec(Inputs["start_pos"])));
+        // }
+        // if (end.parent == ""){
+        //     draw.listener.Add(Inputs["end_pos"], () => draw.input.Update_Position(end.go, draw.input.Input2Vec(Inputs["end_pos"])));
+        // }
+    }
+    public void Cancel(){
+        content.gameObject.SetActive(false);
+        ResetInputsList();
+        draw.Cancel();
+    }
+    public void ResetInputsList(){
+        draw.input.ResetInput(Inputs["name"][0]);
+        draw.input.ResetInput(Inputs["start_name"][0]);
+        draw.input.ResetInput(Inputs["end_name"][0]);
+        draw.input.ResetInputs(Inputs["start_pos"]);
+        draw.input.ResetInputs(Inputs["end_pos"]);
+    }
 }
