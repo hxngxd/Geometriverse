@@ -98,27 +98,33 @@ public class drawLine : MonoBehaviour
     }
     public void RealtimeInput(string ID){
         content.gameObject.SetActive(true);
-        // var line = Hierarchy.Objs[ID];
-        // var start = Hierarchy.Objs[line.start];
-        // var end = Hierarchy.Objs[line.end];
+        var line = Hierarchy.Objs[ID];
+        var start = Hierarchy.Objs[line.vertices[0]];
+        var end = Hierarchy.Objs[line.vertices[1]];
 
-        // Inputs["name"][0].text = line.name;
-        // Inputs["start_name"][0].text = start.name;
-        // Inputs["end_name"][0].text = end.name;
-        // draw.input.Float2Input(Inputs["dist"][0], Vector3.Distance(start.go.transform.position, end.go.transform.position));
-        // draw.input.Vec2Input(Inputs["start_pos"], draw.calc.ztoy(start.go.transform.position));
-        // draw.input.Vec2Input(Inputs["end_pos"], draw.calc.ztoy(end.go.transform.position));
+        Inputs["name"][0].text = line.name;
+        Inputs["start_name"][0].text = start.name;
+        Inputs["end_name"][0].text = end.name;
+        Inputs["dist"][0].text = Vector3.Distance(start.go.transform.position, end.go.transform.position).ToString();
+        draw.input.Vec2Input(Inputs["start_pos"], draw.calc.ztoy(start.go.transform.position));
+        draw.input.Vec2Input(Inputs["end_pos"], draw.calc.ztoy(end.go.transform.position));
 
-        // draw.listener.Add(Inputs["name"][0], () => draw.input.Update_Line_Name(ID, Inputs["name"][0].text));
-        // draw.listener.Add(Inputs["start_name"][0], () => draw.input.Update_Point_Name(line.start, Inputs["start_name"][0].text));
-        // draw.listener.Add(Inputs["end_name"][0], () => draw.input.Update_Point_Name(line.end, Inputs["end_name"][0].text));
+        draw.listener.Add(Inputs["name"][0], () => draw.input.Update_Name(ID, Inputs["name"][0].text));
+        draw.listener.Add(Inputs["start_name"][0], () => draw.input.Update_Name(line.vertices[0], Inputs["start_name"][0].text));
+        draw.listener.Add(Inputs["end_name"][0], () => draw.input.Update_Name(line.vertices[1], Inputs["end_name"][0].text));
         
-        // if (start.parent == ""){
-        //     draw.listener.Add(Inputs["start_pos"], () => draw.input.Update_Position(start.go, draw.input.Input2Vec(Inputs["start_pos"])));
-        // }
-        // if (end.parent == ""){
-        //     draw.listener.Add(Inputs["end_pos"], () => draw.input.Update_Position(end.go, draw.input.Input2Vec(Inputs["end_pos"])));
-        // }
+        if (start.parent == ""){
+            draw.listener.Add(Inputs["start_pos"], () => {
+                draw.input.Update_Position(start.go, draw.input.Input2Vec(Inputs["start_pos"]));
+                Inputs["dist"][0].text = Vector3.Distance(start.go.transform.position, end.go.transform.position).ToString();
+            });
+        }
+        if (end.parent == ""){
+            draw.listener.Add(Inputs["end_pos"], () => {
+                draw.input.Update_Position(end.go, draw.input.Input2Vec(Inputs["end_pos"]));
+                Inputs["dist"][0].text = Vector3.Distance(start.go.transform.position, end.go.transform.position).ToString();
+            });
+        }
     }
     public void Cancel(){
         content.gameObject.SetActive(false);

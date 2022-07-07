@@ -65,15 +65,14 @@ public class drawPoint : MonoBehaviour
     }
     public void RealtimeInput(string ID){
         content.gameObject.SetActive(true);
-        var obj = Hierarchy.Objs[ID];
-        var point = obj.go;
-        Inputs["name"][0].text = obj.name;
-        draw.input.Vec2Input(Inputs["pos"], draw.calc.ztoy(point.transform.position));
+        var point = Hierarchy.Objs[ID];
+        Inputs["name"][0].text = point.name;
+        draw.input.Vec2Input(Inputs["pos"], draw.calc.ztoy(point.go.transform.position));
         
         draw.listener.Add(Inputs["name"][0], () => draw.input.Update_Name(ID, Inputs["name"][0].text));
 
-        if (obj.parent == ""){
-            draw.listener.Add(Inputs["pos"], () => draw.input.Update_Position(point, draw.input.Input2Vec(Inputs["pos"])));
+        if (point.parent == ""){
+            draw.listener.Add(Inputs["pos"], () => draw.input.Update_Position(point.go, draw.input.Input2Vec(Inputs["pos"])));
         }
     }
     public void Cancel(){
