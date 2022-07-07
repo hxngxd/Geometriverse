@@ -6,85 +6,11 @@ using MathNet.Numerics.LinearAlgebra.Double;
 public class Calculate : MonoBehaviour
 {
     public const float pi = Mathf.PI;
-    //hinh chieu
-    public Vector3 hc_diem_mp(string pointID, string planeID){
-        var point_pos = ztoy(Hierarchy.Objs[pointID].go.transform.position);
-        var plane_eq = Hierarchy.Objs[planeID].equation;
-        float A = plane_eq["a"]*point_pos.x + plane_eq["b"]*point_pos.y + plane_eq["c"]*point_pos.z + plane_eq["d"];
-        float B = sqr(plane_eq["a"]) + sqr(plane_eq["b"]) + sqr(plane_eq["c"]);
+    public Vector3 hc_diem_mp(Vector3 M, Dictionary<string, float> Plane){
+        float A = Plane["a"]*M.x + Plane["b"]*M.y + Plane["c"]*M.z + Plane["d"];
+        float B = sqr(Plane["a"]) + sqr(Plane["b"]) + sqr(Plane["c"]);
         float k = -A/B;
-        return new Vector3(point_pos.x + plane_eq["a"]*k, point_pos.y + plane_eq["b"]*k, point_pos.z + plane_eq["c"]*k);
-    }
-    public Vector3 hc_diem_dt(string pointID, string lineID){
-        var point_pos = ztoy(Hierarchy.Objs[pointID].go.transform.position);
-        var line = Hierarchy.Objs[lineID];
-        var start_pos = ztoy(Hierarchy.Objs[line.vertices[0]].go.transform.position);
-        var end_pos = ztoy(Hierarchy.Objs[line.vertices[1]].go.transform.position);
-        var u = end_pos-start_pos;
-        float t = -((start_pos.x-point_pos.x)*u.x + (start_pos.y-point_pos.y)*u.y + (start_pos.z-point_pos.z)*u.z)/(sqr(u.x) + sqr(u.y) + sqr(u.z));
-        return new Vector3(start_pos.x+u.x*t, start_pos.y+u.y*t, start_pos.z+u.z*t);
-    }
-    //giao diem
-    public Vector3 gd_dt_mp(string lineID, string planeID){
-        var line = Hierarchy.Objs[lineID];
-        var point_pos = ztoy(Hierarchy.Objs[line.vertices[0]].go.transform.position);
-        var u = ztoy(Hierarchy.Objs[line.vertices[1]].go.transform.position) - point_pos;
-        var plane_eq = Hierarchy.Objs[planeID].equation;
-        if (Vector3.Dot(u, new Vector3(plane_eq["a"], plane_eq["b"], plane_eq["c"]))==0){
-            return Vector3.positiveInfinity;
-        }
-        var N1 = plane_eq["a"]*point_pos.x + plane_eq["b"]*point_pos.y + plane_eq["c"]*point_pos.z + plane_eq["d"];
-        var N2 = plane_eq["a"]*u.x + plane_eq["b"]*u.y + plane_eq["c"]*u.z;
-        var t = -(N1/N2);
-        return new Vector3(point_pos.x+u.x*t, point_pos.y+u.y*t, point_pos.z+u.z*t);
-    }
-    public KeyValuePair<Vector3, Vector3> duong_vgc(string lineID_1, string lineID_2){
-        var line1 = Hierarchy.Objs[lineID_1];
-        var line2 = Hierarchy.Objs[lineID_2];
-        Vector3 start1 = ztoy(Hierarchy.Objs[line1.vertices[0]].go.transform.position), end1 = ztoy(Hierarchy.Objs[line1.vertices[1]].go.transform.position);
-        Vector3 start2 = ztoy(Hierarchy.Objs[line2.vertices[0]].go.transform.position), end2 = ztoy(Hierarchy.Objs[line2.vertices[1]].go.transform.position);
-        var u1 =  end1 - start1;
-        var u2 =  end2 - start2;
-        var A = DenseMatrix.OfArray(new double[,]{
-            {-sqr(Vector3.Distance(Vector3.zero, u1)), Vector3.Dot(u1, u2)},
-            {-Vector3.Dot(u1,u2), sqr(Vector3.Distance(Vector3.zero, u2))},
-        });
-        var B = DenseMatrix.OfArray(new double[,]{
-            {- u1.x*(start2.x - start1.x) - u1.y*(start2.y - start1.y) - u1.z*(start2.z - start1.z)},
-            {- u2.x*(start2.x - start1.x) - u2.y*(start2.y - start1.y) - u2.z*(start2.z - start1.z)},
-        });
-        var res = A.Inverse().Multiply(B);
-        var t1 = (float)res.Row(0)[0];
-        var t2 = (float)res.Row(1)[0];
-        return new KeyValuePair<Vector3, Vector3>(new Vector3(start1.x+u1.x*t1, start1.y+u1.y*t1, start1.z+u1.z*t1), new Vector3(start2.x+u2.x*t2, start2.y+u2.y*t2, start2.z+u2.z*t2));
-    }
-    //khoang cach
-    public float kc_diem_dt(string pointID, string lineID){
-        var point_pos = ztoy(Hierarchy.Objs[pointID].go.transform.position);
-        return Vector3.Distance(point_pos, hc_diem_dt(pointID, lineID));
-    }
-    public float kc_diem_mp(string pointID, string planeID){
-        var point_pos = ztoy(Hierarchy.Objs[pointID].go.transform.position);
-        return Vector3.Distance(point_pos, hc_diem_dt(pointID, planeID));
-    }
-    public Vector3 kc_sang_toa_do(Vector3 center, Vector3 originPos, float dist){
-        if (dist==0f) return originPos;
-        if (Vector3.Distance(originPos, center)==0){
-            originPos.x += 1;
-            return kc_sang_toa_do(center, originPos, dist);
-        }
-        float k = dist/Vector3.Distance(originPos, center);
-        return vi_tu(center, originPos, k);
-    }
-    //phuong trinh
-    public Dictionary<string, float> pt_mp(Vector3 A, Vector3 B, Vector3 C){
-        var equation = new Dictionary<string, float>();
-        var perp = Vector3.Cross(B - A, C - A);
-        equation.Add("a", perp.x);
-        equation.Add("b", perp.y);
-        equation.Add("c", perp.z);
-        equation.Add("d", (-perp.x*A.x) + (-perp.y*A.y) + (-perp.z*A.z));
-        return equation;
+        return new Vector3(M.x + Plane["a"]*k, M.y + Plane["b"]*k, M.z + Plane["c"]*k);
     }
     public void dinh_da_giac(LineRenderer line, Vector3 center, Vector3 vertex, int step, Matrix<double> RotationMatrix){
         line.positionCount = step;
@@ -112,10 +38,28 @@ public class Calculate : MonoBehaviour
         });
         return Mat2Vec(M.Inverse().Multiply(N).Transpose());
     } 
+    public KeyValuePair<bool, Vector3> gd_dt_mp(KeyValuePair<Vector3, Vector3> Line, Dictionary<string, float> Plane){
+        var M = Line.Key;
+        var u = Line.Value - M;
+        if (Vector3.Dot(u, new Vector3(Plane["a"], Plane["b"], Plane["c"]))==0) return new KeyValuePair<bool, Vector3>(false, Vector3.positiveInfinity);
+        var N1 = Plane["a"]*M.x + Plane["b"]*M.y + Plane["c"]*M.z + Plane["d"];
+        var N2 = Plane["a"]*u.x + Plane["b"]*u.y + Plane["c"]*u.z;
+        var t = -(N1/N2);
+        return new KeyValuePair<bool, Vector3>(true, new Vector3(M.x+u.x*t, M.y+u.y*t, M.z+u.z*t));
+    }
     public Vector3 matrix_rotate(Vector3 center, Vector3 originPos, Matrix<double> RotationMatrix){
         originPos = tinh_tien_nguoc(center, originPos);
         var v = Vec2Mat(originPos).Transpose();
         return tinh_tien(center, Mat2Vec(RotationMatrix.Multiply(v).Transpose()));
+    }
+    public Dictionary<string, float> pt_mp(Vector3 A, Vector3 B, Vector3 C){
+        var equation = new Dictionary<string, float>();
+        var perp = Vector3.Cross(B - A, C - A);
+        equation.Add("a", perp.x);
+        equation.Add("b", perp.y);
+        equation.Add("c", perp.z);
+        equation.Add("d", (-perp.x*A.x) + (-perp.y*A.y) + (-perp.z*A.z));
+        return equation;
     }
     public Matrix<double> rm_plane_xy(Vector3 A, Vector3 B, Vector3 C){
         var perp = Vector3.Cross(B - A, C - A).normalized;
@@ -169,6 +113,41 @@ public class Calculate : MonoBehaviour
         var Rz = rmZ(angle.z);
         var R = Rz.Multiply(Ry).Multiply(Rx);
         return R;
+    }
+    public KeyValuePair<Vector3, Vector3> duong_vgc(KeyValuePair<Vector3, Vector3> firstLine, KeyValuePair<Vector3, Vector3> secondLine){
+        var u1 = firstLine.Value - firstLine.Key;
+        var u2 = secondLine.Value - secondLine.Key;
+        var A = DenseMatrix.OfArray(new double[,]{
+            {-sqr(Vector3.Distance(Vector3.zero, u1)), Vector3.Dot(u1, u2)},
+            {-Vector3.Dot(u1,u2), sqr(Vector3.Distance(Vector3.zero, u2))},
+        });
+        var B = DenseMatrix.OfArray(new double[,]{
+            {- u1.x*(secondLine.Key.x - firstLine.Key.x) - u1.y*(secondLine.Key.y - firstLine.Key.y) - u1.z*(secondLine.Key.z - firstLine.Key.z)},
+            {- u2.x*(secondLine.Key.x - firstLine.Key.x) - u2.y*(secondLine.Key.y - firstLine.Key.y) - u2.z*(secondLine.Key.z - firstLine.Key.z)},
+        });
+        var res = A.Inverse().Multiply(B);
+        var t1 = (float)res.Row(0)[0];
+        var t2 = (float)res.Row(1)[0];
+        return new KeyValuePair<Vector3, Vector3>(new Vector3(firstLine.Key.x+u1.x*t1, firstLine.Key.y+u1.y*t1, firstLine.Key.z+u1.z*t1), new Vector3(secondLine.Key.x+u2.x*t2, secondLine.Key.y+u2.y*t2, secondLine.Key.z+u2.z*t2));
+    }
+    public Vector3 hc_diem_dt(Vector3 A, KeyValuePair<Vector3, Vector3> Line){
+        var N = Line.Value;
+        var M = Line.Key;
+        var u = N-M;
+        float t = -((M.x-A.x)*u.x + (M.y-A.y)*u.y + (M.z-A.z)*u.z)/(sqr(u.x) + sqr(u.y) + sqr(u.z));
+        return new Vector3(M.x+u.x*t, M.y+u.y*t, M.z+u.z*t);
+    }
+    public float kc_diem_duong_thang(Vector3 A, KeyValuePair<Vector3, Vector3> Line){
+        return Vector3.Distance(A, hc_diem_dt(A, Line));
+    }
+    public Vector3 kc_sang_toa_do(Vector3 center, Vector3 originPos, float dist){
+        if (dist==0f) return originPos;
+        if (Vector3.Distance(originPos, center)==0){
+            originPos.x += 1;
+            return kc_sang_toa_do(center, originPos, dist);
+        }
+        float k = dist/Vector3.Distance(originPos, center);
+        return vi_tu(center, originPos, k);
     }
     public Vector3 tinh_tien(Vector3 center, Vector3 originPos){
         return originPos+center;
