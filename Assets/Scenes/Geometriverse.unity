@@ -4246,7 +4246,6 @@ GameObject:
   - component: {fileID: 701543699}
   - component: {fileID: 701543700}
   - component: {fileID: 701543701}
-  - component: {fileID: 701543702}
   m_Layer: 0
   m_Name: Draw
   m_TagString: Untagged
@@ -4295,7 +4294,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ad4c051b96e8ca44817091b10e50ec0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ratio: 0.0175
+  ratio: 0.015
   content: {fileID: 605412240}
 --- !u!114 &701543700
 MonoBehaviour:
@@ -4321,7 +4320,9 @@ MonoBehaviour:
   calc: {fileID: 867914199}
   point: {fileID: 701543697}
   line: {fileID: 701543699}
+  plane: {fileID: 701543701}
   cam: {fileID: 1127025138}
+  isDrawing: 0
   scroll: {fileID: 1336217471}
 --- !u!114 &701543701
 MonoBehaviour:
@@ -4335,18 +4336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20780608b575f7f4a9135aadcf67e59a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &701543702
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 701543696}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b4b5be9fbd177c40a693acc50563b0d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  content: {fileID: 1187633941}
 --- !u!1 &711552755
 GameObject:
   m_ObjectHideFlags: 0

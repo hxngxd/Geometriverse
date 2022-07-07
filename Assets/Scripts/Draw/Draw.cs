@@ -18,6 +18,7 @@ public class Draw : MonoBehaviour
     public Calculate calc;
     public drawPoint point;
     public drawLine line;
+    public drawPlane plane;
     public CameraController cam;
     public bool isDrawing = false;
     public ScrollRect scroll;
@@ -29,6 +30,10 @@ public class Draw : MonoBehaviour
         Refresh();
         StartDrawing(line.content, line.Okay());
     }
+    public void Plane(){
+        Refresh();
+        StartDrawing(plane.content, plane.Okay());
+    }
     public void StartDrawing(Transform content, IEnumerator Okay){
         isDrawing = true;
         scroll.content = content.GetComponent<RectTransform>();
@@ -38,6 +43,7 @@ public class Draw : MonoBehaviour
         Cancel();
         point.Cancel();
         line.Cancel();
+        plane.Cancel();
     }
     public void Cancel(){
         StopAllCoroutines();

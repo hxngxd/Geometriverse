@@ -11,6 +11,7 @@ public class MouseHandler : MonoBehaviour
     public Dictionary<string, List<Transform>> Selected = new Dictionary<string, List<Transform>>(){
         {"point", new List<Transform>()},
         {"line", new List<Transform>()},
+        {"plane", new List<Transform>()},
     };
     void Start(){
         draw = FindObjectOfType<Draw>();
@@ -86,9 +87,9 @@ public class MouseHandler : MonoBehaviour
             case "line":
                 StartCoroutine(draw.line.OnSelect(obj.GetComponent<LineRenderer>()));
                 break;
-            // case "plane":
-            //     draw.current = StartCoroutine(draw.plane.OnSelect(obj.gameObject));
-            //     break;
+            case "plane":
+                StartCoroutine(draw.plane.OnSelect(obj.gameObject));
+                break;
             // case "circle":
             //     draw.current = StartCoroutine(draw.circle3.OnSelect(obj.GetComponent<LineRenderer>()));
             //     break;
