@@ -20,6 +20,7 @@ public class Draw : MonoBehaviour
     public drawLine line;
     public drawPlane plane;
     public drawCircle circle;
+    public drawSphere sphere;
     public CameraController cam;
     public bool isDrawing = false;
     public ScrollRect scroll;
@@ -39,6 +40,10 @@ public class Draw : MonoBehaviour
         Refresh();
         StartDrawing(circle.content, circle.Okay());
     }
+    public void Sphere(){
+        Refresh();
+        StartDrawing(sphere.content, sphere.Okay());
+    }
     public void StartDrawing(Transform content, IEnumerator Okay){
         isDrawing = true;
         scroll.content = content.GetComponent<RectTransform>();
@@ -50,6 +55,7 @@ public class Draw : MonoBehaviour
         line.Cancel();
         plane.Cancel();
         circle.Cancel();
+        sphere.Cancel();
     }
     public void Cancel(){
         StopAllCoroutines();

@@ -13,6 +13,7 @@ public class MouseHandler : MonoBehaviour
         {"line", new List<Transform>()},
         {"plane", new List<Transform>()},
         {"circle", new List<Transform>()},
+        {"sphere", new List<Transform>()},
     };
     void Start(){
         draw = FindObjectOfType<Draw>();
@@ -94,6 +95,9 @@ public class MouseHandler : MonoBehaviour
             case "circle":
                 StartCoroutine(draw.circle.OnSelect(obj.gameObject));
                 break;
+            case "sphere":
+                StartCoroutine(draw.sphere.OnSelect(obj.gameObject));
+                break;
         }
     }
     public void DeleteSelected(){
@@ -149,6 +153,7 @@ public class MouseHandler : MonoBehaviour
                 obj.GetComponent<LineRenderer>().material = solid[state];
                 break;
             case "plane":
+            case "sphere":
                 obj.GetComponent<MeshRenderer>().material = trans[state];
                 break;
         }

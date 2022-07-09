@@ -20,7 +20,7 @@ public class Hierarchy : MonoBehaviour
     void Start(){
         draw = FindObjectOfType<Draw>();
     }
-    public void Add(string name, string parent, GameObject go){
+    public void AddPoint(string name, string parent, GameObject go){
         go.GetComponent<SphereCollider>().enabled = true;
         var obj = new Obj();
         obj.name = name;
@@ -31,7 +31,7 @@ public class Hierarchy : MonoBehaviour
         obj.type = "point";
         Objs.Add(go.name, obj);
     }
-    public void Add(string name, string parent, List<string> vertices, GameObject go){
+    public void AddLine(string name, string parent, List<string> vertices, GameObject go, Dictionary<string, float> equation){
         go.transform.SetParent(created);
         var obj = new Obj();
         obj.name = name;
@@ -40,11 +40,12 @@ public class Hierarchy : MonoBehaviour
         obj.vertices = vertices;
         foreach (var vertex in vertices) Objs[vertex].vertexof.Add(go.name);
         obj.go = go;
+        obj.equation = equation;
         obj.children = new List<string>();
         obj.type = "line";
         Objs.Add(go.name, obj);
     }
-    public void Add(string name, List<string> vertices, GameObject go, Matrix<double> rotation, Dictionary<string, float> equation){
+    public void AddPlane(string name, List<string> vertices, GameObject go, Matrix<double> rotation, Dictionary<string, float> equation){
         go.transform.SetParent(created);
         var obj = new Obj();
         obj.name = name;
@@ -57,7 +58,7 @@ public class Hierarchy : MonoBehaviour
         obj.type = "plane";
         Objs.Add(go.name, obj);
     }
-    public void Add(string name, string parent, List<string> vertices, GameObject go, Matrix<double> rotation){
+    public void AddCircle(string name, string parent, List<string> vertices, GameObject go, Matrix<double> rotation, Dictionary<string, float> equation){
         go.transform.SetParent(created);
         var obj = new Obj();
         obj.name = name;
@@ -67,8 +68,21 @@ public class Hierarchy : MonoBehaviour
         foreach (var vertex in vertices) Objs[vertex].vertexof.Add(go.name);
         obj.vertices = vertices;
         obj.rotation = rotation;
+        obj.equation = equation;
         obj.children = new List<string>();
         obj.type = "circle";
+        Objs.Add(go.name, obj);
+    }
+    public void AddSphere(string name, List<string> vertices, GameObject go, Dictionary<string, float> equation){
+        go.transform.SetParent(created);
+        var obj = new Obj();
+        obj.name = name;
+        obj.go = go;
+        foreach (var vertex in vertices) Objs[vertex].vertexof.Add(go.name);
+        obj.vertices = vertices;
+        obj.equation = equation;
+        obj.children = new List<string>();
+        obj.type = "sphere";
         Objs.Add(go.name, obj);
     }
     public void Remove(string ID){

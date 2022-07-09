@@ -17,9 +17,14 @@ public class drawPoint : MonoBehaviour
         Inspector();
     }
     public void Inspector(){
-        Inputs.Add("name", new List<INPUT>(){draw.uiobj.Value("Tên điểm", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
-        Inputs.Add("pos", draw.uiobj.Vec3("Toạ độ", content));
+        InspectorVector(ref Inputs, 1, content);
         content.gameObject.SetActive(false);
+    }
+    public void InspectorVector(ref Dictionary<string, List<INPUT>> Inputs, int t, Transform parent){
+        for (int i=0;i<t;i++){
+            Inputs.Add(t < 2 ? "name" : $"name_{i}", new List<INPUT>(){draw.uiobj.Value(t < 2 ? "Tên điểm" : $"Tên điểm {i+1}", "Tên...", "", INPUT.ContentType.Alphanumeric, parent)});
+            Inputs.Add(t < 2 ? "pos" : $"pos_{i}", draw.uiobj.Vec3("Toạ độ", parent));
+        }
     }
     public IEnumerator Okay(){
         content.gameObject.SetActive(true);
@@ -66,14 +71,12 @@ public class drawPoint : MonoBehaviour
     }
     public void RealtimeInput(string ID){
         content.gameObject.SetActive(true);
-        var point = Hierarchy.Objs[ID];
-        Inputs["name"][0].text = point.name;
-        draw.input.Vec2Input(Inputs["pos"], draw.calc.ztoy(point.go.transform.position));
-        
+        var obj = Hierarchy.Objs[ID];
+        Inputs["name"][0].text = obj.name;
         draw.listener.Add(Inputs["name"][0], () => draw.input.Update_Name(ID, Inputs["name"][0].text));
-
-        if (point.parent == ""){
-            draw.listener.Add(Inputs["pos"], () => draw.input.Update_Position(point.go, draw.input.Input2Vec(Inputs["pos"])));
+        draw.input.Vec2Input(Inputs["pos"], draw.calc.ztoy(obj.go.transform.position));
+        if (obj.parent == ""){
+            draw.listener.Add(Inputs["pos"], () => draw.input.Update_Position(obj.go, draw.input.Input2Vec(Inputs["pos"])));
         }
     }
     public void Cancel(){
@@ -111,6 +114,7 @@ public class drawPoint : MonoBehaviour
                     current_point.transform.position = draw.calc.hc_diem_dt(hit.point, new KeyValuePair<Vector3, Vector3>(start, end));
                     break;
                 case "plane":
+                case "sphere":
                     if (!current_point.activeSelf) current_point.SetActive(true);
                     current_point.transform.position = hit.point;
                     break;
@@ -134,11 +138,11 @@ public class drawPoint : MonoBehaviour
                 current_point = Hierarchy.Objs[hit.ID].go;
             }
             else{
-                draw.hier.Add(Name.text, hit.ID, current_point);
+                draw.hier.AddPoint(Name.text, hit.ID, current_point);
             }
         }
         else{
-            draw.hier.Add(Name.text, "", current_point);
+            draw.hier.AddPoint(Name.text, "", current_point);
         }
     }
     public void Drag(GameObject point){
@@ -162,6 +166,8 @@ public class drawPoint : MonoBehaviour
                     point.transform.position = draw.calc.ztoy(draw.calc.gd_dt_mp(mouseray, plane).Value);
                     break;
                 case "circle":
+                    break;
+                case "sphere":
                     break;
             }
         }

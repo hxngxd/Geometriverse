@@ -23,7 +23,7 @@ public class DockManager : MonoBehaviour
             new ListPair("Mặt phẳng", new Pair(() => {draw.Plane();}, Load("plane"))),
             new ListPair("Đường tròn qua 3 điểm", new Pair(() => {draw.Circle();}, Load("circle3point"))),
             new ListPair("/", new Pair(() => {}, Load(""))),
-            new ListPair("Hình cầu", new Pair(() => {draw.Circle();}, Load(""))),
+            new ListPair("Hình cầu", new Pair(() => {draw.Sphere();}, Load(""))),
             new ListPair("/", new Pair(() => {}, Load(""))),
             new ListPair("Camera", new Pair(() => {}, Load("camera"))),
         };
