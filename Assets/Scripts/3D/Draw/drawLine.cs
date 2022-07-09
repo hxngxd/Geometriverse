@@ -12,6 +12,7 @@ public class drawLine : MonoBehaviour
     void Start()
     {
         draw = FindObjectOfType<Draw>();
+        content = draw.uiobj.InspectorContent(this.GetType().Name);
         Inspector();
     }
     public void Inspector(){
@@ -72,13 +73,7 @@ public class drawLine : MonoBehaviour
                 Destroy(line[2].gameObject);
             }
             else{
-                var plane = "";
-                var startp = Hierarchy.Objs[line[0].name].parent;
-                var endp = Hierarchy.Objs[line[1].name].parent;
-                if (startp == endp && Hierarchy.Objs.ContainsKey(startp) && Hierarchy.Objs[startp].type == "plane"){
-                    plane = startp;
-                }
-                draw.hier.Add(Inputs["name"][0].text, plane, new List<string>(){line[0].name, line[1].name}, line[2]);
+                draw.hier.Add(Inputs["name"][0].text, "", new List<string>(){line[0].name, line[1].name}, line[2]);
                 line[2].AddComponent<DynamicLine>();
                 draw.hier.FinishedCurrentObjects();
             }
@@ -86,7 +81,7 @@ public class drawLine : MonoBehaviour
             yield return new WaitForSeconds(0.01f);
         }
     }
-    public IEnumerator OnSelect(LineRenderer line){
+    public IEnumerator OnSelect(GameObject line){
         draw.mouse.Select(line.transform);
         RealtimeInput(line.name);
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));

@@ -13,6 +13,7 @@ public class drawPoint : MonoBehaviour
     void Start()
     {
         draw = FindObjectOfType<Draw>();
+        content = draw.uiobj.InspectorContent(this.GetType().Name);
         Inspector();
     }
     public void Inspector(){
@@ -113,6 +114,8 @@ public class drawPoint : MonoBehaviour
                     if (!current_point.activeSelf) current_point.SetActive(true);
                     current_point.transform.position = hit.point;
                     break;
+                case "circle":
+                    break;
             }
         }
         else{
@@ -157,6 +160,8 @@ public class drawPoint : MonoBehaviour
                     var mouseray = draw.raycast.MouseToRay();
                     var plane = Hierarchy.Objs[parent].equation;
                     point.transform.position = draw.calc.ztoy(draw.calc.gd_dt_mp(mouseray, plane).Value);
+                    break;
+                case "circle":
                     break;
             }
         }

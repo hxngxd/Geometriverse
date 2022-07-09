@@ -12,6 +12,7 @@ public class MouseHandler : MonoBehaviour
         {"point", new List<Transform>()},
         {"line", new List<Transform>()},
         {"plane", new List<Transform>()},
+        {"circle", new List<Transform>()},
     };
     void Start(){
         draw = FindObjectOfType<Draw>();
@@ -85,10 +86,13 @@ public class MouseHandler : MonoBehaviour
                 StartCoroutine(draw.point.OnSelect(obj.gameObject));
                 break;
             case "line":
-                StartCoroutine(draw.line.OnSelect(obj.GetComponent<LineRenderer>()));
+                StartCoroutine(draw.line.OnSelect(obj.gameObject));
                 break;
             case "plane":
                 StartCoroutine(draw.plane.OnSelect(obj.gameObject));
+                break;
+            case "circle":
+                StartCoroutine(draw.circle.OnSelect(obj.gameObject));
                 break;
         }
     }
@@ -141,6 +145,7 @@ public class MouseHandler : MonoBehaviour
                 obj.Find("dot").GetComponent<MeshRenderer>().material = solid[state];
                 break;
             case "line":
+            case "circle":
                 obj.GetComponent<LineRenderer>().material = solid[state];
                 break;
             case "plane":

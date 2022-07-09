@@ -10,13 +10,20 @@ public class CreateUIObjects : MonoBehaviour
     Draw draw;
     Quaternion rot0 = Quaternion.identity;
     Vector3 pos0 = Vector3.zero;
-    public GameObject DockButtonPref, DividerPref, Vector3Pref, ValuePref, SliderPref, TogglePref, MenuItemPref, MenuCommandPref, CommandContainerPref, HierItemPref;
+    public GameObject DockButtonPref, DividerPref, Vector3Pref, ValuePref, SliderPref, TogglePref, MenuItemPref, MenuCommandPref, CommandContainerPref, HierItemPref, InspectorPref;
+    public Transform InspectorViewport;
     List<string> Vec3Path = new List<string>(){
         "Input_X", "Input_Y", "Input_Z"
     };
     void Start()
     {
         draw = FindObjectOfType<Draw>();
+    }
+    public Transform InspectorContent(string name){
+        var content = Instantiate(InspectorPref, pos0, rot0, InspectorViewport).GetComponent<RectTransform>();
+        content.name = name;
+        content.anchoredPosition = pos0;
+        return content;
     }
     public void SetText(Transform text, string content){
         text.GetComponent<TextMeshProUGUI>().text = content;

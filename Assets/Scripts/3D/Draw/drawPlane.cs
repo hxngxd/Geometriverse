@@ -12,6 +12,7 @@ public class drawPlane : MonoBehaviour
     void Start()
     {
         draw = FindObjectOfType<Draw>();
+        content = draw.uiobj.InspectorContent(this.GetType().Name);
         Inspector();
     }
     public void Inspector(){
@@ -49,30 +50,34 @@ public class drawPlane : MonoBehaviour
             yield return new WaitUntil(() => draw.point.current_point==null);
 
             plane[3] = draw.obj.Plane(draw.hier.current);
-            var vertices = new Vector3[]{plane[0].transform.position, plane[1].transform.transform.position, Vector3.zero};
+            var _vertices = new Vector3[]{plane[0].transform.position, plane[1].transform.transform.position, Vector3.zero};
             var triangles = new int[]{0,1,2,2,1,0};
             var filter = plane[3].GetComponent<MeshFilter>();
 
             yield return new WaitForSeconds(0.01f);
             StartCoroutine(draw.point.makePoint(()=>{
                 draw.point.onMove(Inputs["pos_2"]);
-                vertices[2] = draw.point.current_point.transform.position;
-                filter.mesh.Clear();
-                filter.mesh.vertices = vertices;
-                filter.mesh.triangles = triangles;
+                _vertices[2] = draw.point.current_point.transform.position;
+                if (_vertices[0] != _vertices[1] && _vertices[1] != _vertices[2] && _vertices[2] != _vertices[0] && Mathf.Abs(Vector3.Dot((_vertices[1]-_vertices[0]).normalized, (_vertices[2]-_vertices[0]).normalized)) != 1){
+                    filter.mesh.Clear();
+                    filter.mesh.vertices = _vertices;
+                    filter.mesh.triangles = triangles;
+                }
             }, ()=>{
-                draw.point.onClick(Inputs["name_2"][0]);
-                plane[2] = draw.point.current_point;
-                draw.point.current_point = null;
+                if (Mathf.Abs(Vector3.Dot((_vertices[1]-_vertices[0]).normalized, (_vertices[2]-_vertices[0]).normalized)) != 1){
+                    draw.point.onClick(Inputs["name_2"][0]);
+                    plane[2] = draw.point.current_point;
+                    draw.point.current_point = null;
+                }
             }, Cancel));
             yield return new WaitUntil(() => draw.point.current_point==null);
             
             plane[3].GetComponent<MeshCollider>().sharedMesh = filter.mesh;
-            var vertices_ = new List<string>();
-            for (int i=0;i<3;i++) vertices_.Add(plane[i].name);
+            var vertices = new List<string>();
+            for (int i=0;i<3;i++) vertices.Add(plane[i].name);
             var rotation = draw.calc.rm_plane_xy(draw.calc.ztoy(plane[0].transform.position), draw.calc.ztoy(plane[1].transform.position), draw.calc.ztoy(plane[2].transform.position));
             var equation = draw.calc.pt_mp(draw.calc.ztoy(plane[0].transform.position), draw.calc.ztoy(plane[1].transform.position), draw.calc.ztoy(plane[2].transform.position));
-            draw.hier.Add(Inputs["name"][0].text, vertices_, plane[3], rotation, equation);
+            draw.hier.Add(Inputs["name"][0].text, vertices, plane[3], rotation, equation);
             draw.hier.FinishedCurrentObjects();
 
             yield return new WaitForSeconds(0.01f);
