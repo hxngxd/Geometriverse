@@ -5,7 +5,7 @@ using UnityEngine;
 public class Create3DObjects : MonoBehaviour
 {
     IDHandler idhandler;
-    public GameObject pointPref, linePref, planePref;
+    public GameObject pointPref, linePref, planePref, spherePref;
     Quaternion rot0 = Quaternion.identity;
     Vector3 pos0 = Vector3.zero;
     void Start(){
@@ -26,5 +26,10 @@ public class Create3DObjects : MonoBehaviour
         var plane = Instantiate(planePref, pos0, rot0, parent);
         plane.name = idhandler.GenID(21);
         return plane;
+    }
+    public GameObject Sphere(Vector3 position, Transform parent){
+        var sphere = Instantiate(spherePref, position, rot0, parent);
+        sphere.name = idhandler.GenID(21);
+        return sphere;
     }
 }

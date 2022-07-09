@@ -16,11 +16,14 @@ public class drawCircle : MonoBehaviour
         Inspector();
     }
     public void Inspector(){
-        Inputs.Add("name", new List<INPUT>(){draw.uiobj.Value("Tên mặt phẳng", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
+        Inputs.Add("name", new List<INPUT>(){draw.uiobj.Value("Tên đường", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
         for (int i=0;i<3;i++){
             Inputs.Add($"name_{i}", new List<INPUT>(){draw.uiobj.Value($"Tên điểm {i+1}", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
             Inputs.Add($"pos_{i}", draw.uiobj.Vec3("Toạ độ", content));
         }
+        Inputs.Add("radius", new List<INPUT>(){draw.uiobj.Value("Bán kính", "0", "", INPUT.ContentType.DecimalNumber, content)});
+        Inputs.Add("perimeter", new List<INPUT>(){draw.uiobj.Value("Chu vi", "0", "", INPUT.ContentType.DecimalNumber, content)});
+        Inputs.Add("area", new List<INPUT>(){draw.uiobj.Value("Diện tích", "0", "", INPUT.ContentType.DecimalNumber, content)});
         content.gameObject.SetActive(false);
     }
     public IEnumerator Okay(){
@@ -61,6 +64,11 @@ public class drawCircle : MonoBehaviour
                     var center = draw.calc.tam_dg_tron_ngtiep(v1,v2,v3);
                     var current_rotation = draw.calc.rm_plane_xy(v1,v2,v3);
                     draw.calc.dinh_da_giac(ln, center, v3, 90, current_rotation);
+
+                    var r = Vector3.Distance(draw.calc.tam_dg_tron_ngtiep(v1,v2,v3), v1);
+                    Inputs["radius"][0].text = r.ToString();
+                    Inputs["perimeter"][0].text = (2*Mathf.PI*r).ToString();
+                    Inputs["area"][0].text = (r*r*Mathf.PI).ToString();
                 }
             }, ()=>{
                 if (Mathf.Abs(Vector3.Dot((circle[1].transform.position-circle[0].transform.position).normalized, (draw.point.current_point.transform.position-circle[0].transform.position).normalized)) != 1){
@@ -94,7 +102,12 @@ public class drawCircle : MonoBehaviour
         var circle = Hierarchy.Objs[ID];
         Inputs["name"][0].text = circle.name;
         draw.listener.Add(Inputs["name"][0], () => draw.input.Update_Name(ID, Inputs["name"][0].text));
-        for (int i=0;i<=2;i++){
+        Vector3[] vp = new Vector3[3];
+        for (int j=0;j<3;j++){
+            vp[j] = Hierarchy.Objs[circle.vertices[j]].go.transform.position;
+        }
+        Update_Propertise();
+        for (int i=0;i<3;i++){
             int current_index = i;
             string name = $"name_{current_index}", pos = $"pos_{current_index}";
             var v = Hierarchy.Objs[circle.vertices[current_index]];
@@ -106,8 +119,16 @@ public class drawCircle : MonoBehaviour
             if (v.parent == ""){
                 draw.listener.Add(Inputs[pos], () => {
                     draw.input.Update_Position(v.go, draw.input.Input2Vec(Inputs[pos]));
+                    Update_Propertise();
                 });
             }
+        }
+
+        void Update_Propertise(){
+            var r = Vector3.Distance(draw.calc.tam_dg_tron_ngtiep(vp[0], vp[1], vp[2]), vp[0]);
+            Inputs["radius"][0].text = r.ToString();
+            Inputs["perimeter"][0].text = (2*Mathf.PI*r).ToString();
+            Inputs["area"][0].text = (r*r*Mathf.PI).ToString();
         }
     }
     public void Cancel(){
@@ -121,5 +142,8 @@ public class drawCircle : MonoBehaviour
             draw.input.ResetInput(Inputs[$"name_{i}"][0]);
             draw.input.ResetInputs(Inputs[$"pos_{i}"]);
         }
+        draw.input.ResetInput(Inputs["radius"][0]);
+        draw.input.ResetInput(Inputs["perimeter"][0]);
+        draw.input.ResetInput(Inputs["area"][0]);
     }
 }

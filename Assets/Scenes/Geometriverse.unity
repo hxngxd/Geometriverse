@@ -4684,6 +4684,7 @@ MonoBehaviour:
   pointPref: {fileID: 3665220301382433646, guid: d8f6a7ccc3923cd4ea682098520f5880, type: 3}
   linePref: {fileID: 1020318175158401824, guid: 688c720a4b3434d49bf810db02600cb2, type: 3}
   planePref: {fileID: 7169194321152857623, guid: 0010d11cf1dbb2847a64a291116caa84, type: 3}
+  spherePref: {fileID: 0}
 --- !u!114 &867914197
 MonoBehaviour:
   m_ObjectHideFlags: 0

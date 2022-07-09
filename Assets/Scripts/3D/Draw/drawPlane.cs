@@ -96,7 +96,7 @@ public class drawPlane : MonoBehaviour
         var plane = Hierarchy.Objs[ID];
         Inputs["name"][0].text = plane.name;
         draw.listener.Add(Inputs["name"][0], () => draw.input.Update_Name(ID, Inputs["name"][0].text));
-        for (int i=0;i<=2;i++){
+        for (int i=0;i<3;i++){
             int current_index = i;
             string name = $"name_{current_index}", pos = $"pos_{current_index}";
             var v = Hierarchy.Objs[plane.vertices[current_index]];
