@@ -140,8 +140,6 @@ public class MouseHandler : MonoBehaviour
         Highlighted = null;        
     }
     public void OnSelectionsChange(){
-        bool noselected = Selected.Count == 0;
-        draw.menu.Buttoggle("Xoá", !noselected);
     }
     public void SetMaterial(Transform obj, int state){
         switch (Hierarchy.Objs[obj.name].type){

@@ -27,12 +27,12 @@ public class MenuManager : MonoBehaviour
         room = FindObjectOfType<RoomManager>();
         linecollider = FindObjectOfType<LineCollider>();
         photon = GetComponent<PhotonView>();
-        File();
-        Edit();
-        Tool();
-        Window();
-        Help();
-        Network();
+        // File();
+        // Edit();
+        // Tool();
+        // Window();
+        // Help();
+        // Network();
     }
     public void File(){
         var container = draw.uiobj.CommandContainer("Tập tin", Containers);
