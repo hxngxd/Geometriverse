@@ -68,25 +68,7 @@ public class drawPlane : MonoBehaviour
         }
     }
     public void RealtimeInput(string ID){
-        content.gameObject.SetActive(true);
-        var obj = Hierarchy.Objs[ID];
-        Inputs["name"][0].text = obj.name;
-        draw.listener.Add(Inputs["name"][0], () => draw.input.Update_Name(ID, Inputs["name"][0].text));
-        for (int i=0;i<3;i++){
-            int current_index = i;
-            string name = $"name_{current_index}", pos = $"pos_{current_index}";
-            var v = Hierarchy.Objs[obj.vertices[current_index]];
-            Inputs[name][0].text = v.name;
-            draw.input.Vec2Input(Inputs[pos], draw.calc.ztoy(v.go.transform.position));
-            draw.listener.Add(Inputs[name][0], () => {
-                draw.input.Update_Name(obj.vertices[current_index], Inputs[name][0].text);
-            });
-            if (v.parent == ""){
-                draw.listener.Add(Inputs[pos], () => {
-                    draw.input.Update_Position(v.go, draw.input.Input2Vec(Inputs[pos]));
-                });
-            }
-        }
+        draw.RealtimeInput(ID, content, Inputs, null);
     }
     public void ResetInputsList(){
         draw.input.ResetInput(Inputs["name"][0]);

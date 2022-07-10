@@ -58,32 +58,9 @@ public class drawSphere : MonoBehaviour
         }
     }
     public void RealtimeInput(string ID){
-        content.gameObject.SetActive(true);
-        var obj = Hierarchy.Objs[ID];
-        Inputs["name"][0].text = obj.name;
-        draw.listener.Add(Inputs["name"][0], () => draw.input.Update_Name(ID, Inputs["name"][0].text));
-        Vector3[] vp = new Vector3[2];
-        for (int i=0;i<2;i++){
-            int current_index = i;
-            string name = $"name_{current_index}", pos = $"pos_{current_index}";
-            var v = Hierarchy.Objs[obj.vertices[current_index]];
-            vp[current_index] = v.go.transform.position;
-            Inputs[name][0].text = v.name;
-            draw.input.Vec2Input(Inputs[pos], draw.calc.ztoy(vp[current_index]));
-            draw.listener.Add(Inputs[name][0], () => {
-                draw.input.Update_Name(obj.vertices[current_index], Inputs[name][0].text);
-            });
-            if (v.parent == ""){
-                draw.listener.Add(Inputs[pos], () => {
-                    draw.input.Update_Position(v.go, draw.input.Input2Vec(Inputs[pos]));
-                    for (int j=0;j<2;j++) vp[j] = Hierarchy.Objs[obj.vertices[j]].go.transform.position;
-                    Update_Properties(vp);
-                });
-            }
-        }
-        Update_Properties(vp);
+        draw.RealtimeInput(ID, content, Inputs, draw.sphere);
     }
-    void Update_Properties(Vector3[] vp){
+    public void Update_Properties(Vector3[] vp){
         var r = Vector3.Distance(vp[0], vp[1]);
         Inputs["radius"][0].text = r.ToString();
         Inputs["circumference"][0].text = (2f*Mathf.PI*r).ToString();

@@ -26,7 +26,6 @@ public class Draw : MonoBehaviour
     public bool isDrawing = false;
     public bool point_ing = false;
     public ScrollRect scroll;
-    Dictionary<dynamic, Dictionary<string, List<INPUT>>> Inputs = new Dictionary<dynamic, Dictionary<string, List<INPUT>>>();
     public void letDraw(dynamic type){
         Refresh();
         isDrawing = true;
@@ -76,5 +75,35 @@ public class Draw : MonoBehaviour
             yield return new WaitUntil(() => point.current_point==null);
         }
         point_ing = false;
+    }
+    public void RealtimeInput(string ID, Transform content, Dictionary<string, List<INPUT>> Inputs, dynamic type){
+        content.gameObject.SetActive(true);
+        var obj = Hierarchy.Objs[ID];
+        Inputs["name"][0].text = obj.name;
+        listener.Add(Inputs["name"][0], () => input.Update_Name(ID, Inputs["name"][0].text));
+        int numOfVertices = obj.vertices.Count;
+        Vector3[] vpos = new Vector3[numOfVertices];
+        for (int i=0;i<numOfVertices;i++){
+            int id = i;
+            string name = $"name_{id}", pos = $"pos_{id}";
+            var v = Hierarchy.Objs[obj.vertices[id]];
+            vpos[id] = v.go.transform.position;
+            Inputs[name][0].text = v.name;
+            listener.Add(Inputs[name][0], () => input.Update_Name(obj.vertices[id], Inputs[name][0].text));
+            input.Vec2Input(Inputs[pos], calc.ztoy(vpos[id]));
+            if (v.parent == ""){
+                listener.Add(Inputs[pos], () => {
+                    input.Update_Position(v.go, input.Input2Vec(Inputs[pos]));
+                    if (type != null){
+                        var vp = new Vector3[numOfVertices];
+                        for (int j=0;j<numOfVertices;j++){
+                            vp[j] = Hierarchy.Objs[obj.vertices[j]].go.transform.position;
+                        }
+                        type.Update_Properties(vp);
+                    }
+                });
+            }
+        }
+        if (type != null) type.Update_Properties(vpos);
     }
 }
