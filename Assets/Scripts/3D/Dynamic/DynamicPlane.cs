@@ -7,7 +7,7 @@ public class DynamicPlane : MonoBehaviour
 {
     Draw draw;
     Mesh mesh;
-    Vector3 prev1, prev2, prev3;
+    Vector3[] prev = new Vector3[3], v = new Vector3[3];
     int[] triangles;
     string preName;
     void Start()
@@ -19,41 +19,47 @@ public class DynamicPlane : MonoBehaviour
     void Update()
     {
         if (Hierarchy.Objs.ContainsKey(this.name)){
-            var plane = Hierarchy.Objs[this.name];
-            var v1 = Hierarchy.Objs[plane.vertices[0]].go.transform.position;
-            var v2 = Hierarchy.Objs[plane.vertices[1]].go.transform.position;
-            var v3 = Hierarchy.Objs[plane.vertices[2]].go.transform.position;
-            if (preName != plane.name){
-                preName = plane.name;
+            var obj = Hierarchy.Objs[this.name];
+            bool diff = false;
+            for (int i=0;i<3;i++){
+                v[i] = Hierarchy.Objs[obj.vertices[i]].go.transform.position;
+                diff = diff || (prev[i] != v[i]);
             }
-            if (prev1 != v1 || prev2 != v2 || prev3 != v3){
-                var rotation = draw.calc.rm_vectors(Vector3.zero, Vector3.Cross(prev3 - prev1, prev2 - prev1), Vector3.Cross(v3 - v1, v2 - v1));
-                foreach (string child in plane.children){
+            if (preName != obj.name){
+                preName = obj.name;
+            }
+            if (diff){
+                var rotation = draw.calc.rm_vectors(Vector3.zero, Vector3.Cross(prev[2] - prev[0], prev[1] - prev[0]), Vector3.Cross(v[2] - v[0], v[1] - v[0]));
+                foreach (string child in obj.children){
                     if (Hierarchy.Objs[child].type == "point"){
                         var point = Hierarchy.Objs[child].go;
                         var pos = point.transform.position;
-                        if (prev1 != v1){
-                            point.transform.position = draw.calc.matrix_rotate(draw.calc.hc_diem_dt(pos, new KeyValuePair<Vector3, Vector3>(prev2, prev3)), pos, rotation);
+                        var rotateLine = new KeyValuePair<Vector3, Vector3>();
+                        if (prev[0] != v[0]){
+                            rotateLine = new KeyValuePair<Vector3, Vector3>(prev[1], prev[2]);
                         }
-                        else if (prev2 != v2){
-                            point.transform.position = draw.calc.matrix_rotate(draw.calc.hc_diem_dt(pos, new KeyValuePair<Vector3, Vector3>(prev1, prev3)), pos, rotation);
+                        else if (prev[1] != v[1]){
+                            rotateLine = new KeyValuePair<Vector3, Vector3>(prev[0], prev[2]);
                         }
-                        else if (prev3 != v3){
-                            point.transform.position = draw.calc.matrix_rotate(draw.calc.hc_diem_dt(pos, new KeyValuePair<Vector3, Vector3>(prev1, prev2)), pos, rotation);
+                        else if (prev[2] != v[2]){
+                            rotateLine = new KeyValuePair<Vector3, Vector3>(prev[0], prev[1]);
                         }
+                        point.transform.position = draw.calc.matrix_rotate(draw.calc.hc_diem_dt(pos, rotateLine), pos, rotation);
+
                     }
                 }
-                prev1 = v1;
-                prev2 = v2;
-                prev3 = v3;
-                plane.rotation = draw.calc.rm_plane_xy(draw.calc.ztoy(v1), draw.calc.ztoy(v2), draw.calc.ztoy(v3));
-                plane.equation = draw.calc.pt_mp(draw.calc.ztoy(v1), draw.calc.ztoy(v2), draw.calc.ztoy(v3));
-                var vertices = new Vector3[]{v1, v2, v3};
+                var vertices = new Vector3[]{v[0], v[1], v[2]};
+                for (int i=0;i<3;i++){
+                    prev[i] = v[i];
+                    v[i] = draw.calc.ztoy(v[i]);
+                }
+                obj.rotation = draw.calc.rm_plane_xy(v[0], v[1], v[2]);
+                obj.equation = draw.calc.pt_mp(v[0], v[1], v[2]);
                 mesh.Clear();
                 mesh.vertices = vertices;
                 mesh.triangles = triangles;
                 this.GetComponent<MeshCollider>().sharedMesh = mesh;
-                Hierarchy.Objs[this.name] = plane;
+                Hierarchy.Objs[this.name] = obj;
             }
         }
     }

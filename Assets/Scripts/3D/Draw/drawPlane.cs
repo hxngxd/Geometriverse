@@ -17,7 +17,7 @@ public class drawPlane : MonoBehaviour
     }
     public void Inspector(){
         Inputs.Add("name", new List<INPUT>(){draw.uiobj.Value("Tên mặt phẳng", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
-        draw.point.InspectorVector(ref Inputs, 3, content);
+        draw.InspectorVector(ref Inputs, 3, content);
         content.gameObject.SetActive(false);
     }
     public IEnumerator Okay(){
@@ -25,60 +25,47 @@ public class drawPlane : MonoBehaviour
         draw.mouse.UnselectAll();
         while (true){
             ResetInputsList();
-            var gameobjs = new List<GameObject>(new GameObject[4]);
+            var objs = new GameObject[4];
 
-            for (int i=0;i<2;i++){
-                yield return new WaitForSeconds(0.01f);
-                StartCoroutine(draw.point.makePoint(()=>{
-                    draw.point.onMove(Inputs[$"pos_{i}"]);
-                }, ()=>{
-                    draw.point.onClick(Inputs[$"name_{i}"][0]);
-                    gameobjs[i] = draw.point.current_point;
-                    draw.point.current_point = null;
-                }, Cancel));
-                yield return new WaitUntil(() => draw.point.current_point==null);
-            }
+            StartCoroutine(draw.makingPoint(2, objs, draw.plane, Inputs));
+            yield return new WaitUntil(() => draw.point_ing == false);
 
-            gameobjs[3] = draw.obj.Plane(draw.hier.current);
-            var _vertices = new Vector3[]{gameobjs[0].transform.position, gameobjs[1].transform.transform.position, Vector3.zero};
+            objs[3] = draw.obj.Plane(draw.hier.current);
+            var vp = new Vector3[]{objs[0].transform.position, objs[1].transform.position, Vector3.zero};
             var triangles = new int[]{0,1,2,2,1,0};
-            var filter = gameobjs[3].GetComponent<MeshFilter>();
+            var filter = objs[3].GetComponent<MeshFilter>();
 
             yield return new WaitForSeconds(0.01f);
             StartCoroutine(draw.point.makePoint(()=>{
                 draw.point.onMove(Inputs["pos_2"]);
-                _vertices[2] = draw.point.current_point.transform.position;
-                if (_vertices[0] != _vertices[1] && _vertices[1] != _vertices[2] && _vertices[2] != _vertices[0] && Mathf.Abs(Vector3.Dot((_vertices[1]-_vertices[0]).normalized, (_vertices[2]-_vertices[0]).normalized)) != 1){
+                vp[2] = draw.point.current_point.transform.position;
+                if (vp[0] != vp[1] && vp[1] != vp[2] && vp[2] != vp[0] && Mathf.Abs(Vector3.Dot((vp[1]-vp[0]).normalized, (vp[2]-vp[0]).normalized)) != 1){
                     filter.mesh.Clear();
-                    filter.mesh.vertices = _vertices;
+                    filter.mesh.vertices = vp;
                     filter.mesh.triangles = triangles;
                 }
             }, ()=>{
-                if (Mathf.Abs(Vector3.Dot((_vertices[1]-_vertices[0]).normalized, (_vertices[2]-_vertices[0]).normalized)) != 1){
+                if (vp[0] != vp[1] && vp[1] != vp[2] && vp[2] != vp[0] && Mathf.Abs(Vector3.Dot((vp[1]-vp[0]).normalized, (vp[2]-vp[0]).normalized)) != 1){
                     draw.point.onClick(Inputs["name_2"][0]);
-                    gameobjs[2] = draw.point.current_point;
+                    objs[2] = draw.point.current_point;
                     draw.point.current_point = null;
                 }
-            }, Cancel));
+            }, () => {draw.Cancel(draw.plane);}));
             yield return new WaitUntil(() => draw.point.current_point==null);
             
-            gameobjs[3].GetComponent<MeshCollider>().sharedMesh = filter.mesh;
+            objs[3].GetComponent<MeshCollider>().sharedMesh = filter.mesh;
             var vertices = new List<string>();
-            for (int i=0;i<3;i++) vertices.Add(gameobjs[i].name);
-            var rotation = draw.calc.rm_plane_xy(draw.calc.ztoy(gameobjs[0].transform.position), draw.calc.ztoy(gameobjs[1].transform.position), draw.calc.ztoy(gameobjs[2].transform.position));
-            var equation = draw.calc.pt_mp(draw.calc.ztoy(gameobjs[0].transform.position), draw.calc.ztoy(gameobjs[1].transform.position), draw.calc.ztoy(gameobjs[2].transform.position));
-            draw.hier.AddPlane(Inputs["name"][0].text, vertices, gameobjs[3], rotation, equation);
+            for (int i=0;i<3;i++){
+                vertices.Add(objs[i].name);
+                vp[i] = draw.calc.ztoy(vp[i]);
+            }
+            var rotation = draw.calc.rm_plane_xy(vp[0], vp[1], vp[2]);
+            var equation = draw.calc.pt_mp(vp[0], vp[1], vp[2]);
+            draw.hier.AddPlane(Inputs["name"][0].text, vertices, objs[3], rotation, equation);
             draw.hier.FinishedCurrentObjects();
 
             yield return new WaitForSeconds(0.01f);
         }
-    }
-    public IEnumerator OnSelect(GameObject go){
-        draw.mouse.Select(go.transform);
-        RealtimeInput(go.name);
-        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));
-        Cancel();
-        draw.mouse.Unselect(go.transform);
     }
     public void RealtimeInput(string ID){
         content.gameObject.SetActive(true);
@@ -100,11 +87,6 @@ public class drawPlane : MonoBehaviour
                 });
             }
         }
-    }
-    public void Cancel(){
-        content.gameObject.SetActive(false);
-        ResetInputsList();
-        draw.Cancel();
     }
     public void ResetInputsList(){
         draw.input.ResetInput(Inputs["name"][0]);

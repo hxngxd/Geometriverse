@@ -17,14 +17,8 @@ public class drawPoint : MonoBehaviour
         Inspector();
     }
     public void Inspector(){
-        InspectorVector(ref Inputs, 1, content);
+        draw.InspectorVector(ref Inputs, 1, content);
         content.gameObject.SetActive(false);
-    }
-    public void InspectorVector(ref Dictionary<string, List<INPUT>> Inputs, int t, Transform parent){
-        for (int i=0;i<t;i++){
-            Inputs.Add(t < 2 ? "name" : $"name_{i}", new List<INPUT>(){draw.uiobj.Value(t < 2 ? "Tên điểm" : $"Tên điểm {i+1}", "Tên...", "", INPUT.ContentType.Alphanumeric, parent)});
-            Inputs.Add(t < 2 ? "pos" : $"pos_{i}", draw.uiobj.Vec3("Toạ độ", parent));
-        }
     }
     public IEnumerator Okay(){
         content.gameObject.SetActive(true);
@@ -36,7 +30,7 @@ public class drawPoint : MonoBehaviour
                 onClick(Inputs["name"][0]);
                 current_point.transform.SetParent(draw.hier.created);
                 current_point = null;
-            }, Cancel));
+            }, () => {draw.Cancel(draw.point);}));
             yield return new WaitUntil(() => current_point==null);
             yield return new WaitForSeconds(0.01f);
         }
@@ -67,7 +61,7 @@ public class drawPoint : MonoBehaviour
         }
         point.GetComponent<SphereCollider>().enabled = true;
         draw.mouse.Unselect(point.transform);
-        Cancel();
+        draw.Cancel(draw.point);
     }
     public void RealtimeInput(string ID){
         content.gameObject.SetActive(true);
@@ -79,11 +73,9 @@ public class drawPoint : MonoBehaviour
             draw.listener.Add(Inputs["pos"], () => draw.input.Update_Position(obj.go, draw.input.Input2Vec(Inputs["pos"])));
         }
     }
-    public void Cancel(){
-        content.gameObject.SetActive(false);
+    public void ResetInputsList(){
         draw.input.ResetInput(Inputs["name"][0]);
         draw.input.ResetInputs(Inputs["pos"]);
-        draw.Cancel();
     }
     public IEnumerator makePoint(Action move, Action click, Action cancel){
         current_point = draw.obj.Point(Vector3.zero, draw.hier.current);

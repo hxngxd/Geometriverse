@@ -17,7 +17,7 @@ public class drawLine : MonoBehaviour
     }
     public void Inspector(){
         Inputs.Add("name", new List<INPUT>(){draw.uiobj.Value("Tên đoạn", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
-        draw.point.InspectorVector(ref Inputs, 2, content);
+        draw.InspectorVector(ref Inputs, 2, content);
         Inputs.Add("dist", new List<INPUT>(){draw.uiobj.Value("Độ dài", "0", "", INPUT.ContentType.DecimalNumber, content)});
         content.gameObject.SetActive(false);
     }
@@ -26,64 +26,38 @@ public class drawLine : MonoBehaviour
         draw.mouse.UnselectAll();
         while (true){
             ResetInputsList();
-            var gameobjs = new List<GameObject>(new GameObject[3]);
+            var objs = new GameObject[3];
 
-            StartCoroutine(draw.point.makePoint(()=>{
-                draw.point.onMove(Inputs["pos_0"]);
-            }, ()=>{
-                draw.point.onClick(Inputs["name_0"][0]);
-                gameobjs[0] = draw.point.current_point;
-                draw.point.current_point = null;
-            }, Cancel));
-            yield return new WaitUntil(() => draw.point.current_point==null);
+            StartCoroutine(draw.makingPoint(1, objs, draw.line, Inputs));
+            yield return new WaitUntil(() => draw.point_ing == false);
 
             yield return new WaitForSeconds(0.01f);
-            gameobjs[2] = draw.obj.Line(draw.hier.current, false);
+            objs[2] = draw.obj.Line(draw.hier.current, false);
             StartCoroutine(draw.point.makePoint(()=>{
                 draw.point.onMove(Inputs["pos_1"]);
-                var ln = gameobjs[2].GetComponent<LineRenderer>();
+                var ln = objs[2].GetComponent<LineRenderer>();
                 if (ln.positionCount < 2){
                     ln.positionCount = 2;
-                    ln.SetPosition(0, gameobjs[0].transform.position);
+                    ln.SetPosition(0, objs[0].transform.position);
                 }
                 ln.SetPosition(1, draw.point.current_point.transform.position);
-                ln.startWidth = Vector3.Distance(Camera.main.transform.position, ln.GetPosition(0))*ratio;
-                ln.endWidth = Vector3.Distance(Camera.main.transform.position, ln.GetPosition(1))*ratio;
+                var camPos = Camera.main.transform.position;
+                ln.startWidth = Vector3.Distance(camPos, ln.GetPosition(0)) * ratio;
+                ln.endWidth = Vector3.Distance(camPos, ln.GetPosition(1)) * ratio;
                 Update_Properties(new Vector3[]{ln.GetPosition(0), ln.GetPosition(1)});
             }, ()=>{
                 draw.point.onClick(Inputs["name_1"][0]);
-                gameobjs[1] = draw.point.current_point;
+                objs[1] = draw.point.current_point;
                 draw.point.current_point = null;
-            }, Cancel));
+            }, () => {draw.Cancel(draw.line);}));
             yield return new WaitUntil(() => draw.point.current_point==null);
 
-            bool overlapseLine = false;
-            if (gameobjs[0].transform.IsChildOf(draw.hier.created) && gameobjs[1].transform.IsChildOf(draw.hier.created)){
-                foreach (var s in Hierarchy.Objs[gameobjs[0].name].vertexof){
-                    if (Hierarchy.Objs[s].type == "line" && Hierarchy.Objs[gameobjs[1].name].vertexof.Contains(s)){
-                        overlapseLine = true;
-                        break;
-                    }
-                }
-            }
-            if (overlapseLine){
-                Destroy(gameobjs[2].gameObject);
-            }
-            else{
-                draw.hier.AddLine(Inputs["name"][0].text, "", new List<string>(){gameobjs[0].name, gameobjs[1].name}, gameobjs[2], new Dictionary<string, float>());
-                gameobjs[2].AddComponent<DynamicLine>();
-                draw.hier.FinishedCurrentObjects();
-            }
+            draw.hier.AddLine(Inputs["name"][0].text, "", new List<string>(){objs[0].name, objs[1].name}, objs[2], new Dictionary<string, float>());
+            objs[2].AddComponent<DynamicLine>();
+            draw.hier.FinishedCurrentObjects();
 
             yield return new WaitForSeconds(0.01f);
         }
-    }
-    public IEnumerator OnSelect(GameObject go){
-        draw.mouse.Select(go.transform);
-        RealtimeInput(go.name);
-        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));
-        Cancel();
-        draw.mouse.Unselect(go.transform);
     }
     public void RealtimeInput(string ID){
         content.gameObject.SetActive(true);
@@ -104,6 +78,7 @@ public class drawLine : MonoBehaviour
             if (v.parent == ""){
                 draw.listener.Add(Inputs[pos], () => {
                     draw.input.Update_Position(v.go, draw.input.Input2Vec(Inputs[pos]));
+                    for (int j=0;j<2;j++) vp[j] = Hierarchy.Objs[obj.vertices[j]].go.transform.position;
                     Update_Properties(vp);
                 });
             }
@@ -112,11 +87,6 @@ public class drawLine : MonoBehaviour
     }
     void Update_Properties(Vector3[] vp){
         Inputs["dist"][0].text = Vector3.Distance(vp[0], vp[1]).ToString();
-    }
-    public void Cancel(){
-        content.gameObject.SetActive(false);
-        ResetInputsList();
-        draw.Cancel();
     }
     public void ResetInputsList(){
         draw.input.ResetInputs(new List<INPUT>(){Inputs["name"][0], Inputs["dist"][0]});

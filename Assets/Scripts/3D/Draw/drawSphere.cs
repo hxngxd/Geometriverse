@@ -16,7 +16,7 @@ public class drawSphere : MonoBehaviour
     }
     public void Inspector(){
         Inputs.Add("name", new List<INPUT>(){draw.uiobj.Value("Tên hình", "Tên...", "", INPUT.ContentType.Alphanumeric, content)});
-        draw.point.InspectorVector(ref Inputs, 2, content);
+        draw.InspectorVector(ref Inputs, 2, content);
         Inputs.Add("radius", new List<INPUT>(){draw.uiobj.Value("Bán kính", "0", "", INPUT.ContentType.DecimalNumber, content)});
         Inputs.Add("circumference", new List<INPUT>(){draw.uiobj.Value("Chu vi đường tròn", "0", "", INPUT.ContentType.DecimalNumber, content)});
         Inputs.Add("surface_area", new List<INPUT>(){draw.uiobj.Value("Diện tích bề mặt", "0", "", INPUT.ContentType.DecimalNumber, content)});
@@ -28,47 +28,34 @@ public class drawSphere : MonoBehaviour
         draw.mouse.UnselectAll();
         while (true){
             ResetInputsList();
-            var gameobjs = new List<GameObject>(new GameObject[3]);
+            var objs = new GameObject[3];
 
-            StartCoroutine(draw.point.makePoint(()=>{
-                draw.point.onMove(Inputs["pos_0"]);
-            }, ()=>{
-                draw.point.onClick(Inputs["name_0"][0]);
-                gameobjs[0] = draw.point.current_point;
-                draw.point.current_point = null;
-            }, Cancel));
-            yield return new WaitUntil(() => draw.point.current_point==null);
+            StartCoroutine(draw.makingPoint(1, objs, draw.sphere, Inputs));
+            yield return new WaitUntil(() => draw.point_ing == false);
 
             yield return new WaitForSeconds(0.01f);
-            gameobjs[2] = draw.obj.Sphere(gameobjs[0].transform.position, draw.hier.current);
+            objs[2] = draw.obj.Sphere(objs[0].transform.position, draw.hier.current);
             StartCoroutine(draw.point.makePoint(()=>{
                 draw.point.onMove(Inputs["pos_1"]);
-                var v1 = gameobjs[0].transform.position;
+                var v1 = objs[0].transform.position;
                 var v2 = draw.point.current_point.transform.position;
                 Update_Properties(new Vector3[]{v1, v2});
                 var r = Vector3.Distance(v1, v2)*2;
-                gameobjs[2].transform.localScale = new Vector3(r,r,r);
+                objs[2].transform.localScale = new Vector3(r,r,r);
             }, ()=>{
                 draw.point.onClick(Inputs["name_1"][0]);
-                gameobjs[1] = draw.point.current_point;
+                objs[1] = draw.point.current_point;
                 draw.point.current_point = null;
-            }, Cancel));
+            }, () => {draw.Cancel(draw.sphere);}));
             yield return new WaitUntil(() => draw.point.current_point==null);
 
-            draw.hier.AddSphere(Inputs["name"][0].text, new List<string>(){gameobjs[0].name, gameobjs[1].name}, gameobjs[2], new Dictionary<string, float>());
-            gameobjs[2].GetComponent<SphereCollider>().enabled = true;
-            gameobjs[2].AddComponent<DynamicSphere>();
+            draw.hier.AddSphere(Inputs["name"][0].text, new List<string>(){objs[0].name, objs[1].name}, objs[2], new Dictionary<string, float>());
+            objs[2].GetComponent<SphereCollider>().enabled = true;
+            objs[2].AddComponent<DynamicSphere>();
             draw.hier.FinishedCurrentObjects();
 
             yield return new WaitForSeconds(0.01f);
         }
-    }
-    public IEnumerator OnSelect(GameObject go){
-        draw.mouse.Select(go.transform);
-        RealtimeInput(go.name);
-        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));
-        Cancel();
-        draw.mouse.Unselect(go.transform);
     }
     public void RealtimeInput(string ID){
         content.gameObject.SetActive(true);
@@ -89,6 +76,7 @@ public class drawSphere : MonoBehaviour
             if (v.parent == ""){
                 draw.listener.Add(Inputs[pos], () => {
                     draw.input.Update_Position(v.go, draw.input.Input2Vec(Inputs[pos]));
+                    for (int j=0;j<2;j++) vp[j] = Hierarchy.Objs[obj.vertices[j]].go.transform.position;
                     Update_Properties(vp);
                 });
             }
@@ -101,11 +89,6 @@ public class drawSphere : MonoBehaviour
         Inputs["circumference"][0].text = (2f*Mathf.PI*r).ToString();
         Inputs["surface_area"][0].text = (4f*r*r*Mathf.PI).ToString();
         Inputs["volume"][0].text = ((4f/3f)*Mathf.PI*r*r*r).ToString();
-    }
-    public void Cancel(){
-        content.gameObject.SetActive(false);
-        ResetInputsList();
-        draw.Cancel();
     }
     public void ResetInputsList(){
         draw.input.ResetInputs(new List<INPUT>(){Inputs["name"][0], Inputs["radius"][0], Inputs["circumference"][0], Inputs["surface_area"][0], Inputs["volume"][0]});

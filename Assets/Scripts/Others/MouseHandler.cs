@@ -87,16 +87,16 @@ public class MouseHandler : MonoBehaviour
                 StartCoroutine(draw.point.OnSelect(obj.gameObject));
                 break;
             case "line":
-                StartCoroutine(draw.line.OnSelect(obj.gameObject));
+                StartCoroutine(draw.OnSelect(obj.gameObject, draw.line));
                 break;
             case "plane":
-                StartCoroutine(draw.plane.OnSelect(obj.gameObject));
+                StartCoroutine(draw.OnSelect(obj.gameObject, draw.plane));
                 break;
             case "circle":
-                StartCoroutine(draw.circle.OnSelect(obj.gameObject));
+                StartCoroutine(draw.OnSelect(obj.gameObject, draw.circle));
                 break;
             case "sphere":
-                StartCoroutine(draw.sphere.OnSelect(obj.gameObject));
+                StartCoroutine(draw.OnSelect(obj.gameObject, draw.sphere));
                 break;
         }
     }

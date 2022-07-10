@@ -7,7 +7,7 @@ public class DynamicLine : MonoBehaviour
     LineRenderer line;
     LineCollider linecollider;
     Draw draw;
-    Vector3 preStart, preEnd;
+    Vector3[] prev = new Vector3[2], v = new Vector3[2];
     string preName;
     void Start()
     {
@@ -21,34 +21,37 @@ public class DynamicLine : MonoBehaviour
     {
         if (Hierarchy.Objs.ContainsKey(this.name)){
             var obj = Hierarchy.Objs[this.name];
-            var start = Hierarchy.Objs[obj.vertices[0]].go.transform.position;
-            var end = Hierarchy.Objs[obj.vertices[1]].go.transform.position;
+            bool diff = false;
+            for (int i=0;i<2;i++){
+                v[i] = Hierarchy.Objs[obj.vertices[i]].go.transform.position;
+                diff = diff || (prev[i] != v[i]);
+            }
             if (preName != obj.name){
                 preName = obj.name;
             }
-            if (preStart != start || preEnd != end){
+            if (diff){
                 foreach (string child in obj.children){
                     var pos = Hierarchy.Objs[child].go.transform.position;
-                    float dir = Vector3.Dot(Vector3.Normalize(preEnd - preStart), Vector3.Normalize(pos - preStart));
+                    float dir = Vector3.Dot(Vector3.Normalize(prev[1] - prev[0]), Vector3.Normalize(pos - prev[0]));
                     Vector3 result = new Vector3();
                     if (0.9f <= dir && dir <= 1.1f){
-                        var ratio = Vector3.Distance(preStart, pos) / Vector3.Distance(preStart, preEnd);
-                        result = draw.calc.kc_sang_toa_do(start, end, Vector3.Distance(start, end) * ratio);
+                        var ratio = Vector3.Distance(prev[0], pos) / Vector3.Distance(prev[0], prev[1]);
+                        result = draw.calc.kc_sang_toa_do(v[0], v[1], Vector3.Distance(v[0], v[1]) * ratio);
                     }
                     else if (-1.1f <= dir && dir <= -0.9f){
-                        var ratio = Vector3.Distance(preEnd, pos) / Vector3.Distance(preStart, preEnd);
-                        result = draw.calc.kc_sang_toa_do(end, start, Vector3.Distance(start, end) * ratio);
+                        var ratio = Vector3.Distance(prev[1], pos) / Vector3.Distance(prev[0], prev[1]);
+                        result = draw.calc.kc_sang_toa_do(v[1], v[0], Vector3.Distance(v[0], v[1]) * ratio);
                     }
                     Hierarchy.Objs[child].go.transform.position = result;
                 }
-                preStart = start;
-                preEnd = end;
-                line.SetPosition(0, start);
-                line.SetPosition(1, end);
+                for (int i=0;i<2;i++){
+                    prev[i] = v[i];
+                    line.SetPosition(i, v[i]);
+                }
             }
             linecollider.RebuildCollider(line);
-            line.startWidth = Vector3.Distance(Camera.main.transform.position, start)*draw.line.ratio;
-            line.endWidth = Vector3.Distance(Camera.main.transform.position, end)*draw.line.ratio;
+            line.startWidth = Vector3.Distance(Camera.main.transform.position, v[0])*draw.line.ratio;
+            line.endWidth = Vector3.Distance(Camera.main.transform.position, v[1])*draw.line.ratio;
         }
     }
 }

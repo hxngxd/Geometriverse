@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using INPUT=TMPro.TMP_InputField;
 public class Draw : MonoBehaviour
 {
     public Hierarchy hier;
@@ -23,43 +24,57 @@ public class Draw : MonoBehaviour
     public drawSphere sphere;
     public CameraController cam;
     public bool isDrawing = false;
+    public bool point_ing = false;
     public ScrollRect scroll;
-    public void Point(){
+    Dictionary<dynamic, Dictionary<string, List<INPUT>>> Inputs = new Dictionary<dynamic, Dictionary<string, List<INPUT>>>();
+    public void letDraw(dynamic type){
         Refresh();
-        StartDrawing(point.content, point.Okay());
-    }
-    public void Line(){
-        Refresh();
-        StartDrawing(line.content, line.Okay());
-    }
-    public void Plane(){
-        Refresh();
-        StartDrawing(plane.content, plane.Okay());
-    }
-    public void Circle(){
-        Refresh();
-        StartDrawing(circle.content, circle.Okay());
-    }
-    public void Sphere(){
-        Refresh();
-        StartDrawing(sphere.content, sphere.Okay());
-    }
-    public void StartDrawing(Transform content, IEnumerator Okay){
         isDrawing = true;
-        scroll.content = content.GetComponent<RectTransform>();
-        StartCoroutine(Okay);
+        scroll.content = type.content.GetComponent<RectTransform>();
+        StartCoroutine(type.Okay());
     }
     public void Refresh(){
         Cancel();
-        point.Cancel();
-        line.Cancel();
-        plane.Cancel();
-        circle.Cancel();
-        sphere.Cancel();
+        foreach (var type in new List<dynamic>(){point, line, plane, circle, sphere}) Cancel(type);
     }
     public void Cancel(){
         StopAllCoroutines();
         hier.RemoveCurrentObjects();
-        isDrawing = false;
+        isDrawing = point_ing = false;
+    }
+    public void Cancel(dynamic type){
+        type.content.gameObject.SetActive(false);
+        type.ResetInputsList();
+        Cancel();
+    }
+    public IEnumerator OnSelect(GameObject go, dynamic type){
+        mouse.Select(go.transform);
+        type.RealtimeInput(go.name);
+        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));
+        Cancel();
+        mouse.Unselect(go.transform);
+    }
+    public void InspectorVector(ref Dictionary<string, List<INPUT>> Inputs, int t, Transform parent){
+        for (int i=0;i<t;i++){
+            Inputs.Add(t < 2 ? "name" : $"name_{i}", new List<INPUT>(){uiobj.Value(t < 2 ? "Tên điểm" : $"Tên điểm {i+1}", "Tên...", "", INPUT.ContentType.Alphanumeric, parent)});
+            Inputs.Add(t < 2 ? "pos" : $"pos_{i}", uiobj.Vec3("Toạ độ", parent));
+        }
+    }
+    public IEnumerator makingPoint(int t, GameObject[] objs, dynamic type, Dictionary<string, List<INPUT>> Inputs){
+        point_ing = true;
+        for (int i=0;i<t && point_ing;i++){
+            yield return new WaitForSeconds(0.01f);
+            StartCoroutine(point.makePoint(()=>{
+                point.onMove(Inputs[$"pos_{i}"]);
+            }, ()=>{
+                point.onClick(Inputs[$"name_{i}"][0]);
+                objs[i] = point.current_point;
+                point.current_point = null;
+            }, () => {
+                Cancel(type);
+            }));
+            yield return new WaitUntil(() => point.current_point==null);
+        }
+        point_ing = false;
     }
 }

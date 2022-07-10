@@ -17,13 +17,13 @@ public class DockManager : MonoBehaviour
         Functions = new List<ListPair>(){
             new ListPair("Chuột", new Pair(() => {draw.Refresh();}, Load("cursor"))),
             new ListPair("/", new Pair(() => {}, Load(""))),
-            new ListPair("Điểm", new Pair(() => {draw.Point();}, Load("point"))),
-            new ListPair("Đoạn thẳng", new Pair(() => {draw.Line();}, Load("line"))),
+            new ListPair("Điểm", new Pair(() => {draw.letDraw(draw.point);}, Load("point"))),
+            new ListPair("Đoạn thẳng", new Pair(() => {draw.letDraw(draw.line);}, Load("line"))),
             new ListPair("Đoạn thẳng liên tục", new Pair(() => {}, Load("multiline"))),
-            new ListPair("Mặt phẳng", new Pair(() => {draw.Plane();}, Load("plane"))),
-            new ListPair("Đường tròn qua 3 điểm", new Pair(() => {draw.Circle();}, Load("circle3point"))),
+            new ListPair("Mặt phẳng", new Pair(() => {draw.letDraw(draw.plane);}, Load("plane"))),
+            new ListPair("Đường tròn qua 3 điểm", new Pair(() => {draw.letDraw(draw.circle);}, Load("circle3point"))),
             new ListPair("/", new Pair(() => {}, Load(""))),
-            new ListPair("Hình cầu", new Pair(() => {draw.Sphere();}, Load(""))),
+            new ListPair("Hình cầu", new Pair(() => {draw.letDraw(draw.sphere);}, Load(""))),
             new ListPair("/", new Pair(() => {}, Load(""))),
             new ListPair("Camera", new Pair(() => {}, Load("camera"))),
         };
