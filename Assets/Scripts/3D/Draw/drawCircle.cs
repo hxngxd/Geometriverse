@@ -31,12 +31,12 @@ public class drawCircle : MonoBehaviour
                 ResetInputsList();
                 var objs = new List<GameObject>(new GameObject[3]);
 
-                StartCoroutine(draw.makingPointOnPlane(0, objs, draw.circle, Inputs));
+                draw.StartC(draw.makingPointOnPlane(0, objs, draw.circle, Inputs));
                 yield return new WaitUntil(() => draw.point.current_point==null);
                 
                 yield return new WaitForSeconds(0.01f);
                 objs[2] = draw.obj.Line(draw.hier.current, true);
-                StartCoroutine(draw.point.makePoint(()=>{
+                draw.StartC(draw.point.makePoint(()=>{
                     var ln = objs[2].GetComponent<LineRenderer>();
                     var hit = draw.raycast.Hit();
                     if (Hierarchy.Objs.ContainsKey(hit.ID) && draw.OnPlane(hit.ID)){
@@ -84,13 +84,13 @@ public class drawCircle : MonoBehaviour
                 ResetInputsList();
                 var objs = new List<GameObject>(new GameObject[4]);
 
-                StartCoroutine(draw.makingPoint(2, objs, draw.circle, Inputs));
+                draw.StartC(draw.makingPoint(2, objs, draw.circle, Inputs));
                 yield return new WaitUntil(() => draw.point_ing == false);
 
                 yield return new WaitForSeconds(0.01f);
                 objs[3] = draw.obj.Line(draw.hier.current, true);
                 var vp = new Vector3[]{draw.calc.ztoy(objs[0].transform.position), draw.calc.ztoy(objs[1].transform.position), Vector3.zero};
-                StartCoroutine(draw.point.makePoint(()=>{
+                draw.StartC(draw.point.makePoint(()=>{
                     var ln = objs[3].GetComponent<LineRenderer>();
                     draw.point.onMove(Inputs["pos_2"]);
                     vp[2] = draw.calc.ztoy(draw.point.current_point.transform.position);

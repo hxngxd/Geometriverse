@@ -30,12 +30,12 @@ public class drawSphere : MonoBehaviour
             ResetInputsList();
             var objs = new List<GameObject>(new GameObject[3]);
 
-            StartCoroutine(draw.makingPoint(1, objs, draw.sphere, Inputs));
+            draw.StartC(draw.makingPoint(1, objs, draw.sphere, Inputs));
             yield return new WaitUntil(() => draw.point_ing == false);
 
             yield return new WaitForSeconds(0.01f);
             objs[2] = draw.obj.Sphere(objs[0].transform.position, draw.hier.current);
-            StartCoroutine(draw.point.makePoint(()=>{
+            draw.StartC(draw.point.makePoint(()=>{
                 draw.point.onMove(Inputs["pos_1"]);
                 var v1 = objs[0].transform.position;
                 var v2 = draw.point.current_point.transform.position;

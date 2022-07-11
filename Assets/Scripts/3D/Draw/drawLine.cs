@@ -28,12 +28,12 @@ public class drawLine : MonoBehaviour
             ResetInputsList();
             var objs = new List<GameObject>(new GameObject[3]);
 
-            StartCoroutine(draw.makingPoint(1, objs, draw.line, Inputs));
+            draw.StartC(draw.makingPoint(1, objs, draw.line, Inputs));
             yield return new WaitUntil(() => draw.point_ing == false);
 
             yield return new WaitForSeconds(0.01f);
             objs[2] = draw.obj.Line(draw.hier.current, false);
-            StartCoroutine(draw.point.makePoint(()=>{
+            draw.StartC(draw.point.makePoint(()=>{
                 draw.point.onMove(Inputs["pos_1"]);
                 var ln = objs[2].GetComponent<LineRenderer>();
                 if (ln.positionCount < 2){

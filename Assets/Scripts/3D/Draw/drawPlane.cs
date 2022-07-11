@@ -28,7 +28,7 @@ public class drawPlane : MonoBehaviour
             ResetInputsList();
             var objs = new List<GameObject>(new GameObject[4]);
 
-            StartCoroutine(draw.makingPoint(2, objs, draw.plane, Inputs));
+            draw.StartC(draw.makingPoint(2, objs, draw.plane, Inputs));
             yield return new WaitUntil(() => draw.point_ing == false);
 
             objs[3] = draw.obj.Plane(draw.hier.current);
@@ -37,7 +37,7 @@ public class drawPlane : MonoBehaviour
             var filter = objs[3].GetComponent<MeshFilter>();
 
             yield return new WaitForSeconds(0.01f);
-            StartCoroutine(draw.point.makePoint(()=>{
+            draw.StartC(draw.point.makePoint(()=>{
                 draw.point.onMove(Inputs["pos_2"]);
                 vp[2] = draw.point.current_point.transform.position;
                 if (vp[0] != vp[1] && vp[1] != vp[2] && vp[2] != vp[0] && Mathf.Abs(Vector3.Dot((vp[1]-vp[0]).normalized, (vp[2]-vp[0]).normalized)) != 1){

@@ -26,17 +26,28 @@ public class Draw : MonoBehaviour
     public bool isDrawing = false;
     public bool point_ing = false;
     public ScrollRect scroll;
+    public List<Coroutine> Coroutines = new List<Coroutine>();
+    public void StartC(IEnumerator coroutine){
+        var c = StartCoroutine(coroutine);
+        Coroutines.Add(c);
+    }
+    public void StopAllCs(){
+        foreach (var c in Coroutines){
+            StopCoroutine(c);
+        }
+        Coroutines.Clear();
+    }
     public void letDraw(dynamic type){
         Refresh();
         isDrawing = true;
         scroll.content = type.content.GetComponent<RectTransform>();
-        StartCoroutine(type.Okay());
+        StartC(type.Okay());
     }
     public void letDraw(dynamic type, bool condition){
         Refresh();
         isDrawing = true;
         scroll.content = type.content.GetComponent<RectTransform>();
-        StartCoroutine(type.Okay(condition));
+        StartC(type.Okay(condition));
     }
     public void Refresh(){
         Cancel();
@@ -48,7 +59,7 @@ public class Draw : MonoBehaviour
         }
     }
     public void Cancel(){
-        StopAllCoroutines();
+        StopAllCs();
         hier.RemoveCurrentObjects();
         isDrawing = point_ing = false;
     }
@@ -60,8 +71,8 @@ public class Draw : MonoBehaviour
     public IEnumerator OnSelect(GameObject go, dynamic type){
         type.RealtimeInput(go.name);
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));
-        Cancel();
         mouse.Unselect(go.transform);
+        Cancel();
     }
     public void InspectorVector(ref Dictionary<string, List<INPUT>> Inputs, int t, Transform parent){
         for (int i=0;i<t;i++){
@@ -71,9 +82,9 @@ public class Draw : MonoBehaviour
     }
     public IEnumerator makingPoint(int t, List<GameObject> objs, dynamic type, Dictionary<string, List<INPUT>> Inputs){
         point_ing = true;
-        for (int i=0;i<t && point_ing;i++){
+        for (int i=0;i<t;i++){
             yield return new WaitForSeconds(0.01f);
-            StartCoroutine(point.makePoint(()=>{
+            StartC(point.makePoint(()=>{
                 point.onMove(Inputs[$"pos_{i}"]);
             }, ()=>{
                 point.onClick(Inputs[$"name_{i}"][0]);
@@ -114,14 +125,12 @@ public class Draw : MonoBehaviour
                         point.onClick(Inputs[$"name_{id}"][0]);
                         objs[id] = point.current_point;
                         point.current_point = null;
-                        break;
                     }
                 }
             }
             if (Input.GetKeyDown(KeyCode.Escape)){
                 if (plane.current_plane == ""){
                     Cancel(type);
-                    break;
                 }
                 else{
                     plane.ToggleExpand(plane.current_plane, false);

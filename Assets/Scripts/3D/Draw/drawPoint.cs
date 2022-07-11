@@ -24,7 +24,7 @@ public class drawPoint : MonoBehaviour
         content.gameObject.SetActive(true);
         draw.mouse.UnselectAll();
         while (true){
-            StartCoroutine(makePoint(()=>{
+            draw.StartC(makePoint(()=>{
                 onMove(Inputs["pos"]);
             }, ()=>{
                 onClick(Inputs["name"][0]);
@@ -49,7 +49,7 @@ public class drawPoint : MonoBehaviour
             }
             if (Input.GetMouseButton(0)){
                 holdTime = Time.time - startTime;
-                if (hit.ID == point.name && holdTime > 0.1f && Vector3.Distance(startPosition, Input.mousePosition) > 11f){
+                if (holdTime > 0.11f && Vector3.Distance(startPosition, Input.mousePosition) > 11f){
                     point.GetComponent<SphereCollider>().enabled = false;
                     Drag(point);
                 }
@@ -85,13 +85,12 @@ public class drawPoint : MonoBehaviour
                 click();
             }
             if (Input.GetKeyDown(KeyCode.Escape)){
-                cancel(); break;
+                cancel();
             }
             yield return null;
         }
     }
     public void onMove(List<INPUT> PositionInput){
-        if (current_point==null) return;
         var hit = draw.raycast.Hit();
         if (Hierarchy.Objs.ContainsKey(hit.ID)){
             switch (Hierarchy.Objs[hit.ID].type){
@@ -122,7 +121,6 @@ public class drawPoint : MonoBehaviour
         draw.input.Vec2Input(PositionInput, draw.calc.ztoy(current_point.transform.position));
     }
     public void onClick(INPUT Name){
-        if (current_point==null) return;
         var hit = draw.raycast.Hit();
         if (Hierarchy.Objs.ContainsKey(hit.ID)){
             if (Hierarchy.Objs[hit.ID].type == "point"){
