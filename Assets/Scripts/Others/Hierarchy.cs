@@ -108,6 +108,7 @@ public class Hierarchy : MonoBehaviour
     public void RemoveCurrentObjects(){
         foreach (Transform child in current){
             if (Objs.ContainsKey(child.name)){
+                if (Objs[child.name].parent != "") Objs[Objs[child.name].parent].children.Remove(child.name);
                 Objs.Remove(child.name);
             }
             Destroy(child.gameObject);

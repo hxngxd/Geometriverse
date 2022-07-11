@@ -86,6 +86,51 @@ public class Draw : MonoBehaviour
         }
         point_ing = false;
     }
+    public bool OnPlane(string ID){
+        var obj = Hierarchy.Objs[ID];
+        var isplane = obj.type == "plane";
+        var ispoint = obj.type == "point" && (true ||
+            (
+                obj.parent != "" && Hierarchy.Objs[obj.parent].parent == plane.current_plane
+            ) 
+        );
+        return isplane || ispoint;
+    }
+    public IEnumerator makingPointOnPlane(int id, List<GameObject> objs, dynamic type, Dictionary<string, List<INPUT>> Inputs){
+        point.current_point = obj.Point(Vector3.zero, hier.current);
+        while (point.current_point != null){
+            point.onMove(Inputs[$"pos_{id}"]);
+            if (Input.GetMouseButtonDown(0) && !raycast.isMouseOverUI()){
+                var hit = raycast.Hit();
+                var isContained = Hierarchy.Objs.ContainsKey(hit.ID);
+                if (plane.current_plane == ""){
+                    if (isContained && Hierarchy.Objs[hit.ID].type == "plane"){
+                        plane.current_plane = hit.ID;
+                        plane.ToggleExpand(hit.ID, true);
+                    }
+                }
+                else{
+                    if (isContained && OnPlane(hit.ID)){
+                        point.onClick(Inputs[$"name_{id}"][0]);
+                        objs[id] = point.current_point;
+                        point.current_point = null;
+                        break;
+                    }
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.Escape)){
+                if (plane.current_plane == ""){
+                    Cancel(type);
+                    break;
+                }
+                else{
+                    plane.ToggleExpand(plane.current_plane, false);
+                    plane.current_plane = "";
+                }
+            }
+            yield return null;
+        }
+    }
     public void RealtimeInput(string ID, Transform content, Dictionary<string, List<INPUT>> Inputs, dynamic type){
         content.gameObject.SetActive(true);
         var obj = Hierarchy.Objs[ID];

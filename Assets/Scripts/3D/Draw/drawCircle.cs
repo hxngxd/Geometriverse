@@ -31,56 +31,15 @@ public class drawCircle : MonoBehaviour
                 ResetInputsList();
                 var objs = new List<GameObject>(new GameObject[3]);
 
-                bool ok(string ID){
-                    var obj = Hierarchy.Objs[ID];
-                    var isplane = obj.type == "plane";
-                    var ispoint = obj.type == "point" && (true ||
-                        (
-                            obj.parent != "" && Hierarchy.Objs[obj.parent].parent == draw.plane.current_plane
-                        ) 
-                    );
-                    return isplane || ispoint;
-                }
-                draw.point.current_point = draw.obj.Point(Vector3.zero, draw.hier.current);
-                while (draw.point.current_point != null){
-                    draw.point.onMove(Inputs["pos_0"]);
-                    if (Input.GetMouseButtonDown(0) && !draw.raycast.isMouseOverUI()){
-                        var hit = draw.raycast.Hit();
-                        var isContained = Hierarchy.Objs.ContainsKey(hit.ID);
-                        if (draw.plane.current_plane == ""){
-                            if (isContained && Hierarchy.Objs[hit.ID].type == "plane"){
-                                draw.plane.current_plane = hit.ID;
-                                draw.plane.ToggleExpand(hit.ID, true);
-                            }
-                        }
-                        else{
-                            if (isContained && ok(hit.ID)){
-                                draw.point.onClick(Inputs["name_0"][0]);
-                                objs[0] = draw.point.current_point;
-                                draw.point.current_point = null;    
-                                break;
-                            }
-                        }
-                    }
-                    if (Input.GetKeyDown(KeyCode.Escape)){
-                        if (draw.plane.current_plane == ""){
-                            draw.Cancel(draw.circle);
-                            break;
-                        }
-                        else{
-                            draw.plane.ToggleExpand(draw.plane.current_plane, false);
-                            draw.plane.current_plane = "";
-                        }
-                    }
-                    yield return null;
-                }
-
+                StartCoroutine(draw.makingPointOnPlane(0, objs, draw.circle, Inputs));
+                yield return new WaitUntil(() => draw.point.current_point==null);
+                
                 yield return new WaitForSeconds(0.01f);
                 objs[2] = draw.obj.Line(draw.hier.current, true);
                 StartCoroutine(draw.point.makePoint(()=>{
                     var ln = objs[2].GetComponent<LineRenderer>();
                     var hit = draw.raycast.Hit();
-                    if (Hierarchy.Objs.ContainsKey(hit.ID) && ok(hit.ID)){
+                    if (Hierarchy.Objs.ContainsKey(hit.ID) && draw.OnPlane(hit.ID)){
                         draw.point.onMove(Inputs["pos_1"]);
                         if (objs[0].transform.position != draw.point.current_point.transform.position){
                             objs[2].SetActive(true);
@@ -98,7 +57,7 @@ public class drawCircle : MonoBehaviour
                     }
                 }, ()=>{
                     var hit = draw.raycast.Hit();
-                    if (Hierarchy.Objs.ContainsKey(hit.ID) && ok(hit.ID)){
+                    if (Hierarchy.Objs.ContainsKey(hit.ID) && draw.OnPlane(hit.ID)){
                         draw.point.onClick(Inputs["name_1"][0]);
                         objs[1] = draw.point.current_point;
                         draw.point.current_point = null;
@@ -109,16 +68,12 @@ public class drawCircle : MonoBehaviour
                     draw.Cancel(draw.circle);
                 }));
                 yield return new WaitUntil(() => draw.point.current_point==null);
-
-                draw.plane.ToggleExpand(draw.plane.current_plane, false);
                 
                 var vertices_ = new List<string>();
                 for (int i=0;i<2;i++) vertices_.Add(objs[i].name);
                 draw.hier.AddCircle(Inputs["name"][0].text, draw.plane.current_plane, vertices_, objs[2], new Dictionary<string, float>());
                 objs[2].AddComponent<DynamicCircle>();
                 draw.hier.FinishedCurrentObjects();
-
-                draw.plane.current_plane = "";
 
                 yield return new WaitForSeconds(0.01f);
 
