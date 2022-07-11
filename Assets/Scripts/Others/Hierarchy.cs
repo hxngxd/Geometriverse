@@ -14,6 +14,7 @@ public class Hierarchy : MonoBehaviour
         public List<string> vertices, children, vertexof;
         public Dictionary<string, float> equation;
         public Matrix<double> rotation;
+        public bool expand;
     }
     public static Dictionary<string, Obj> Objs = new Dictionary<string, Obj>();
     public Transform created, current, content;
@@ -45,7 +46,7 @@ public class Hierarchy : MonoBehaviour
         obj.type = "line";
         Objs.Add(go.name, obj);
     }
-    public void AddPlane(string name, List<string> vertices, GameObject go, Matrix<double> rotation, Dictionary<string, float> equation){
+    public void AddPlane(string name, List<string> vertices, GameObject go, Matrix<double> rotation, Dictionary<string, float> equation, bool expand){
         go.transform.SetParent(created);
         var obj = new Obj();
         obj.name = name;
@@ -55,6 +56,7 @@ public class Hierarchy : MonoBehaviour
         obj.rotation = rotation;
         obj.equation = equation;
         obj.children = new List<string>();
+        obj.expand = expand;
         obj.type = "plane";
         Objs.Add(go.name, obj);
     }
@@ -68,6 +70,20 @@ public class Hierarchy : MonoBehaviour
         foreach (var vertex in vertices) Objs[vertex].vertexof.Add(go.name);
         obj.vertices = vertices;
         obj.rotation = rotation;
+        obj.equation = equation;
+        obj.children = new List<string>();
+        obj.type = "circle";
+        Objs.Add(go.name, obj);
+    }
+    public void AddCircle(string name, string parent, List<string> vertices, GameObject go, Dictionary<string, float> equation){
+        go.transform.SetParent(created);
+        var obj = new Obj();
+        obj.name = name;
+        obj.parent = parent;
+        if (parent != "") Objs[parent].children.Add(go.name);
+        obj.go = go;
+        foreach (var vertex in vertices) Objs[vertex].vertexof.Add(go.name);
+        obj.vertices = vertices;
         obj.equation = equation;
         obj.children = new List<string>();
         obj.type = "circle";

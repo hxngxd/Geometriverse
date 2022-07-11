@@ -24,10 +24,12 @@ public class MouseHandler : MonoBehaviour
         gameObject.transform.position = Camera.main.ScreenToWorldPoint(mousePos);
     }
     void Update(){
-
+        
         if (Highlighted != null) Unhighlight();
 
-        if (Selected.Count != 0){
+        int count = 0;
+        foreach (var s in Selected) count += s.Value.Count;
+        if (count != 0){
             if (Input.GetKeyDown(KeyCode.Escape)){
                 UnselectAll();
                 draw.Refresh();

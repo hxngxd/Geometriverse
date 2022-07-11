@@ -21,7 +21,7 @@ public class DynamicCircle : MonoBehaviour
         if (Hierarchy.Objs.ContainsKey(this.name)){
             var obj = Hierarchy.Objs[this.name];
             bool diff = false;
-            for (int i=0;i<3;i++){
+            for (int i=0;i<obj.vertices.Count;i++){
                 v[i] = Hierarchy.Objs[obj.vertices[i]].go.transform.position;
                 diff = diff || (prev[i] != v[i]);
             }
@@ -29,17 +29,28 @@ public class DynamicCircle : MonoBehaviour
                 preName = obj.name;
             }
             if (diff){
-                // var rotation = draw.calc.rm_vectors(Vector3.zero, Vector3.Cross(prev[2] - prev[0], prev[1] - prev[0]), Vector3.Cross(v[2] - v[0], v[1] - v[0]));
-                for (int i=0;i<3;i++){
-                    prev[i] = v[i];
-                    v[i] = draw.calc.ztoy(v[i]);
+                if (obj.vertices.Count == 3){
+                    // var rotation = draw.calc.rm_vectors(Vector3.zero, Vector3.Cross(prev[2] - prev[0], prev[1] - prev[0]), Vector3.Cross(v[2] - v[0], v[1] - v[0]));
+                    for (int i=0;i<3;i++){
+                        prev[i] = v[i];
+                        v[i] = draw.calc.ztoy(v[i]);
+                    }
+                    if (v[0] != v[1] && v[1] != v[2] && v[2] != v[0] && Mathf.Abs(Vector3.Dot((v[1]-v[0]).normalized, (v[2]-v[0]).normalized)) != 1){
+                        var center = draw.calc.tam_dg_tron_ngtiep(v[0], v[1], v[2]);
+                        obj.rotation = draw.calc.rm_plane_xy(v[0], v[1], v[2]);
+                        draw.calc.dinh_da_giac(line, center, v[2], 180, obj.rotation);
+                    }
+                    Hierarchy.Objs[this.name] = obj;
                 }
-                if (v[0] != v[1] && v[1] != v[2] && v[2] != v[0] && Mathf.Abs(Vector3.Dot((v[1]-v[0]).normalized, (v[2]-v[0]).normalized)) != 1){
-                    var center = draw.calc.tam_dg_tron_ngtiep(v[0], v[1], v[2]);
-                    obj.rotation = draw.calc.rm_plane_xy(v[0], v[1], v[2]);
-                    draw.calc.dinh_da_giac(line, center, v[2], 90, obj.rotation);
+                else{
+                    for (int i=0;i<3;i++){
+                        prev[i] = v[i];
+                        v[i] = draw.calc.ztoy(v[i]);
+                    }
+                    if (v[0] != v[1]){
+                        draw.calc.dinh_da_giac(line, v[0], v[1], 180, Hierarchy.Objs[obj.parent].rotation);
+                    }
                 }
-                Hierarchy.Objs[this.name] = obj;
             }
             linecollider.RebuildCollider(line);
         }

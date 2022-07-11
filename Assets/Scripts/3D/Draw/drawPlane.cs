@@ -8,6 +8,7 @@ public class drawPlane : MonoBehaviour
 {
     public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
     Draw draw;
+    public string current_plane = "";
     public Transform content;
     void Start()
     {
@@ -25,7 +26,7 @@ public class drawPlane : MonoBehaviour
         draw.mouse.UnselectAll();
         while (true){
             ResetInputsList();
-            var objs = new GameObject[4];
+            var objs = new List<GameObject>(new GameObject[4]);
 
             StartCoroutine(draw.makingPoint(2, objs, draw.plane, Inputs));
             yield return new WaitUntil(() => draw.point_ing == false);
@@ -61,7 +62,7 @@ public class drawPlane : MonoBehaviour
             }
             var rotation = draw.calc.rm_plane_xy(vp[0], vp[1], vp[2]);
             var equation = draw.calc.pt_mp(vp[0], vp[1], vp[2]);
-            draw.hier.AddPlane(Inputs["name"][0].text, vertices, objs[3], rotation, equation);
+            draw.hier.AddPlane(Inputs["name"][0].text, vertices, objs[3], rotation, equation, false);
             draw.hier.FinishedCurrentObjects();
 
             yield return new WaitForSeconds(0.01f);
@@ -76,5 +77,22 @@ public class drawPlane : MonoBehaviour
             draw.input.ResetInput(Inputs[$"name_{i}"][0]);
             draw.input.ResetInputs(Inputs[$"pos_{i}"]);
         }
+    }
+    public void ToggleExpand(string ID, bool toggle){
+        var obj = Hierarchy.Objs[ID];
+        obj.expand = toggle;
+        if (toggle){
+            foreach (var obj_ in Hierarchy.Objs){
+                if (!obj.children.Contains(obj_.Key) && !obj.vertices.Contains(obj_.Key) && obj_.Key != ID){
+                    obj_.Value.go.SetActive(false);
+                }
+            }
+        }
+        else{
+            foreach (var obj_ in Hierarchy.Objs){
+                obj_.Value.go.SetActive(true);
+            }
+        }
+        Hierarchy.Objs[ID] = obj;
     }
 }

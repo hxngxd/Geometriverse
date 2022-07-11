@@ -10,6 +10,7 @@ public class DynamicPlane : MonoBehaviour
     Vector3[] prev = new Vector3[3], v = new Vector3[3];
     int[] triangles;
     string preName;
+    bool preExpand;
     void Start()
     {
         draw = FindObjectOfType<Draw>();
@@ -48,18 +49,29 @@ public class DynamicPlane : MonoBehaviour
 
                     }
                 }
-                var vertices = new Vector3[]{v[0], v[1], v[2]};
+                mesh.Clear();
+                mesh.vertices = v;
+                mesh.triangles = triangles;
+                this.GetComponent<MeshCollider>().sharedMesh = mesh;
                 for (int i=0;i<3;i++){
                     prev[i] = v[i];
                     v[i] = draw.calc.ztoy(v[i]);
                 }
                 obj.rotation = draw.calc.rm_plane_xy(v[0], v[1], v[2]);
                 obj.equation = draw.calc.pt_mp(v[0], v[1], v[2]);
+                Hierarchy.Objs[this.name] = obj;
+            }
+            if (preExpand != obj.expand){
+                preExpand = obj.expand;
+                if (obj.expand){
+                    var center = draw.calc.tam_dg_tron_ngtiep(v[0], v[1], v[2]);
+                    var dist = 100;
+                    v = new Vector3[]{draw.calc.kc_sang_toa_do(center, v[0], dist), draw.calc.kc_sang_toa_do(center, v[1], dist), draw.calc.kc_sang_toa_do(center, v[2], dist)};
+                }
                 mesh.Clear();
-                mesh.vertices = vertices;
+                mesh.vertices = v;
                 mesh.triangles = triangles;
                 this.GetComponent<MeshCollider>().sharedMesh = mesh;
-                Hierarchy.Objs[this.name] = obj;
             }
         }
     }

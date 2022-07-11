@@ -26,7 +26,7 @@ public class drawLine : MonoBehaviour
         draw.mouse.UnselectAll();
         while (true){
             ResetInputsList();
-            var objs = new GameObject[3];
+            var objs = new List<GameObject>(new GameObject[3]);
 
             StartCoroutine(draw.makingPoint(1, objs, draw.line, Inputs));
             yield return new WaitUntil(() => draw.point_ing == false);

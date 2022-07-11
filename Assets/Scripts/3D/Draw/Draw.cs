@@ -32,9 +32,20 @@ public class Draw : MonoBehaviour
         scroll.content = type.content.GetComponent<RectTransform>();
         StartCoroutine(type.Okay());
     }
+    public void letDraw(dynamic type, bool condition){
+        Refresh();
+        isDrawing = true;
+        scroll.content = type.content.GetComponent<RectTransform>();
+        StartCoroutine(type.Okay(condition));
+    }
     public void Refresh(){
         Cancel();
         foreach (var type in new List<dynamic>(){point, line, plane, circle, sphere}) Cancel(type);
+
+        if (plane.current_plane != ""){
+            plane.ToggleExpand(plane.current_plane, false);
+            plane.current_plane = "";
+        }
     }
     public void Cancel(){
         StopAllCoroutines();
@@ -47,7 +58,6 @@ public class Draw : MonoBehaviour
         Cancel();
     }
     public IEnumerator OnSelect(GameObject go, dynamic type){
-        mouse.Select(go.transform);
         type.RealtimeInput(go.name);
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Escape));
         Cancel();
@@ -59,7 +69,7 @@ public class Draw : MonoBehaviour
             Inputs.Add(t < 2 ? "pos" : $"pos_{i}", uiobj.Vec3("Toạ độ", parent));
         }
     }
-    public IEnumerator makingPoint(int t, GameObject[] objs, dynamic type, Dictionary<string, List<INPUT>> Inputs){
+    public IEnumerator makingPoint(int t, List<GameObject> objs, dynamic type, Dictionary<string, List<INPUT>> Inputs){
         point_ing = true;
         for (int i=0;i<t && point_ing;i++){
             yield return new WaitForSeconds(0.01f);
