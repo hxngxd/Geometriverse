@@ -17,16 +17,28 @@ public class Draw : MonoBehaviour
     public PanelManager panel;
     public Listener listener;
     public Calculate calc;
+    public CameraController cam;
+
+
     public drawPoint point;
     public drawLine line;
     public drawPlane plane;
     public drawCircle circle;
     public drawSphere sphere;
-    public CameraController cam;
-    public bool isDrawing = false;
-    public bool point_ing = false;
+    public Dictionary<string, dynamic> drawTypes = new Dictionary<string, dynamic>();
+
+
+    public bool isDrawing = false, point_ing = false;
     public ScrollRect scroll;
     public List<Coroutine> Coroutines = new List<Coroutine>();
+    public void Awake(){
+        foreach (var type in new List<dynamic>(){point, line, plane, circle, sphere}){
+            string name = type.GetType().ToString();
+            name = name.Substring(4, name.Length - 4).ToLower();
+            drawTypes.Add(name, type);
+            mouse.Selected.Add(name, new List<Transform>());
+        }
+    }
     public void StartC(IEnumerator coroutine){
         var c = StartCoroutine(coroutine);
         Coroutines.Add(c);
@@ -51,7 +63,7 @@ public class Draw : MonoBehaviour
     }
     public void Refresh(){
         Cancel();
-        foreach (var type in new List<dynamic>(){point, line, plane, circle, sphere}) Cancel(type);
+        foreach (var type in drawTypes) Cancel(type.Value);
 
         if (plane.current_plane != ""){
             plane.ToggleExpand(plane.current_plane, false);

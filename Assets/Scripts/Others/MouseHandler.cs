@@ -8,13 +8,7 @@ public class MouseHandler : MonoBehaviour
     Draw draw;
     public Material[] trans, solid;
     public Transform Highlighted = null;
-    public Dictionary<string, List<Transform>> Selected = new Dictionary<string, List<Transform>>(){
-        {"point", new List<Transform>()},
-        {"line", new List<Transform>()},
-        {"plane", new List<Transform>()},
-        {"circle", new List<Transform>()},
-        {"sphere", new List<Transform>()},
-    };
+    public Dictionary<string, List<Transform>> Selected = new Dictionary<string, List<Transform>>();
     void Start(){
         draw = FindObjectOfType<Draw>();
     }
@@ -84,22 +78,12 @@ public class MouseHandler : MonoBehaviour
     }
     public void OnSelect(Transform obj){
         Select(obj);
-        switch (Hierarchy.Objs[obj.name].type){
-            case "point":
-                draw.StartC(draw.point.OnSelect(obj.gameObject));
-                break;
-            case "line":
-                draw.StartC(draw.OnSelect(obj.gameObject, draw.line));
-                break;
-            case "plane":
-                draw.StartC(draw.OnSelect(obj.gameObject, draw.plane));
-                break;
-            case "circle":
-                draw.StartC(draw.OnSelect(obj.gameObject, draw.circle));
-                break;
-            case "sphere":
-                draw.StartC(draw.OnSelect(obj.gameObject, draw.sphere));
-                break;
+        var type = Hierarchy.Objs[obj.name].type;
+        if (type == "point"){
+            draw.StartC(draw.point.OnSelect(obj.gameObject));
+        }
+        else{
+            draw.StartC(draw.OnSelect(obj.gameObject, draw.drawTypes[type]));
         }
     }
     public void DeleteSelected(){
@@ -144,18 +128,16 @@ public class MouseHandler : MonoBehaviour
     public void OnSelectionsChange(){
     }
     public void SetMaterial(Transform obj, int state){
-        switch (Hierarchy.Objs[obj.name].type){
-            case "point":
-                obj.Find("dot").GetComponent<MeshRenderer>().material = solid[state];
-                break;
-            case "line":
-            case "circle":
+        if (Hierarchy.Objs[obj.name].type == "point"){
+            obj.Find("dot").GetComponent<MeshRenderer>().material = solid[state];
+        }
+        else{
+            if (obj.GetComponent<LineRenderer>() != null){
                 obj.GetComponent<LineRenderer>().material = solid[state];
-                break;
-            case "plane":
-            case "sphere":
+            }
+            else{
                 obj.GetComponent<MeshRenderer>().material = trans[state];
-                break;
+            }
         }
     }
 }

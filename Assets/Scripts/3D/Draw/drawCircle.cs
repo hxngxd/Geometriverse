@@ -124,7 +124,7 @@ public class drawCircle : MonoBehaviour
         draw.RealtimeInput(ID, content, Inputs, draw.circle);
     }
     public void Update_Properties(Vector3[] vp){
-        var r = Vector3.Distance(draw.calc.tam_dg_tron_ngtiep(vp[0], vp[1], vp[2]), vp[0]);
+        var r = (vp.Length == 3 ? Vector3.Distance(draw.calc.tam_dg_tron_ngtiep(vp[0], vp[1], vp[2]), vp[0]) : Vector3.Distance(vp[0], vp[1]));
         Inputs["radius"][0].text = r.ToString();
         Inputs["perimeter"][0].text = (2f*Mathf.PI*r).ToString();
         Inputs["area"][0].text = (r*r*Mathf.PI).ToString();
