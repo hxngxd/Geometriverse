@@ -4069,8 +4069,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 492b05388c1f3004ab6021b12ee89091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  current_point: {fileID: 0}
   content: {fileID: 0}
+  current_point: {fileID: 0}
 --- !u!4 &701543698
 Transform:
   m_ObjectHideFlags: 0
@@ -4098,8 +4098,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ad4c051b96e8ca44817091b10e50ec0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ratio: 0.015
   content: {fileID: 0}
+  ratio: 0.015
 --- !u!114 &701543700
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4143,8 +4143,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20780608b575f7f4a9135aadcf67e59a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  current_plane: 
   content: {fileID: 0}
+  current_plane: 
 --- !u!114 &701543702
 MonoBehaviour:
   m_ObjectHideFlags: 0

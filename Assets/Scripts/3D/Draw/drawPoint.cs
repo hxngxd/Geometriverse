@@ -6,10 +6,10 @@ using TMPro;
 using INPUT=TMPro.TMP_InputField;
 public class drawPoint : MonoBehaviour
 {
+    public Transform content;
     public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
     Draw draw;
     public GameObject current_point = null;
-    public Transform content;
     void Start()
     {
         draw = FindObjectOfType<Draw>();

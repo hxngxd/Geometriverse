@@ -5,9 +5,9 @@ using TMPro;
 using INPUT=TMPro.TMP_InputField;
 public class drawSphere : MonoBehaviour
 {
+    public Transform content;
     public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
     Draw draw;
-    public Transform content;
     void Start()
     {
         draw = FindObjectOfType<Draw>();

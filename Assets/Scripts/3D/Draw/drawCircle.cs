@@ -6,9 +6,9 @@ using TMPro;
 using INPUT=TMPro.TMP_InputField;
 public class drawCircle : MonoBehaviour
 {
+    public Transform content;
     public Dictionary<string, List<INPUT>> Inputs = new Dictionary<string, List<INPUT>>();
     Draw draw;
-    public Transform content;
     void Start()
     {
         draw = FindObjectOfType<Draw>();
@@ -26,9 +26,9 @@ public class drawCircle : MonoBehaviour
     public IEnumerator Okay(bool isOnPlane){
         content.gameObject.SetActive(true);
         draw.mouse.UnselectAll();
-        if (isOnPlane){
-            while (true){
-                ResetInputsList();
+        while (true){
+            ResetInputsList();
+            if (isOnPlane){
                 var objs = new List<GameObject>(new GameObject[3]);
 
                 draw.StartC(draw.makingPointOnPlane(0, objs, draw.circle, Inputs));
@@ -73,15 +73,8 @@ public class drawCircle : MonoBehaviour
                 for (int i=0;i<2;i++) vertices_.Add(objs[i].name);
                 draw.hier.AddCircle(Inputs["name"][0].text, draw.plane.current_plane, vertices_, objs[2], new Dictionary<string, float>());
                 objs[2].AddComponent<DynamicCircle>();
-                draw.hier.FinishedCurrentObjects();
-
-                yield return new WaitForSeconds(0.01f);
-
             }
-        }
-        else{
-            while (true){
-                ResetInputsList();
+            else{
                 var objs = new List<GameObject>(new GameObject[4]);
 
                 draw.StartC(draw.makingPoint(2, objs, draw.circle, Inputs));
@@ -114,10 +107,10 @@ public class drawCircle : MonoBehaviour
                 var rotation = draw.calc.rm_plane_xy(vp[0], vp[1], vp[2]);
                 draw.hier.AddCircle(Inputs["name"][0].text, "", vertices_, objs[3], rotation, new Dictionary<string, float>());
                 objs[3].AddComponent<DynamicCircle>();
-                draw.hier.FinishedCurrentObjects();
 
-                yield return new WaitForSeconds(0.01f);
             }
+            draw.hier.FinishedCurrentObjects();
+            yield return new WaitForSeconds(0.01f);
         }
     }
     public void RealtimeInput(string ID){

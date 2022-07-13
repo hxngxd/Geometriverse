@@ -25,7 +25,7 @@ public class Draw : MonoBehaviour
     public drawPlane plane;
     public drawCircle circle;
     public drawSphere sphere;
-    public Dictionary<string, dynamic> drawTypes = new Dictionary<string, dynamic>();
+    public Dictionary<string, dynamic> dts = new Dictionary<string, dynamic>();
 
 
     public bool isDrawing = false, point_ing = false;
@@ -35,7 +35,7 @@ public class Draw : MonoBehaviour
         foreach (var type in new List<dynamic>(){point, line, plane, circle, sphere}){
             string name = type.GetType().ToString();
             name = name.Substring(4, name.Length - 4).ToLower();
-            drawTypes.Add(name, type);
+            dts.Add(name, type);
             mouse.Selected.Add(name, new List<Transform>());
         }
     }
@@ -63,7 +63,7 @@ public class Draw : MonoBehaviour
     }
     public void Refresh(){
         Cancel();
-        foreach (var type in drawTypes) Cancel(type.Value);
+        foreach (var type in dts) Cancel(type.Value);
 
         if (plane.current_plane != ""){
             plane.ToggleExpand(plane.current_plane, false);

@@ -83,7 +83,7 @@ public class MouseHandler : MonoBehaviour
             draw.StartC(draw.point.OnSelect(obj.gameObject));
         }
         else{
-            draw.StartC(draw.OnSelect(obj.gameObject, draw.drawTypes[type]));
+            draw.StartC(draw.OnSelect(obj.gameObject, draw.dts[type]));
         }
     }
     public void DeleteSelected(){
