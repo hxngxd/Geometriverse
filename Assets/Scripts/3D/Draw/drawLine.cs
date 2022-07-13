@@ -55,39 +55,39 @@ public class drawLine : MonoBehaviour
         }
         else{
             content.gameObject.SetActive(true);
-            var objs_p = new List<GameObject>();
-            var objs_l = new List<GameObject>();
+            var points = new List<GameObject>();
+            var lines = new List<GameObject>();
             while (true){
                 draw.point.current_point = draw.obj.Point(Vector3.zero, draw.hier.current);
                 while (true){
                     draw.point.onMove(draw.point.Inputs["pos"]);
-                    draw.input.Vec2Input(Inputs[$"pos_{(objs_p.Count==0 ? 0 : 1)}"], draw.calc.ztoy(draw.point.current_point.transform.position));
-                    if (objs_p.Count > 0){
-                        var ln = objs_l[objs_l.Count-1].GetComponent<LineRenderer>();
-                        SetLinePosition(ln, objs_p[objs_p.Count-1].transform.position, draw.point.current_point.transform.position);
+                    draw.input.Vec2Input(Inputs[$"pos_{(points.Count==0 ? 0 : 1)}"], draw.calc.ztoy(draw.point.current_point.transform.position));
+                    if (points.Count > 0){
+                        var ln = lines[lines.Count-1].GetComponent<LineRenderer>();
+                        SetLinePosition(ln, points[points.Count-1].transform.position, draw.point.current_point.transform.position);
                     }
                     if (Input.GetMouseButtonDown(0) && !draw.raycast.isMouseOverUI()){
                         draw.point.onClick(draw.point.Inputs["name"][0]);
-                        objs_p.Add(draw.point.current_point);
-                        objs_p[objs_p.Count-1].transform.SetParent(draw.hier.created);
-                        if (objs_l.Count > 0){
-                            var ln = objs_l[objs_l.Count-1];
+                        points.Add(draw.point.current_point);
+                        points[points.Count-1].transform.SetParent(draw.hier.created);
+                        if (lines.Count > 0){
+                            var ln = lines[lines.Count-1];
                             ln.transform.SetParent(draw.hier.created);
-                            draw.hier.AddLine("", "", new List<string>(){objs_p[objs_p.Count-1].name, objs_p[objs_p.Count-2].name}, ln, new Dictionary<string, float>());
+                            draw.hier.AddLine("", "", new List<string>(){points[points.Count-1].name, points[points.Count-2].name}, ln, new Dictionary<string, float>());
                             ln.AddComponent<DynamicLine>();
                         }
                         break;
                     }
                     if (Input.GetKeyDown(KeyCode.Escape)){
-                        if (objs_p.Count == 1) objs_p[objs_p.Count-1].transform.SetParent(draw.hier.current);
+                        if (points.Count == 1) points[points.Count-1].transform.SetParent(draw.hier.current);
                         draw.Cancel(draw.point);
                         break;
                     }
                     yield return null;
                 }
-                if (objs_p.Count > 0){
-                    objs_l.Add(draw.obj.Line(draw.hier.current, false));
-                    draw.input.Vec2Input(Inputs["pos_0"], draw.calc.ztoy(objs_p[objs_p.Count-1].transform.position));
+                if (points.Count > 0){
+                    lines.Add(draw.obj.Line(draw.hier.current, false));
+                    draw.input.Vec2Input(Inputs["pos_0"], draw.calc.ztoy(points[points.Count-1].transform.position));
                 }
                 yield return null;
             }
@@ -109,9 +109,7 @@ public class drawLine : MonoBehaviour
     public void SetLinePosition(LineRenderer line, Vector3 start, Vector3 end){
         if (line.positionCount < 2) line.positionCount = 2;
 
-        line.SetPosition(0, start);
-        line.SetPosition(1, end);
-
+        line.SetPositions(new Vector3[]{start,end});
         var camPos = Camera.main.transform.position;
         line.startWidth = Vector3.Distance(camPos, start) * ratio;
         line.endWidth = Vector3.Distance(camPos, end) * ratio;

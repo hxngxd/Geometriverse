@@ -12,17 +12,16 @@ public class Calculate : MonoBehaviour
         float k = -A/B;
         return new Vector3(M.x + Plane["a"]*k, M.y + Plane["b"]*k, M.z + Plane["c"]*k);
     }
-    public void dinh_da_giac(LineRenderer line, Vector3 center, Vector3 vertex, int step, Matrix<double> RotationMatrix){
-        line.positionCount = step;
+    public Vector3[] dinh_da_giac(Vector3 center, Vector3 vertex, int step, Matrix<double> RotationMatrix){
+        var positions = new Vector3[step];
         float radius = Vector3.Distance(center, vertex);
-        for (int cur_step = 0;cur_step<step;cur_step++){
-            float progress = (float)cur_step/step;
-            float rad = progress * 2 * pi;
-            float Xp = cos(rad), Yp = sin(rad);
-            var origin = tinh_tien(center, new Vector3(Xp, Yp, 0));
+        for (int i=0;i<step;i++){
+            float rad = (float)i/step * 2 * pi;
+            var origin = tinh_tien(center, new Vector3(cos(rad), sin(rad), 0));
             var rotate = matrix_rotate(center, kc_sang_toa_do(center, origin, radius), RotationMatrix);
-            line.SetPosition(cur_step, ztoy(rotate));
+            positions[i] = ztoy(rotate);
         }
+        return positions;
     }
     public Vector3 tam_dg_tron_ngtiep(Vector3 A, Vector3 B, Vector3 C){
         var p = Vector3.Cross(B-A, C-A);

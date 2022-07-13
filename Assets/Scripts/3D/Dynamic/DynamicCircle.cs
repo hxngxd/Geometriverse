@@ -38,7 +38,7 @@ public class DynamicCircle : MonoBehaviour
                     if (v[0] != v[1] && v[1] != v[2] && v[2] != v[0] && Mathf.Abs(Vector3.Dot((v[1]-v[0]).normalized, (v[2]-v[0]).normalized)) != 1){
                         var center = draw.calc.tam_dg_tron_ngtiep(v[0], v[1], v[2]);
                         obj.rotation = draw.calc.rm_plane_xy(v[0], v[1], v[2]);
-                        draw.calc.dinh_da_giac(line, center, v[2], 180, obj.rotation);
+                        line.SetPositions(draw.calc.dinh_da_giac(center, v[2], 180, obj.rotation));
                     }
                     Hierarchy.Objs[this.name] = obj;
                 }
@@ -48,7 +48,7 @@ public class DynamicCircle : MonoBehaviour
                         v[i] = draw.calc.ztoy(v[i]);
                     }
                     if (v[0] != v[1]){
-                        draw.calc.dinh_da_giac(line, v[0], v[1], 180, Hierarchy.Objs[obj.parent].rotation);
+                        line.SetPositions(draw.calc.dinh_da_giac(v[0], v[1], 180, Hierarchy.Objs[obj.parent].rotation));
                     }
                 }
             }

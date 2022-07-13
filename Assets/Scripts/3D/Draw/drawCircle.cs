@@ -44,7 +44,8 @@ public class drawCircle : MonoBehaviour
                         if (objs[0].transform.position != draw.point.current_point.transform.position){
                             objs[2].SetActive(true);
                             var rotation = Hierarchy.Objs[draw.plane.current_plane].rotation;
-                            draw.calc.dinh_da_giac(ln, draw.calc.ztoy(objs[0].transform.position), draw.calc.ztoy(draw.point.current_point.transform.position), 180, rotation);
+                            ln.positionCount = 180;
+                            ln.SetPositions(draw.calc.dinh_da_giac(draw.calc.ztoy(objs[0].transform.position), draw.calc.ztoy(draw.point.current_point.transform.position), 180, rotation));
                         }
                         else{
                             objs[2].SetActive(false);
@@ -90,7 +91,8 @@ public class drawCircle : MonoBehaviour
                     if (vp[0] != vp[1] && vp[1] != vp[2] && vp[2] != vp[0] && Mathf.Abs(Vector3.Dot((vp[1]-vp[0]).normalized, (vp[2]-vp[0]).normalized)) != 1){
                         var center = draw.calc.tam_dg_tron_ngtiep(vp[0],vp[1],vp[2]);
                         var current_rotation = draw.calc.rm_plane_xy(vp[0],vp[1],vp[2]);
-                        draw.calc.dinh_da_giac(ln, center, vp[2], 180, current_rotation);
+                        ln.positionCount = 180;
+                        ln.SetPositions(draw.calc.dinh_da_giac(center, vp[2], 180, current_rotation));
                         Update_Properties(vp);
                     }
                 }, ()=>{

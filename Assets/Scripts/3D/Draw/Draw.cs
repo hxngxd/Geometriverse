@@ -25,6 +25,7 @@ public class Draw : MonoBehaviour
     public drawPlane plane;
     public drawCircle circle;
     public drawSphere sphere;
+    public drawPolygon polygon;
     public Dictionary<string, dynamic> dts = new Dictionary<string, dynamic>();
 
 
@@ -32,7 +33,7 @@ public class Draw : MonoBehaviour
     public ScrollRect scroll;
     public List<Coroutine> Coroutines = new List<Coroutine>();
     public void Awake(){
-        foreach (var type in new List<dynamic>(){point, line, plane, circle, sphere}){
+        foreach (var type in new List<dynamic>(){point, line, plane, circle, sphere, polygon}){
             string name = type.GetType().ToString();
             name = name.Substring(4, name.Length - 4).ToLower();
             dts.Add(name, type);

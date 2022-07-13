@@ -23,6 +23,8 @@ public class DockManager : MonoBehaviour
             new ListPair("Mặt phẳng", new Pair(() => {draw.letDraw(draw.plane);}, Load("plane"))),
             new ListPair("Đường tròn qua 3 điểm", new Pair(() => {draw.letDraw(draw.circle, false);}, Load("circle3point"))),
             new ListPair("Đường tròn trên mặt phẳng", new Pair(() => {draw.letDraw(draw.circle, true);}, Load("circleonplane"))),
+            new ListPair("Đa giác", new Pair(() => {draw.letDraw(draw.polygon, false);}, Load(""))),
+            new ListPair("Đa giác đều", new Pair(() => {draw.letDraw(draw.polygon, true);}, Load(""))),
             new ListPair("/", new Pair(() => {}, Load(""))),
             new ListPair("Hình cầu", new Pair(() => {draw.letDraw(draw.sphere);}, Load(""))),
             new ListPair("/", new Pair(() => {}, Load(""))),
