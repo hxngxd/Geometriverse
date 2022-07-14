@@ -29,56 +29,61 @@ public class drawPolygon : MonoBehaviour
         while (true){
             ResetInputsList();
             if (isRegular){
-                int step = draw.input.toInt(Inputs["step"][0]);
-                var points = new List<GameObject>(new GameObject[step+1]);
-                var lines = new List<GameObject>(new GameObject[step]);
+                var points = new List<GameObject>(new GameObject[1]);
+                Matrix<double> rotation = DenseMatrix.OfArray(new double[,]{});
 
                 draw.StartC(draw.makingPointOnPlane(0, points, draw.polygon, Inputs));
                 yield return new WaitUntil(() => draw.point.current_point == false);
 
                 yield return new WaitForSeconds(0.01f);
 
+                int step = draw.input.toInt(Inputs["step"][0]);
+                points.AddRange(new List<GameObject>(new GameObject[step]));
                 for (int i=0;i<step;i++){
                     points[i+1] = draw.obj.Point(Vector3.zero, draw.hier.current);
                     points[i+1].SetActive(false);
-                    lines[i] = draw.obj.Line(draw.hier.current, false);
-                    lines[i].SetActive(false);
                 }
-
+                var line = draw.obj.Line(draw.hier.current, true);
+                var ln = line.GetComponent<LineRenderer>();
+                ln.positionCount = step;
                 draw.StartC(draw.point.makePoint(()=>{
                     var hit = draw.raycast.Hit();
                     if (Hierarchy.Objs.ContainsKey(hit.ID) && draw.OnPlane(hit.ID)){
                         draw.point.onMove(Inputs["pos_1"]);
                         if (points[0].transform.position != draw.point.current_point.transform.position){
-                            var rotation = Hierarchy.Objs[draw.plane.current_plane].rotation;
                             var center = draw.calc.ztoy(points[0].transform.position);
                             var current_pos = draw.calc.ztoy(draw.point.current_point.transform.position);
-                            var positions = draw.calc.dinh_da_giac(center, current_pos, step, rotation);
-                            positions = draw.calc.dinh_da_giac(center, current_pos, step, draw.calc.rm_vectors(center, draw.calc.ztoy(positions[0]), current_pos).Multiply(rotation));
+                            var current_rot = Hierarchy.Objs[draw.plane.current_plane].rotation;
+                            var positions = draw.calc.dinh_da_giac(center, current_pos, 1, current_rot);
+                            rotation = draw.calc.rm_vectors(center, draw.calc.ztoy(positions[0]), current_pos);
+                            positions = draw.calc.dinh_da_giac(center, current_pos, step, rotation.Multiply(current_rot));
+
                             for (int i=0;i<step;i++){
                                 points[i+1].SetActive(true);
                                 points[i+1].transform.position = positions[i];
-                                lines[i].SetActive(true);
-                                draw.line.SetLinePosition(lines[i].GetComponent<LineRenderer>(), positions[i], (i==0 ? positions[step-1] : positions[i-1]));
                             }
+                            line.SetActive(true);
+                            ln.SetPositions(positions);
+                            Inputs["radius"][0].text = Vector3.Distance(center, current_pos).ToString();
                         }
                         else{
                             for (int i=0;i<step;i++){
                                 points[i+1].SetActive(false);
-                                lines[i].SetActive(false);
                             }
+                            line.SetActive(false);
                         }
                     }
                     else{
                         for (int i=0;i<step;i++){
                             points[i+1].SetActive(false);
-                            lines[i].SetActive(false);
                         }
+                        line.SetActive(false);
                     }
                 }, ()=>{
                     var hit = draw.raycast.Hit();
-                    if (Hierarchy.Objs.ContainsKey(hit.ID) && draw.OnPlane(hit.ID)){
+                    if (Hierarchy.Objs.ContainsKey(hit.ID) && draw.OnPlane(hit.ID) && points[0].transform.position != draw.point.current_point.transform.position){
                         draw.point.onClick(Inputs["name_1"][0]);
+                        Destroy(points[1]);
                         points[1] = draw.point.current_point;
                         draw.point.current_point = null;
                     }
@@ -87,7 +92,17 @@ public class drawPolygon : MonoBehaviour
                     draw.plane.current_plane = "";
                     draw.Cancel(draw.polygon);
                 }));
+
                 yield return new WaitUntil(() => draw.point.current_point==null);
+
+                var vertices = new List<string>();
+                for (int i=0;i<=step;i++){
+                    if (i > 1){
+                        draw.hier.AddPoint("", draw.plane.current_plane, points[i]);
+                    }
+                    vertices.Add(points[i].name);
+                }
+                draw.hier.AddPolygon(Inputs["name"][0].text, draw.plane.current_plane, vertices, line, rotation);
             }
             else{
 

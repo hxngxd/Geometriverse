@@ -89,6 +89,33 @@ public class Hierarchy : MonoBehaviour
         obj.type = "circle";
         Objs.Add(go.name, obj);
     }
+    public void AddPolygon(string name, string parent, List<string> vertices, GameObject go, Matrix<double> rotation){
+        go.transform.SetParent(created);
+        var obj = new Obj();
+        obj.name = name;
+        obj.parent = parent;
+        Objs[parent].children.Add(go.name);
+        obj.go = go;
+        obj.vertices = vertices;
+        foreach (var vertex in vertices) Objs[vertex].vertexof.Add(go.name);
+        obj.rotation = rotation;
+        obj.children = new List<string>();
+        obj.type = "polygon";
+        Objs.Add(go.name, obj);
+    }
+    public void AddPolygon(string name, string parent, List<string> vertices, GameObject go){
+        go.transform.SetParent(created);
+        var obj = new Obj();
+        obj.name = name;
+        obj.parent = parent;
+        Objs[parent].children.Add(go.name);
+        obj.go = go;
+        obj.vertices = vertices;
+        foreach (var vertex in vertices) Objs[vertex].vertexof.Add(go.name);
+        obj.children = new List<string>();
+        obj.type = "polygon";
+        Objs.Add(go.name, obj);
+    }
     public void AddSphere(string name, List<string> vertices, GameObject go, Dictionary<string, float> equation){
         go.transform.SetParent(created);
         var obj = new Obj();

@@ -58,7 +58,7 @@ public class drawCircle : MonoBehaviour
                     }
                 }, ()=>{
                     var hit = draw.raycast.Hit();
-                    if (Hierarchy.Objs.ContainsKey(hit.ID) && draw.OnPlane(hit.ID)){
+                    if (Hierarchy.Objs.ContainsKey(hit.ID) && draw.OnPlane(hit.ID) && objs[0].transform.position != draw.point.current_point.transform.position){
                         draw.point.onClick(Inputs["name_1"][0]);
                         objs[1] = draw.point.current_point;
                         draw.point.current_point = null;
