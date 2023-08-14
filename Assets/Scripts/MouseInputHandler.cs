@@ -9,10 +9,10 @@ public class MouseInputHandler : MonoBehaviour
     public float holdTimeThreshold; // Minimum time to hold for a long press
     public float singleClickDelay; // Delay after click before confirming it as a single click
 
-    private float lastClickTime;
-    private bool isPointerDown;
-    private bool hasDetectedDoubleClick;
-    private bool hasDetectedHold;
+    float lastClickTime;
+    bool isPointerDown;
+    bool hasDetectedDoubleClick;
+    bool hasDetectedHold;
 
     public delegate void MouseFunc();
     public Dictionary<int, MouseFunc[]> MouseFunctions = new Dictionary<int, MouseFunc[]>(){
