@@ -4,7 +4,6 @@ public class GridGenerator : MonoBehaviour
 {
     public int gridSize = 50;
     public float cellSize = 1.0f;
-    public Material gridMaterial;
 
     private Mesh mesh;
 
@@ -46,6 +45,5 @@ public class GridGenerator : MonoBehaviour
         mesh.SetIndices(indices, MeshTopology.Lines, 0);
 
         GetComponent<MeshFilter>().mesh = mesh;
-        GetComponent<MeshRenderer>().material = gridMaterial;
     }
 }

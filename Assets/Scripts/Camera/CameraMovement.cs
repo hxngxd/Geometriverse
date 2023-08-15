@@ -9,7 +9,7 @@ public class CameraMovement : MonoBehaviour
 {
     public Transform pivot, mainCam;
 
-    public float cam_distance, drag_speed;
+    public float cam_distance, drag_speed, max_distance_from_pivot;
     bool isDragging = false;
 
     public float move_speed, move_dampening_time;
@@ -75,7 +75,7 @@ public class CameraMovement : MonoBehaviour
         {
             float ScrollAmount = Input.GetAxis("Mouse ScrollWheel");
             cam_distance *= 1 - (Mathf.Sign(ScrollAmount) * zoom_speed * 0.01f);
-            cam_distance = Mathf.Clamp(cam_distance, .1f, 25f);
+            cam_distance = Mathf.Clamp(cam_distance, .1f, max_distance_from_pivot);
         }
     }
     void Drag(){
