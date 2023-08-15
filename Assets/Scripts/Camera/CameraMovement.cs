@@ -1,16 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.Video;
 
 public class CameraMovement : MonoBehaviour
 {
     public Transform pivot, mainCam;
 
-    public float cam_distance, drag_speed, max_distance_from_pivot;
-    bool isDragging = false;
+    public float cam_distance, max_distance_from_pivot;
+
+    public float drag_speed, drag_dampening;
 
     public float move_speed, move_dampening_time;
     Vector3 move_velocity = Vector3.zero;
@@ -18,18 +17,14 @@ public class CameraMovement : MonoBehaviour
 
     public float zoom_speed, zoom_dampening;
 
-    public float orbit_speed, orbit_dampening;
+    public float orbit_speed, orbit_dampening, dragX=0, dragY=0;
     public Vector3 cam_rotation, target;
 
     void Start(){
 
     }
     void Update(){
-        if (Input.GetMouseButtonDown(2)) isDragging = true;
-        if (Input.GetMouseButtonUp(2)){
-            isMoving = !isMoving;
-            isDragging = false;
-        }
+        if (Input.GetMouseButtonUp(2)) isMoving = !isMoving;
 
         Move();
         Orbit();
@@ -37,12 +32,16 @@ public class CameraMovement : MonoBehaviour
         Drag();
     }
     void Orbit(){
-        if (Input.GetMouseButton(1) && !isDragging)
+        if (Input.GetMouseButton(1) && !isDragging())
         {
-            if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
+            float mouseX = Input.GetAxis("Mouse X");
+            float mouseY = Input.GetAxis("Mouse Y");
+            if (mouseX != 0 || mouseY != 0)
             {
-                cam_rotation.x += Input.GetAxis("Mouse X") * orbit_speed;
-                cam_rotation.y -= Input.GetAxis("Mouse Y") * orbit_speed;
+                if (Math.Abs(mouseX) > 1f/orbit_speed) mouseX = Mathf.Sign(mouseX) * 1f/orbit_speed;
+                if (Math.Abs(mouseY) > 1f/orbit_speed) mouseY = Mathf.Sign(mouseY) * 1f/orbit_speed;
+                cam_rotation.x += mouseX * orbit_speed;
+                cam_rotation.y -= mouseY * orbit_speed * 0.5f;
             }
         }
         Quaternion QT = Quaternion.Euler(cam_rotation.y, cam_rotation.x, 0);
@@ -51,7 +50,7 @@ public class CameraMovement : MonoBehaviour
     void Move(){
         target = pivot.position;
         
-        if (isMoving && !isDragging){
+        if (isMoving && !isDragging()){
             Vector3 move = Vector3.zero;
 
             if (Input.GetKey(KeyCode.W)) move += transform.forward * move_speed;
@@ -71,7 +70,7 @@ public class CameraMovement : MonoBehaviour
             mainCam.localPosition = new Vector3(0f, 0f, Mathf.Lerp(mainCam.localPosition.z, cam_distance * -1f, Time.deltaTime * zoom_dampening));
         }
 
-        if (Input.GetAxis("Mouse ScrollWheel") != 0f && !isDragging)
+        if (Input.GetAxis("Mouse ScrollWheel") != 0f)
         {
             float ScrollAmount = Input.GetAxis("Mouse ScrollWheel");
             cam_distance *= 1 - (Mathf.Sign(ScrollAmount) * zoom_speed * 0.01f);
@@ -79,13 +78,16 @@ public class CameraMovement : MonoBehaviour
         }
     }
     void Drag(){
-        if (Input.GetMouseButton(2))
-        {
-            float xdrag = Input.GetAxisRaw("Mouse X");
-            float ydrag = Input.GetAxisRaw("Mouse Y");
+        dragX = Mathf.Lerp(dragX, isDragging() ? Input.GetAxis("Mouse X") : 0, Time.deltaTime * drag_dampening); 
+        dragY = Mathf.Lerp(dragY, isDragging() ? Input.GetAxis("Mouse Y") : 0, Time.deltaTime * drag_dampening); 
 
-            transform.Translate(-xdrag * Time.deltaTime * drag_speed, -ydrag * Time.deltaTime * drag_speed, 0);
+        float minDrag = 1e-5f;
+        if (Mathf.Abs(dragX) > minDrag && Mathf.Abs(dragY) > minDrag){
+            transform.Translate(-dragX * Time.deltaTime * drag_speed, -dragY * Time.deltaTime * drag_speed, 0);
         }
+    }
+    bool isDragging(){
+        return Input.GetKey(KeyCode.Space) && Input.GetMouseButton(0);
     }
 
 }
