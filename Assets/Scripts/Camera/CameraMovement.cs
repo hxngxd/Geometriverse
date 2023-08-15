@@ -78,13 +78,9 @@ public class CameraMovement : MonoBehaviour
         }
     }
     void Drag(){
-        dragX = Mathf.Lerp(dragX, isDragging() ? Input.GetAxis("Mouse X") : 0, Time.deltaTime * drag_dampening); 
-        dragY = Mathf.Lerp(dragY, isDragging() ? Input.GetAxis("Mouse Y") : 0, Time.deltaTime * drag_dampening); 
-
-        float minDrag = 1e-5f;
-        if (Mathf.Abs(dragX) > minDrag && Mathf.Abs(dragY) > minDrag){
-            transform.Translate(-dragX * Time.deltaTime * drag_speed, -dragY * Time.deltaTime * drag_speed, 0);
-        }
+        dragX = Mathf.Lerp(dragX, isDragging() ? Input.GetAxis("Mouse X") : 0, Time.deltaTime * drag_dampening);
+        dragY = Mathf.Lerp(dragY, isDragging() ? Input.GetAxis("Mouse Y") : 0, Time.deltaTime * drag_dampening);
+        transform.Translate(-dragX * Time.deltaTime * drag_speed, -dragY * Time.deltaTime * drag_speed, 0);
     }
     bool isDragging(){
         return Input.GetKey(KeyCode.Space) && Input.GetMouseButton(0);
