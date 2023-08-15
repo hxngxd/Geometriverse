@@ -75,7 +75,7 @@ public class CameraMovement : MonoBehaviour
         {
             float ScrollAmount = Input.GetAxis("Mouse ScrollWheel");
             cam_distance *= 1 - (Mathf.Sign(ScrollAmount) * zoom_speed * 0.01f);
-            cam_distance = Mathf.Clamp(cam_distance, .1f, 20f);
+            cam_distance = Mathf.Clamp(cam_distance, .1f, 25f);
         }
     }
     void Drag(){
